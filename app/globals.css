@@ -1,26 +1,293 @@
 @import "tailwindcss";
 
+/* ─── Design tokens ──────────────────────────────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Color palette */
+  --sage:  #D7DAAC;
+  --ink:   #151515;
+  --sky:   #94D9F3;
+  --mint:  #A8D8B9;
+  --coral: #EC7A55;
+
+  /* Runtime tokens — swapped by section */
+  --bg:     var(--ink);
+  --fg:     var(--sage);
+  --accent: var(--sage);
+
+  /* Engagement-list fade. 1 while in Name/WHO; driven down to 0 by page.tsx
+     as the colour transitions toward the Work section. The Select Engagements
+     wrapper binds opacity to this so it fades out in place rather than
+     scrolling up alongside the Select Work section. */
+  --engagements-opacity: 1;
+
+  /* ── Grid system ─────────────────────────────────────────────────────────
+     Derived from the viewport: all spatial constants are viewport-relative
+     so the layout scales proportionally at every breakpoint.
+  */
+  --gutter:    max(2.5vw, 1.5rem);  /* outer left/right page margin      */
+  --col-split: 58%;                 /* left column ends / right begins   */
+  --col-r-gap: max(5vw, 3rem);      /* right column's right breathing room */
+  --nav-h:     3.5rem;              /* fixed-top nav height              */
+  --footer-h:  2.25rem;             /* fixed-bottom meta row height      */
+
+  /* ── Type scale ──────────────────────────────────────────────────────────
+     Display levels are viewport-relative so they fill the canvas correctly
+     at any screen width. The ratio between levels is 2.5 (≈ φ²).
+
+     Level  Viewport unit   Max cap    Role
+     ─────  ─────────────   ────────   ───────────────────────────────────
+     Hero   25 vw           28 rem     "Hello", "Let's make things happen!"
+     Name   10 vw           12 rem     "Nathaniel Robert Jones"             (÷2.5)
+     Rail   2.5 rem fixed   —          Case-study title in narrow left rail
+     Body   0.75 rem        —          All paragraph copy (12 px, fixed)
+     Label  0.8125 rem      —          Mono uppercase labels (13 px, fixed)
+     Sm     0.6875 rem      —          Mono year/metadata (11 px, fixed)
+  */
+  --fs-hero:  clamp(4rem, 25vw, 28rem);
+  --fs-name:  clamp(2.5rem, 10vw, 12rem);
+  --fs-body:  0.875rem;     /* 14 px */
+  --fs-label: 0.8125rem;    /* 13 px */
+  --fs-sm:    0.6875rem;    /* 11 px */
 }
 
+/* ─── Tailwind token bridge ─────────────────────────────────────────────── */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-sage:   var(--sage);
+  --color-ink:    var(--ink);
+  --color-sky:    var(--sky);
+  --color-mint:   var(--mint);
+  --color-coral:  var(--coral);
+  --color-bg:     var(--bg);
+  --color-fg:     var(--fg);
+  --color-accent: var(--accent);
+
+  --font-display: var(--font-manrope);
+  --font-body:    var(--font-geist);
+  --font-mono:    var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ─── Base ──────────────────────────────────────────────────────────────── */
+html {
+  background-color: var(--bg);
+  color: var(--fg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-y: scroll;
+  /* Smooth color invert as the scroll position moves between sections. */
+  transition:
+    background-color 1.4s cubic-bezier(0.22, 1, 0.36, 1),
+    color            1.4s cubic-bezier(0.22, 1, 0.36, 1);
+  /* scroll-snap-type is activated via JS after the loading sequence exits */
+}
+
+/* Applied by page.tsx once MainContent mounts — keeps snap inactive during loading */
+html.snapping {
+  scroll-snap-type: y mandatory;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg);
+  color: var(--fg);
+  overflow-x: hidden;
+  transition:
+    background-color 1.4s cubic-bezier(0.22, 1, 0.36, 1),
+    color            1.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
+
+/* Snap section — applied to every full-viewport panel */
+.snap {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+  transition:
+    background-color 1.4s cubic-bezier(0.22, 1, 0.36, 1),
+    color            1.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Infinite-loop horizontal marquee — the duplicated child stack slides
+   left by 50% so the seam coincides with the start of the second copy,
+   then snaps back to 0. Used by the accordion's discipline tag row. */
+@keyframes marquee-x {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
+}
+
+/* ─── 32-column content grid ──────────────────────────────────────────────
+   Site-wide horizontal alignment system. All structural content (headlines,
+   paragraphs, accordion rows, case study rails) places via gridColumn so it
+   snaps to the same column boundaries across sections.
+
+   Desktop ≥1024px : 32 cols, content in 3..30 (cols 1-2 and 31-32 are margin)
+   Tablet  768-1023: 16 cols, content in 2..15
+   Mobile  <768px  :  4 cols, full-bleed for display headlines, 1..4 for body
+
+   The grid container itself spans 100% of its parent. Children pick their
+   column placement via `gridColumn: "3 / 19"` (col-start / col-end inclusive +1).
+*/
+.content-grid {
+  display: grid;
+  grid-template-columns: repeat(32, minmax(0, 1fr));
+  column-gap: 1.5rem;
+  width: 100%;
+}
+
+/* Cross-section color crossfade — applied to elements that invert */
+.color-transition {
+  transition:
+    background-color 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    color            0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color     0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Engagement fade — bound to the runtime --engagements-opacity token so the
+   list dissolves in place when the colour scheme moves toward Work. */
+.engagements-fade {
+  opacity: var(--engagements-opacity, 1);
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* (Persistent intro overlay class removed — the [Intro] paragraph now
+   scrolls in inline with NamePanel + WorkSection right column instead of
+   living in a fixed-position overlay.) */
+
+/* Smooth accent stroke morph on outlined display type. -webkit-text-stroke-color
+   IS animatable in modern WebKit/Blink — pair the transition with the global
+   color so the stroke eases between sage → sky alongside the bg morph. */
+.text-name-outline {
+  transition:
+    color                       1.4s cubic-bezier(0.22, 1, 0.36, 1),
+    -webkit-text-stroke-color   1.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Loading → Who warp transition. Triggered by html.warping during the
+   user's first advance off the loading screen — the stars stretch
+   vertically and shoot UP as if the camera is descending fast into the
+   next screen, then snap back once the section has landed.
+
+   `will-change: transform, filter` is set even at rest so the browser
+   pre-allocates a compositor layer for the field. Without it, the first
+   frame of the warp would force a layout/paint as the layer is created,
+   producing the choppy hitch that was visible at the start of the
+   transition. translate3d (vs translateY) also forces hardware
+   compositing from the get-go. */
+.star-field {
+  /* Pre-promote to its own GPU layer so the first frame of the warp
+     transition doesn't have to allocate one. `contain: paint` further
+     isolates the field's rendering, and an idempotent scale(1) keeps the
+     compositor's matrix non-identity so it's already in 3D space when
+     the warp kicks. */
+  transition: transform 0s, filter 0s, opacity 0s;
+  transform-origin: center center;
+  transform: translate3d(0, 0, 0) scale(1);
+  will-change: transform, filter;
+  backface-visibility: hidden;
+  contain: paint;
+}
+html.warping .star-field {
+  /* Much more vertical travel + stronger streak. Combined with the 180vh
+     smooth-scroll happening in parallel this reads as "diving forward
+     into deep space" — stars shoot up past the top of the viewport while
+     stretching into long streaks. */
+  transform: translate3d(0, -200vh, 0) scaleY(14);
+  filter: blur(7px);
+  opacity: 1;
+  transition:
+    transform 1.6s cubic-bezier(0.55, 0, 0.4, 1),
+    filter   1.6s linear,
+    opacity  1.6s linear;
+}
+
+/* Case-study reel — placeholder loop. Translates the stack by one full
+   half so the duplicate tiles flow in seamlessly. Replace with real
+   assets when they arrive. */
+@keyframes reel-vertical {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-50%); }
+}
+@keyframes reel-horizontal {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* Custom cursor — hide native on pointer devices */
+@media (hover: hover) and (pointer: fine) {
+  *, *::before, *::after { cursor: none !important; }
+}
+
+::selection {
+  background-color: var(--fg);
+  color: var(--bg);
+}
+
+/* ─── Typography utilities ──────────────────────────────────────────────── */
+
+/* Hero display — "Hello", "Let's make things happen!" */
+.text-hero {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--fs-hero);
+  letter-spacing: -0.06em;
+  line-height: 0.9;
+}
+
+/* Name display — "Nathaniel Robert Jones" */
+.text-name {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--fs-name);
+  letter-spacing: -0.04em;
+  line-height: 0.95;
+}
+
+/* Case-study title in left rail */
+.text-rail-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.5rem;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+/* Body copy — Geist, fixed size for legibility */
+.text-body {
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: 1.5;
+  letter-spacing: 0;
+  /* Avoids typographic widows (single word on the last line). Pretty is
+     supported in Chrome / Edge / Safari; Firefox falls back to normal,
+     which is also fine. */
+  text-wrap: pretty;
+}
+
+/* Universal pretty wrapping for body-rendered paragraphs even when they
+   don't use the .text-body utility (e.g. inline-styled paragraphs in the
+   case-study tray, contact CTA). */
+p {
+  text-wrap: pretty;
+}
+
+/* Mono label — ALL-CAPS UI labels */
+.text-label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Mono small — year ranges, tertiary metadata */
+.text-sm {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Legacy aliases kept for existing components */
+.text-display-hero    { font-family: var(--font-display); font-weight: 800; font-size: var(--fs-hero);  letter-spacing: -0.06em; line-height: 0.9;  }
+.text-display-name    { font-family: var(--font-display); font-weight: 800; font-size: var(--fs-name);  letter-spacing: -0.04em; line-height: 0.95; }
+.text-body-copy       { font-family: var(--font-body);    font-size: var(--fs-body);  line-height: 1.5; letter-spacing: 0; }
+.text-mono-label      { font-family: var(--font-mono);    font-size: var(--fs-label); text-transform: uppercase; letter-spacing: 0.04em; }
+.text-mono-sm         { font-family: var(--font-mono);    font-size: var(--fs-sm);    text-transform: uppercase; letter-spacing: 0.04em; }
