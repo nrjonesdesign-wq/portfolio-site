@@ -10,6 +10,11 @@ type Props = {
   /** Delay (s) before the wordmark cascade starts. */
   wordmarkDelay?: number;
   className?: string;
+  /** Force the comet trail to use the same stroke width as the planet
+   *  circle. Used on the mobile loading screen so all strokes read as
+   *  a single uniform weight. Defaults to false (desktop keeps its
+   *  thinner-comet, heavier-circle balance). */
+  equalStrokes?: boolean;
   /** @deprecated retained for call-site compatibility — no longer used internally. */
   uid?: string;
 };
@@ -161,6 +166,7 @@ export default function NRJPlanet({
   cascadeWordmark = false,
   wordmarkDelay = 0,
   className,
+  equalStrokes = false,
 }: Props) {
   const backRef = useRef<HTMLCanvasElement>(null);
   const frontRef = useRef<HTMLCanvasElement>(null);
@@ -249,7 +255,9 @@ export default function NRJPlanet({
       // while the orbiting comet is a lighter accent. Both interpolate
       // up to a slightly heavier weight in the large loading state.
       const circleStrokePx = 3.5 + 0.5 * morphT;
-      const cometStrokePx = 2 + 0.5 * morphT;
+      const cometStrokePx = equalStrokes
+        ? circleStrokePx
+        : 2 + 0.5 * morphT;
       // Kept under the original name for the SVG var below.
       const visualStrokePx = circleStrokePx;
       // Comet uses its own (thinner) target stroke; circle uses
@@ -337,7 +345,7 @@ export default function NRJPlanet({
       cancelAnimationFrame(raf);
       ro.disconnect();
     };
-  }, []);
+  }, [equalStrokes]);
 
   // Sizing: large fills its container; nav uses 100% so callers can size it
   // explicitly via the wrapping element (Nav passes a 60px box).

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import LetterCascade from "@/components/primitives/LetterCascade";
 import RiseOn from "@/components/primitives/RiseOn";
@@ -251,8 +252,39 @@ export function HelloPanel() {
 /* ─── Panel 2: Nathaniel Robert Jones + bio ─────────────────────────────── */
 
 export function NamePanel() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const introRef = useRef<HTMLDivElement>(null);
+  // Vertically centre the Select Engagements + CV block in the gap
+  // between the [INTRO] paragraph's bottom and the footer's top.
+  // Measured (rather than a fixed offset) because the intro block's
+  // height shifts with viewport width / font metrics. The relative
+  // delta (intro.bottom − section.top) is valid regardless of the
+  // panel's current scroll position, so this works even when the
+  // panel is off-screen on first mount.
+  const [engTopPx, setEngTopPx] = useState<number | null>(null);
+  useEffect(() => {
+    const compute = () => {
+      const section = sectionRef.current;
+      const intro = introRef.current;
+      if (!section || !intro) return;
+      const sectionTop = section.getBoundingClientRect().top;
+      const introBottom = intro.getBoundingClientRect().bottom - sectionTop;
+      const footer = document.querySelector("footer");
+      const footH = footer ? footer.getBoundingClientRect().height : 0;
+      const footerTop = section.clientHeight - footH;
+      setEngTopPx((introBottom + footerTop) / 2);
+    };
+    const t = window.setTimeout(compute, 120);
+    window.addEventListener("resize", compute);
+    return () => {
+      window.clearTimeout(t);
+      window.removeEventListener("resize", compute);
+    };
+  }, []);
+
   return (
     <section
+      ref={sectionRef}
       id="who-bio"
       className="snap"
       style={{ backgroundColor: "var(--bg)" }}
@@ -303,7 +335,7 @@ export function NamePanel() {
         {/* INTRO column aligned under the "W" of WORK in the top nav so the
             user reads a consistent left edge for the body copy column
             across Name → Work → Contact. */}
-        <div style={{ gridColumn: "21 / 29" }}>
+        <div ref={introRef} style={{ gridColumn: "21 / 29" }}>
           <IntroBlock />
         </div>
       </div>
@@ -320,7 +352,11 @@ export function NamePanel() {
           position: "absolute",
           left: 0,
           right: 0,
-          top: "calc(50% + 6rem)",
+          // Centred in the gap between the intro paragraph and the
+          // footer once measured; falls back to the previous fixed
+          // offset before the first measurement settles.
+          top: engTopPx != null ? `${engTopPx}px` : "calc(50% + 6rem)",
+          transform: engTopPx != null ? "translateY(-50%)" : undefined,
         }}
       >
         <RiseOn
@@ -380,9 +416,69 @@ export function NamePanel() {
               </motion.div>
             ))}
           </div>
+
+          {/* Download CV — bracketed mono link, right-aligned beneath
+              the engagements list (mirrors the mobile Name panel),
+              with a nav-style hover underline. */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              marginTop: "1.5rem",
+            }}
+          >
+            <DownloadCVLink />
+          </div>
         </RiseOn>
       </div>
     </section>
+  );
+}
+
+/**
+ * [ Download my CV ] link with a nav-style hover underline — a 1px
+ * var(--fg) line anchored under the text that scales in from the left
+ * on hover (scaleX 0 → 1, 0.25s ease-out), matching the nav labels.
+ */
+function DownloadCVLink() {
+  const [hover, setHover] = useState(false);
+  return (
+    <a
+      href="/resume.pdf"
+      target="_blank"
+      rel="noreferrer"
+      data-no-advance
+      data-cursor="view"
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      style={{
+        position: "relative",
+        display: "inline-block",
+        fontFamily: "var(--font-mono)",
+        fontSize: "0.8125rem", // 13px
+        textTransform: "uppercase",
+        letterSpacing: "0.04em",
+        color: "var(--fg)",
+        textDecoration: "none",
+        paddingBottom: "0.18em",
+      }}
+    >
+      [ Download my CV ]
+      <span
+        aria-hidden
+        style={{
+          position: "absolute",
+          left: 0,
+          right: 0,
+          bottom: 0,
+          height: 1,
+          backgroundColor: "var(--fg)",
+          transformOrigin: "left center",
+          transform: hover ? "scaleX(1)" : "scaleX(0)",
+          transition: "transform 0.25s cubic-bezier(0.22, 1, 0.36, 1)",
+        }}
+      />
+    </a>
   );
 }
 

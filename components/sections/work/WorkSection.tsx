@@ -2231,9 +2231,10 @@ function VideoReelTile({
 }
 
 /**
- * Static "NRJ" disc rendered in the case-study top-left. Mirrors the
- * planet's silhouette without the canvas/orbital animation so it reads as
- * a small wordmark badge inside the dense left rail.
+ * Case-study back control. Mono bracketed "[ ← Back to Work ]" button
+ * (matches the mobile tray) — replaces the earlier NRJ disc so the
+ * affordance reads as an explicit return action rather than a wordmark
+ * badge.
  */
 function CaseStudyMark({
   accentVar,
@@ -2246,29 +2247,24 @@ function CaseStudyMark({
     <button
       type="button"
       data-cursor="view"
-      data-magnetic
       data-no-advance
       onClick={onClick}
       aria-label="Back to Select Work"
       style={{
-        width: 44,
-        height: 44,
-        borderRadius: "50%",
-        border: `1px solid ${accentVar}`,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontFamily: "var(--font-display)",
-        fontWeight: 800,
-        fontSize: "0.875rem",
-        letterSpacing: "0.02em",
-        color: accentVar,
         background: "none",
+        border: "none",
+        padding: "0.4rem 0",
+        margin: 0,
+        fontFamily: "var(--font-mono)",
+        fontSize: "0.8125rem",
+        textTransform: "uppercase",
+        letterSpacing: "0.04em",
+        color: accentVar,
         cursor: "inherit",
-        padding: 0,
+        whiteSpace: "nowrap",
       }}
     >
-      NRJ
+      [ ← Back to Work ]
     </button>
   );
 }

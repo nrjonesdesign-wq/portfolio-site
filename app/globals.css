@@ -48,6 +48,23 @@
   --fs-body:  0.875rem;     /* 14 px */
   --fs-label: 0.8125rem;    /* 13 px */
   --fs-sm:    0.6875rem;    /* 11 px */
+
+  /* ── Mobile-only layout tokens ───────────────────────────────────────
+     Active under (max-width: 768px). The mobile components reference
+     these via var() so adjustments here propagate to the whole mobile
+     tree. */
+  /* Nav band sized to the mobile planet (3.25rem) + slim headroom
+     above/below — kept tight so the WORK accordion has more vertical
+     room than the previous 6.5rem nav was leaving. Footer band stays
+     compact for the same reason. */
+  --m-nav-h:    4.5rem;
+  --m-foot-h:   3rem;
+  /* Outer page padding per the 8-col grid overlay — content sits
+     well inset from the screen edges so column 1 doesn't run flush
+     against the device frame. Nav, footer, and every section derive
+     their side margins from this token. */
+  --m-gutter:   2rem;
+  --m-col-gap:  0.4rem;
 }
 
 /* ─── Tailwind token bridge ─────────────────────────────────────────────── */
@@ -85,6 +102,17 @@ html.snapping {
   scroll-snap-type: y mandatory;
 }
 
+/* Mobile: snap is always-on (no JS class dependency) so touch + wheel
+   scrolling both engage. scroll-padding-top accounts for the fixed nav
+   so a snapped section's top sits just below the nav, not hidden
+   beneath it. */
+@media (max-width: 768px) {
+  html {
+    scroll-snap-type: y mandatory;
+    scroll-padding-top: var(--m-nav-h);
+  }
+}
+
 body {
   background-color: var(--bg);
   color: var(--fg);
@@ -112,6 +140,23 @@ body {
 @keyframes marquee-x {
   from { transform: translate3d(0, 0, 0); }
   to   { transform: translate3d(-50%, 0, 0); }
+}
+
+/* ─── Mobile 8-column content grid ────────────────────────────────────
+   Active wrapper for every section under the (max-width: 768px) layout.
+   Outer `--m-gutter` reserves a consistent page margin on both edges so
+   no content runs flush against the screen; column-gap matches the
+   spec's tight inner rhythm. Children place via `gridColumn` like
+   `"1 / 9"` (full width) or `"1 / 7"` (3/4 width) to anchor to the same
+   8-col reference as the design PDFs. */
+.m-content-grid {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  column-gap: var(--m-col-gap);
+  width: 100%;
+  padding-left: var(--m-gutter);
+  padding-right: var(--m-gutter);
+  box-sizing: border-box;
 }
 
 /* ─── 32-column content grid ──────────────────────────────────────────────

@@ -167,7 +167,7 @@ export default function Nav({
           gridColumn="7 / 9"
           label="WHO"
           active={activeSection === "name"}
-          onClick={() => scrollToSection("who")}
+          onClick={() => scrollToSection("who-bio")}
           align="center"
         />
 
