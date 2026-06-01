@@ -157,7 +157,12 @@ export function HelloPanel() {
           transition={{ delay: 2.2, duration: DUR.base, ease: EASE }}
         >
           <p className="text-body" style={{ color: "var(--fg)" }}>
-            {INTRO}
+            I&apos;m{" "}
+            <strong style={{ fontWeight: 600 }}>
+              Nathaniel Robert Jones
+            </strong>
+            , an artist / designer with nearly 20 years of crafting
+            compelling experiences.
           </p>
         </motion.div>
       </div>

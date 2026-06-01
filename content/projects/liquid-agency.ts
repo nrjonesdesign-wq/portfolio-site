@@ -91,6 +91,12 @@ export const liquidAgency: Project = {
           { role: "CCO", person: "Michael 'Howie' Howatson" },
           { role: "Brand Designer", person: "Oscar Herrera" },
         ],
+        // Reel images include extra-tall page screenshots — use the
+        // same "natural-height at max width" layout as the DJ Sensitive
+        // Boys flyer reel so long page designs show full-bleed without
+        // being cropped to 16:9.
+        reelFit: "contain",
+        reelBg: "#ffffff",
         reel: [
           {
             kind: "video",

@@ -55,6 +55,12 @@ export default function MobileCaseStudyPanel({
   // sees the title and the reel right away. Toggling expands the info
   // between the header and the reel.
   const [infoOpen, setInfoOpen] = useState(false);
+  // Tap-to-zoom lightbox for reel images (paintings / flyers / extra-
+  // tall page screenshots). Null = closed.
+  const [zoomedImage, setZoomedImage] = useState<{
+    src: string;
+    alt?: string;
+  } | null>(null);
   // Viewport height tracked in state so the morphing chevron knows
   // how far to slide down when the info card opens (top-right → bottom
   // -right). Re-measured on resize / orientation change.
@@ -211,6 +217,50 @@ export default function MobileCaseStudyPanel({
         );
       })()}
 
+      {/* Tab progress dots — pinned to the bottom of the viewport
+          when info is open, vertically centred with the chevron's
+          glyph (chevron bottom inset 12px + half its 38px height =
+          centre at 31px from the bottom; 8px dots → bottom 27px so
+          their vertical centre lines up). Active tab filled, others
+          outlined. */}
+      <AnimatePresence>
+        {infoOpen && (
+          <motion.div
+            key="tab-dots"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3, ease: EASE }}
+            style={{
+              position: "fixed",
+              bottom: 27,
+              left: 0,
+              right: 0,
+              display: "flex",
+              justifyContent: "center",
+              gap: "0.5rem",
+              zIndex: 5,
+              pointerEvents: "none",
+            }}
+          >
+            {TABS.map((_, i) => (
+              <span
+                key={i}
+                aria-hidden
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: "50%",
+                  backgroundColor:
+                    i === tabIdx ? accentVar : "transparent",
+                  border: `1px solid ${accentVar}`,
+                }}
+              />
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Header strip — sits at the top with the NRJ mark + project
           number. Sticky so it stays visible as the user scrolls
           through the body + reel. */}
@@ -359,15 +409,16 @@ export default function MobileCaseStudyPanel({
                 cursor: "grab",
               }}
             >
-              {/* Tab boxes — gap above (from the toggle) and below
-                  (to the rule). No rule above per the design; the
-                  single full-width rule sits BELOW the tabs, between
-                  them and the tab content. */}
+              {/* Tab boxes — spread across the full content width so
+                  BRIEF sits flush left, CHALLENGE centres, and SOLUTION
+                  sits flush right (aligned with the rule's right edge).
+                  Each box's number + label stay left-aligned to the
+                  box's own left edge (handled inside TabBox). */}
               <div
                 style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(3, 1fr)",
-                  gap: "0.5rem",
+                  display: "flex",
+                  alignItems: "flex-start",
+                  justifyContent: "space-between",
                   paddingTop: "1rem",
                   paddingBottom: "1.75rem",
                 }}
@@ -537,6 +588,7 @@ export default function MobileCaseStudyPanel({
 
                 </>
               )}
+
             </motion.div>
           </motion.section>
         ) : (
@@ -556,10 +608,84 @@ export default function MobileCaseStudyPanel({
               fit={cs.reelFit ?? "cover"}
               bg={cs.reelBg ?? "var(--ink)"}
               accentVar={accentVar}
+              onZoomImage={setZoomedImage}
             />
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Image lightbox — tap a reel image to enlarge, tap again or
+          press ESC to close. Rendered at the panel level so it sits
+          above all other case-study content. */}
+      <AnimatePresence>
+        {zoomedImage && (
+          <ImageLightbox
+            image={zoomedImage}
+            onClose={() => setZoomedImage(null)}
+          />
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+}
+
+/* ─── Image lightbox ──────────────────────────────────────────────── */
+
+function ImageLightbox({
+  image,
+  onClose,
+}: {
+  image: { src: string; alt?: string };
+  onClose: () => void;
+}) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  return (
+    <motion.div
+      key="lightbox"
+      role="dialog"
+      aria-modal="true"
+      onClick={onClose}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.25, ease: EASE }}
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 100,
+        backgroundColor: "rgba(0, 0, 0, 0.92)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "1rem",
+        cursor: "zoom-out",
+      }}
+    >
+      <img
+        src={image.src}
+        alt={image.alt ?? ""}
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          maxWidth: "100%",
+          maxHeight: "100%",
+          objectFit: "contain",
+          display: "block",
+          // Pinch-to-zoom works natively when the image isn't size-
+          // capped by transform; the max-width/height let the user
+          // double-tap-zoom on iOS Safari.
+          touchAction: "manipulation",
+        }}
+      />
     </motion.div>
   );
 }
@@ -739,11 +865,13 @@ function MobileReel({
   fit,
   bg,
   accentVar,
+  onZoomImage,
 }: {
   items: ReelItem[];
   fit: "cover" | "contain";
   bg: string;
   accentVar: string;
+  onZoomImage?: (img: { src: string; alt?: string }) => void;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);
@@ -877,6 +1005,7 @@ function MobileReel({
             onAudioChange={(unmuted) => {
               audioPausedRef.current = unmuted;
             }}
+            onZoomImage={onZoomImage}
           />
         ))}
       </div>
@@ -893,6 +1022,7 @@ function MobileReelTile({
   accentVar,
   isFirst,
   onAudioChange,
+  onZoomImage,
 }: {
   item: ReelItem;
   fit: "cover" | "contain";
@@ -902,6 +1032,8 @@ function MobileReelTile({
   /** Reports up when this tile's audio is toggled on/off so the parent
    *  reel can pause its auto-drift while the user is listening. */
   onAudioChange?: (unmuted: boolean) => void;
+  /** Tap-to-zoom on image tiles → opens a fullscreen lightbox. */
+  onZoomImage?: (img: { src: string; alt?: string }) => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -1017,22 +1149,25 @@ function MobileReelTile({
               aria-pressed={!muted}
               aria-label={muted ? "Play audio" : "Mute audio"}
               style={{
-                // Plain text overlay (no box / blur) — matches desktop.
-                // The accent colour carries the contrast against the
-                // reel's dark backdrop.
+                // Plain text overlay (no box / blur). mix-blend-mode
+                // difference makes white text render as the inverse
+                // of whatever video frame sits behind it, so the
+                // affordance stays legible regardless of the clip's
+                // colour mix at any given moment.
                 position: "absolute",
                 left: "1rem",
                 bottom: "1rem",
                 background: "none",
                 border: "none",
                 padding: 0,
-                color: accentVar,
+                color: "#ffffff",
+                mixBlendMode: "difference",
                 fontFamily: "var(--font-mono)",
                 fontSize: "var(--fs-sm)",
                 textTransform: "uppercase",
                 letterSpacing: "0.04em",
                 cursor: "pointer",
-                opacity: hasToggled && !muted ? 0.7 : 0.85,
+                opacity: hasToggled && !muted ? 0.65 : 1,
                 transition: "opacity 0.25s ease",
               }}
             >
@@ -1044,11 +1179,15 @@ function MobileReelTile({
         <img
           src={item.src}
           alt={item.alt}
+          onClick={() =>
+            onZoomImage?.({ src: item.src, alt: item.alt })
+          }
           style={{
             width: "100%",
             height: isContain ? "auto" : "100%",
             objectFit: isContain ? "contain" : fit,
             display: "block",
+            cursor: onZoomImage ? "zoom-in" : "default",
           }}
         />
       ) : (

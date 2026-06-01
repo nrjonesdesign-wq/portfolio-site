@@ -182,21 +182,30 @@ export default function MobileHome() {
 
   return (
     <main
-      style={{
-        backgroundColor: "var(--bg)",
-        color: "var(--fg)",
-        // Make <main> the dedicated scroll container with explicit
-        // scroll-snap-type. The @media rule on <html> works in real
-        // mobile browsers, but Chrome DevTools' "responsive" mode is
-        // inconsistent about engaging snap-on-html — putting it on a
-        // fixed-height element gives it a single, unambiguous target.
-        height: "100dvh",
-        overflowY: "auto",
-        overflowX: "hidden",
-        scrollSnapType: "y mandatory",
-        scrollPaddingTop: "var(--m-nav-h)",
-        WebkitOverflowScrolling: "touch",
-      }}
+      style={
+        {
+          backgroundColor: "var(--bg)",
+          color: "var(--fg)",
+          // Larger body copy on phones — 16px vs the 14px desktop value.
+          // Set as an inline custom property on the mobile root (rather
+          // than a media-query override in globals.css, which Tailwind v4
+          // / Turbopack was dropping): it cascades to every .text-body /
+          // var(--fs-body) consumer in the mobile tree and can't be
+          // out-specified or stripped.
+          ["--fs-body" as string]: "1rem",
+          // Make <main> the dedicated scroll container with explicit
+          // scroll-snap-type. The @media rule on <html> works in real
+          // mobile browsers, but Chrome DevTools' "responsive" mode is
+          // inconsistent about engaging snap-on-html — putting it on a
+          // fixed-height element gives it a single, unambiguous target.
+          height: "100dvh",
+          overflowY: "auto",
+          overflowX: "hidden",
+          scrollSnapType: "y mandatory",
+          scrollPaddingTop: "var(--m-nav-h)",
+          WebkitOverflowScrolling: "touch",
+        } as React.CSSProperties
+      }
     >
       <MobileChrome
         activeSection={chromeSection}

@@ -201,11 +201,22 @@ export default function DesktopHome() {
     };
   }, [activeSection, planetMorphed, workAccent, workExitingToContact]);
 
-  // Once Contact takes over (activeSection crosses its 50% threshold),
-  // clear the exit flag so the contactTop override is the sole driver
-  // of the scheme through the rest of the transition.
+  // Clear the Work→Contact exit flag whenever the user is no longer in
+  // the transition zone. Two cases:
+  //   - finished: activeSection became "contact" (intended completion).
+  //   - aborted: activeSection became name/who/loading (user retreated
+  //     out of Work before the transition completed). Without this, the
+  //     flag stayed true forever and the colorScheme override pinned the
+  //     page to "name"/"nameMint" — the user saw inverted sky/mint-on-
+  //     ink colours while physically on Work or Name. Symptom: page
+  //     stuck in "no man's land" with inverted colours and content
+  //     visually low.
   useEffect(() => {
-    if (activeSection === "contact" && workExitingToContact) {
+    if (!workExitingToContact) return;
+    const finished = activeSection === "contact";
+    const aborted =
+      activeSection !== "work" && activeSection !== "contact";
+    if (finished || aborted) {
       setWorkExitingToContact(false);
     }
   }, [activeSection, workExitingToContact]);
@@ -449,8 +460,11 @@ export default function DesktopHome() {
           return;
         }
         // Wheel over negative space: retreat straight back to Name and
-        // close the accordion as we leave.
+        // close the accordion as we leave. Also cancel any in-flight
+        // Work→Contact transition so the colour scheme doesn't stay
+        // pinned to "name"/"nameMint" after the user has reversed.
         setWorkOpenSlug(null);
+        setWorkExitingToContact(false);
         document
           .getElementById("who-bio")
           ?.scrollIntoView({ behavior: "smooth" });
@@ -564,10 +578,15 @@ export default function DesktopHome() {
         // tails stay blocked — capped by lockMaxRef so very long flicks
         // can't keep the user locked out indefinitely.
         if (eventDir === lockDirRef.current) {
-          if (Math.abs(e.deltaY) >= 2) {
+          // Inertia tail must be louder than 4 to keep extending the
+          // lock — the gentlest residual wheel events from a flick
+          // shouldn't keep cascading project steps. Refresh increment
+          // pushed up to 320ms so the lock holds firmly while inertia
+          // is still meaningful.
+          if (Math.abs(e.deltaY) >= 4) {
             lockedUntilRef.current = Math.min(
               lockMaxRef.current,
-              Math.max(lockedUntilRef.current, now + 240)
+              Math.max(lockedUntilRef.current, now + 320)
             );
           }
           return;
@@ -580,14 +599,20 @@ export default function DesktopHome() {
         if (Math.abs(e.deltaY) < 1) return;
         // Fall through to trigger advance/retreat for the new direction.
       }
-      const threshold = 3;
+      // Initial-gesture threshold raised so a faint stray wheel doesn't
+      // fire a step on its own — accordion cycling now requires a
+      // clearly intentional flick.
+      const threshold = 7;
       if (Math.abs(e.deltaY) < threshold) return;
-      // On Work, every wheel gesture steps the accordion regardless of
-      // wheel target. Past the last project, advance() falls through to
-      // scrollIntoView('#contact') via the existing branch. The Work →
-      // Contact transition still gets a longer lock so its 900ms pre-
-      // scroll colour invert + ~600ms scroll can finish in one gesture.
-      const treatAsAccordionStep = activeSection === "work";
+      // Detect whether the wheel event is happening over the project
+      // accordion or over Work's negative space. Over the accordion =
+      // cycle projects (state-only). Over negative space = treat as a
+      // cross-section transition (advance straight to Contact / retreat
+      // straight to Name), matching how a wheel anywhere else on the
+      // page behaves.
+      const target = e.target as Element | null;
+      const overAccordion = !!target?.closest?.("[data-work-accordion]");
+      const treatAsAccordionStep = activeSection === "work" && overAccordion;
       let lockMs = 800;
       let maxLockMs = 1500;
       if (treatAsAccordionStep) {
@@ -595,8 +620,13 @@ export default function DesktopHome() {
         const stayingInWork =
           e.deltaY > 0 ? idx < WORK_SLUGS.length - 1 : idx > 0;
         if (stayingInWork) {
-          lockMs = 450;
-          maxLockMs = 900;
+          // Longer in-Work lock — trackpad inertia from a strong flick
+          // can run 1-1.5s; with the old 900ms ceiling, the residual
+          // events would fire a second project step right after the
+          // intended one. 1700ms ceiling fully absorbs the inertia
+          // tail so one gesture lands on one project.
+          lockMs = 650;
+          maxLockMs = 1700;
         } else if (e.deltaY > 0) {
           // Last project → Contact: cover the colour invert + scroll.
           lockMs = 1600;
@@ -606,8 +636,8 @@ export default function DesktopHome() {
       lockedUntilRef.current = now + lockMs;
       lockMaxRef.current = now + maxLockMs;
       lockDirRef.current = Math.sign(e.deltaY);
-      if (e.deltaY > 0) advance(true);
-      else retreat(true);
+      if (e.deltaY > 0) advance(overAccordion);
+      else retreat(overAccordion);
     };
 
     window.addEventListener("click", onClick);
@@ -650,17 +680,22 @@ export default function DesktopHome() {
             bestId = el.id;
           }
         }
-        // Snap only when we're 2px-30vh away from the nearest section —
-        // anything bigger is a deliberate transit in progress, anything
-        // smaller is "essentially snapped" already.
-        if (
-          bestId &&
-          bestDist > 2 &&
-          bestDist < window.innerHeight * 0.3
-        ) {
+        // Snap whenever we've been idle for 300ms AND the page isn't
+        // already at a snap line. The previous 30vh ceiling created a
+        // gap (30-50vh from nearest) where the page could come to rest
+        // between snaps with no recovery — the "no man's land" bug.
+        // After a 300ms idle we KNOW no transit is in progress, so the
+        // upper bound isn't needed.
+        if (bestId && bestDist > 2) {
           document
             .getElementById(bestId)
             ?.scrollIntoView({ behavior: "smooth" });
+          // Reset any in-flight Work→Contact transition flag. If the
+          // safety net is firing, the transition's scroll didn't
+          // complete cleanly — leaving the flag true would keep the
+          // colorScheme pinned to "name"/"nameMint" even after the
+          // snap-back lands. Safe to call when not in transition.
+          setWorkExitingToContact(false);
         }
       }, 300);
     };

@@ -2,7 +2,7 @@ import { type Project } from "./types";
 
 export const tuesgay: Project = {
   slug: "tuesgay",
-  name: "Tuesgay",
+  name: "DJ Sensitive Boys",
   disciplines: "DJing, Drag Queen Wrangling, Flyer Design, Social",
   previewLabel: "TUESGAY — Queer Club Night Digital Flyers",
   accent: "mint",
@@ -10,16 +10,16 @@ export const tuesgay: Project = {
     {
       number: "06",
       description:
-        "Digital flyers for a monthly queer club night I co-DJ with my boyfriend as DJ Sensitive Boys.",
+        "Logo design and digital flyers for club nights my boyfriend and I have created and DJ'd together, including long-running queer club nights GAY SPORTS in Brooklyn and TUESGAY in Silverlake.",
       caseStudy: {
-        title: "TUESGAY\nQueer Club Night\nDigital Flyers",
+        title: "DJ Sensitive Boys\nLogo and Digital Flyers",
         brief:
           "Logo design for me and my boyfriend's tag-team DJ duo, Sensitive Boys, and promotional digital flyers for our gigs.",
         challenge:
-          "Create an on-going series of digital flyers for social media to promote my boyfriend's and my club night TUESGAY, while highlighting the drag performers and featuring exciting variation.",
+          "Create a memorable logo and on-going series of digital flyers for social media to promote my boyfriend's and my club nights and DJ gigs, while also highlighting drag performers and featuring plenty of variety.",
         solution: [
           "Creating these flyers has been a satisfying creative outlet and challenge to keep coming up with new concepts every month.",
-          "Ultimately, my favorite approach has been to appropriate pop-cultural references and visuals, and remix them with TUESGAY.",
+          "Ultimately, my favorite approach has been to appropriate pop-cultural references and visuals, and remix them.",
           "This approach has proved fruitful, and continues to be a fun ongoing project that benefits from the tight creative collaboration between my partner Ronnie and myself.",
         ],
         client: "Sensitive Boys",

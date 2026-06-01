@@ -76,17 +76,21 @@ export default function MobileChrome({
             gap: "0.75rem",
           }}
         >
-          {/* Planet — tappable, scrolls back to top. Sized 3.25rem
-              to fit cleanly inside the 4.5rem nav band with even
-              breathing room above and below. */}
+          {/* Planet — tappable, scrolls back to top. 3.75rem so the
+              NRJ wordmark reads clearly. The negative marginLeft pulls
+              the SVG left so the INNER CIRCLE's left edge lands on the
+              grid's left edge (the gutter): the disc left sits at
+              viewBox x=8.5 of 36, so shift left by 8.5/36 of the width.
+              The orbit ring then overshoots into the outer margin. */}
           <a
             href="#loading"
             aria-label="Back to top"
             data-no-advance
             style={{
-              width: "3.25rem",
-              height: "3.25rem",
+              width: "3.75rem",
+              height: "3.75rem",
               flex: "0 0 auto",
+              marginLeft: "calc(-3.75rem * 8.5 / 36)",
               color: "var(--fg)",
               display: "block",
             }}
@@ -162,7 +166,7 @@ export default function MobileChrome({
             color: "var(--fg)",
           }}
         >
-          <span>Senior Designer</span>
+          <span style={{ flexShrink: 0 }}>Senior Designer</span>
           <div
             style={{
               flex: 1,
@@ -171,7 +175,16 @@ export default function MobileChrome({
               opacity: 0.7,
             }}
           />
-          <span>Available for Work</span>
+          <span style={{ flexShrink: 0 }}>Available for Work</span>
+          <div
+            style={{
+              flex: 1,
+              height: 1,
+              backgroundColor: "var(--fg)",
+              opacity: 0.7,
+            }}
+          />
+          <span style={{ flexShrink: 0 }}>© 2026</span>
         </div>
       </motion.footer>
     </>
@@ -201,30 +214,40 @@ function ChromeBackdrop({ edge }: { edge: "top" | "bottom" }) {
     edge === "top"
       ? "linear-gradient(to bottom, color-mix(in srgb, var(--bg) 55%, transparent) 0%, color-mix(in srgb, var(--bg) 30%, transparent) 55%, transparent 100%)"
       : "linear-gradient(to top, color-mix(in srgb, var(--bg) 55%, transparent) 0%, color-mix(in srgb, var(--bg) 30%, transparent) 55%, transparent 100%)";
-  // Mask the WHOLE backdrop (blur + tint) so the blur itself fades out
-  // toward the inner edge rather than ending in a hard horizontal cut.
-  // Solid through the outer ~55%, then ramps to transparent — the blur
-  // strength tapers with the mask alpha, giving a soft gradient edge.
+  // Fade the whole backdrop (blur + tint) toward the inner edge so it
+  // doesn't end in a hard horizontal cut. The mask lives on a WRAPPER,
+  // and the backdrop-filter on a CHILD — putting `backdrop-filter` and
+  // `mask` on the SAME element triggers a browser bug where the filter
+  // renders as a solid opaque fill (notably after a fixed-position
+  // overlay like the case-study tray unmounts). Masking the parent
+  // still clips the child's blurred output, giving the gradient edge
+  // without the bug.
   const mask =
     edge === "top"
-      ? "linear-gradient(to bottom, black 0%, black 55%, transparent 100%)"
-      : "linear-gradient(to top, black 0%, black 55%, transparent 100%)";
+      ? "linear-gradient(to bottom, black 0%, black 45%, transparent 100%)"
+      : "linear-gradient(to top, black 0%, black 45%, transparent 100%)";
   return (
     <div
       aria-hidden
       style={{
         position: "absolute",
         inset: 0,
-        backdropFilter: "blur(14px) saturate(1.2)",
-        WebkitBackdropFilter: "blur(14px) saturate(1.2)",
-        background: tint,
         maskImage: mask,
         WebkitMaskImage: mask,
         pointerEvents: "none",
-        transition:
-          "background 1.4s cubic-bezier(0.22, 1, 0.36, 1)",
       }}
-    />
+    >
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          backdropFilter: "blur(14px) saturate(1.2)",
+          WebkitBackdropFilter: "blur(14px) saturate(1.2)",
+          background: tint,
+          transition: "background 1.4s cubic-bezier(0.22, 1, 0.36, 1)",
+        }}
+      />
+    </div>
   );
 }
 
@@ -284,13 +307,13 @@ function PlanetMark() {
       {/* NRJ wordmark */}
       <text
         x="18"
-        y="21.5"
+        y="21.4"
         textAnchor="middle"
         fontFamily="var(--font-display)"
         fontWeight="800"
-        fontSize="8.5"
+        fontSize="8.75"
         fill="currentColor"
-        letterSpacing="0.02em"
+        letterSpacing="0.01em"
       >
         NRJ
       </text>

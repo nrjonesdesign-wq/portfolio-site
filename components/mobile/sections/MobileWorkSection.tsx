@@ -126,7 +126,8 @@ export default function MobileWorkSection({
           marginTop: 0,
           marginBottom: "1rem",
           fontFamily: "var(--font-body)",
-          fontSize: "2.275rem",
+          // 34px — paired with Select Engagements.
+          fontSize: "2.125rem",
           fontWeight: 700,
           letterSpacing: "-0.01em",
           color: "var(--fg)",
@@ -190,6 +191,7 @@ function GroupLabel({ children }: { children: ReactNode }) {
   return (
     <div
       style={{
+        position: "relative",
         paddingLeft: "var(--m-gutter)",
         paddingRight: "var(--m-gutter)",
         height: "2.25rem",
@@ -197,13 +199,30 @@ function GroupLabel({ children }: { children: ReactNode }) {
         alignItems: "center",
         fontFamily: "var(--font-mono)",
         fontSize: "var(--fs-label)",
+        fontWeight: 700,
         textTransform: "uppercase",
         letterSpacing: "0.04em",
+        // Match the rest of the accordion text — project names + marquee
+        // both use var(--fg).
         color: "var(--fg)",
         borderBottom: "1px solid var(--fg)",
       }}
     >
-      {children}
+      {/* Dot-matrix lives on its OWN absolute layer with mix-blend
+          multiply so the text in front isn't multiplied with it. */}
+      <div
+        aria-hidden
+        style={{
+          position: "absolute",
+          inset: 0,
+          pointerEvents: "none",
+          backgroundImage:
+            "radial-gradient(var(--ink) 0.4px, transparent 0.65px)",
+          backgroundSize: "3px 3px",
+          mixBlendMode: "multiply",
+        }}
+      />
+      <span style={{ position: "relative" }}>{children}</span>
     </div>
   );
 }
@@ -350,7 +369,7 @@ function ExpandedContent({
   return (
     <div
       style={{
-        paddingBottom: "1rem",
+        paddingBottom: "1.75rem",
       }}
     >
       {/* 16:9 preview tile. Crossfades through interleaved entries
@@ -443,10 +462,10 @@ function ExpandedContent({
         style={{
           paddingLeft: "var(--m-gutter)",
           paddingRight: "var(--m-gutter)",
-          paddingTop: "1rem",
+          paddingTop: "1.75rem",
           display: "flex",
           flexDirection: "column",
-          gap: "1rem",
+          gap: "2rem",
         }}
       >
         {project.items.map((item, i) => (

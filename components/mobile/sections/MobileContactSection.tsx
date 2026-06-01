@@ -74,13 +74,11 @@ export default function MobileContactSection() {
               style={{
                 color: "var(--fg)",
                 marginLeft: "-0.06em",
-                // Larger Manrope ExtraBold per the Contact design —
-                // about ~16vw at typical phone widths so the
-                // headline reads as the page's dominant focal
-                // element, but capped at 4.5rem so on wider phones
-                // the longest line ("make things") still fits in the
-                // 7-col content span without wrapping.
-                fontSize: "clamp(2.75rem, 16vw, 4.5rem)",
+                // Manrope ExtraBold Contact hero. Sized so the longest
+                // line ("make things") stays on ONE line within the
+                // content span at the wider 2rem gutter — 13vw fits it
+                // on common phones; capped at 4.25rem on larger widths.
+                fontSize: "clamp(2.75rem, 13vw, 4.25rem)",
                 lineHeight: 0.92,
               }}
             />
@@ -93,13 +91,11 @@ export default function MobileContactSection() {
               style={{
                 color: "var(--fg)",
                 marginLeft: "-0.06em",
-                // Larger Manrope ExtraBold per the Contact design —
-                // about ~16vw at typical phone widths so the
-                // headline reads as the page's dominant focal
-                // element, but capped at 4.5rem so on wider phones
-                // the longest line ("make things") still fits in the
-                // 7-col content span without wrapping.
-                fontSize: "clamp(2.75rem, 16vw, 4.5rem)",
+                // Manrope ExtraBold Contact hero. Sized so the longest
+                // line ("make things") stays on ONE line within the
+                // content span at the wider 2rem gutter — 13vw fits it
+                // on common phones; capped at 4.25rem on larger widths.
+                fontSize: "clamp(2.75rem, 13vw, 4.25rem)",
                 lineHeight: 0.92,
               }}
             />
@@ -112,13 +108,11 @@ export default function MobileContactSection() {
               style={{
                 color: "var(--fg)",
                 marginLeft: "-0.06em",
-                // Larger Manrope ExtraBold per the Contact design —
-                // about ~16vw at typical phone widths so the
-                // headline reads as the page's dominant focal
-                // element, but capped at 4.5rem so on wider phones
-                // the longest line ("make things") still fits in the
-                // 7-col content span without wrapping.
-                fontSize: "clamp(2.75rem, 16vw, 4.5rem)",
+                // Manrope ExtraBold Contact hero. Sized so the longest
+                // line ("make things") stays on ONE line within the
+                // content span at the wider 2rem gutter — 13vw fits it
+                // on common phones; capped at 4.25rem on larger widths.
+                fontSize: "clamp(2.75rem, 13vw, 4.25rem)",
                 lineHeight: 0.92,
               }}
             />

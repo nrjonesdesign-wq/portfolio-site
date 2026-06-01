@@ -5,7 +5,10 @@ import { motion } from "framer-motion";
 
 type CursorState = "default" | "view" | "link" | "text";
 
-const LERP = 0.12;
+// Higher LERP = tighter follow. 0.28 gives a ~33ms half-life (vs.
+// 0.12's ~83ms), which feels responsive without losing the easing
+// against the magnetic-pull adjustments below.
+const LERP = 0.28;
 const MAGNETIC_RADIUS = 52;
 const MAGNETIC_STRENGTH = 0.25;
 
@@ -97,8 +100,12 @@ export default function MagneticCursor() {
   // negative margin (= -size/2). This keeps the element centred on the
   // wrapper's (0,0) without using transform — which would clash with
   // framer-motion's transform pipeline and silently zero things out.
-  const dotSize = isView ? 4 : isLink ? 0 : 10;
-  const lensSize = isView ? 96 : 0;
+  //
+  // Default (inactive) is now a MINI lens (~1/3 of the 96px active
+  // lens) — same chromatic-warp treatment, just smaller. Link/text
+  // hide the lens entirely; the ring / I-beam carry those states.
+  // No center dot in either lens size.
+  const lensSize = isView ? 96 : isLink || isText ? 0 : 32;
   const linkSize = isLink ? 18 : 0;
 
   const spring = { type: "spring" as const, stiffness: 320, damping: 26, mass: 0.7 };
@@ -208,32 +215,16 @@ export default function MagneticCursor() {
             left: -1,
             width: 2,
             height: 22,
-            backgroundColor: "var(--cursor-fg, var(--cursor-default-fg, var(--fg)))",
+            // White + mix-blend difference makes the I-beam render as
+            // the inverse of whatever sits behind it — stays visible
+            // over light AND dark surfaces without theme overrides.
+            backgroundColor: "#ffffff",
+            mixBlendMode: "difference",
             borderRadius: 1,
           }}
         />
       ) : (
         <>
-          {/* DOT — always present, animated to 4px inside the lens, 0 inside link. */}
-          <motion.div
-            initial={false}
-            animate={{
-              width: dotSize,
-              height: dotSize,
-              marginLeft: -dotSize / 2,
-              marginTop: -dotSize / 2,
-              opacity: isLink ? 0 : 1,
-            }}
-            transition={spring}
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              borderRadius: "50%",
-              backgroundColor: "var(--cursor-fg, var(--cursor-default-fg, var(--fg)))",
-            }}
-          />
-
           {/* LINK ring */}
           <motion.div
             initial={false}
@@ -250,15 +241,16 @@ export default function MagneticCursor() {
               top: 0,
               left: 0,
               borderRadius: "50%",
-              border: "1px solid var(--cursor-fg, var(--cursor-default-fg, var(--fg)))",
+              // Inverted via mix-blend difference — see I-beam comment.
+              border: "1px solid #ffffff",
+              mixBlendMode: "difference",
             }}
           />
 
-          {/* VIEW lens — thin outline circle whose backdrop is run through
-              the SVG filter (slight warp + tiny chromatic split). No tint,
-              no saturation/brightness/contrast boost — the lens should
-              feel like a piece of distorting glass over the actual content,
-              not an overlay panel. */}
+          {/* Lens — thin outline circle whose backdrop is run through the
+              SVG filter (slight warp + tiny chromatic split). Visible in
+              BOTH default (mini, 32px) and view (full, 96px) states; the
+              size animates between the two. Hidden in link/text states. */}
           <motion.div
             initial={false}
             animate={{
@@ -266,7 +258,7 @@ export default function MagneticCursor() {
               height: lensSize,
               marginLeft: -lensSize / 2,
               marginTop: -lensSize / 2,
-              opacity: isView ? 1 : 0,
+              opacity: lensSize > 0 ? 1 : 0,
             }}
             transition={spring}
             style={{
@@ -274,10 +266,12 @@ export default function MagneticCursor() {
               top: 0,
               left: 0,
               borderRadius: "50%",
-              border: "1px solid var(--cursor-fg, var(--cursor-default-fg, var(--fg)))",
+              // Inverted via mix-blend difference — see I-beam comment.
+              border: "1px solid #ffffff",
               backgroundColor: "transparent",
               backdropFilter: "url(#cursor-lens)",
               WebkitBackdropFilter: "url(#cursor-lens)",
+              mixBlendMode: "difference",
               overflow: "hidden",
             }}
           />

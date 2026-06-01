@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef } from "react";
+import { motion, useAnimationControls } from "framer-motion";
 
 /**
  * Ambient sprite-cycle star field. Each star runs through:
@@ -240,12 +241,21 @@ export default function StarField({
   }, [count, uid]);
 
   return (
-    <svg
-      ref={containerRef}
+    <div
       className={className}
-      style={{ display: "block", width: "100%", height: "100%", color, ...style }}
+      style={{
+        position: "relative",
+        width: "100%",
+        height: "100%",
+        color,
+        ...style,
+      }}
       aria-hidden="true"
     >
+      <svg
+        ref={containerRef}
+        style={{ display: "block", width: "100%", height: "100%", color }}
+      >
       <defs>
         {/* Pixel-art-ish discrete frames. Each symbol uses currentColor so
             the parent's `color` style controls the fill. */}
@@ -323,7 +333,122 @@ export default function StarField({
           style={{ opacity: 0 }}
         />
       ))}
-    </svg>
+      </svg>
+      <UfoFlyby />
+    </div>
+  );
+}
+
+/* ─── UFO fly-by ────────────────────────────────────────────────────────
+   Occasional saucer that zooms toward the viewer and zips away. Idle
+   most of the time — first appearance 30-90s after mount, then 60-180s
+   between subsequent fly-bys. The motion is framer-driven so its own
+   spring/keyframe pipeline composes cleanly with the surrounding
+   imperative star animations.
+*/
+function UfoFlyby() {
+  const controls = useAnimationControls();
+  useEffect(() => {
+    let cancelled = false;
+    let timer: number | undefined;
+    const rand = (a: number, b: number) => a + Math.random() * (b - a);
+    const fly = async () => {
+      if (cancelled) return;
+      const sx = rand(20, 80);
+      const sy = rand(25, 65);
+      // Zip-away direction: opposite side of the screen, slightly down.
+      const zipX = sx < 50 ? 130 : -30;
+      const zipY = sy + rand(15, 45);
+      await controls.set({
+        left: `${sx}%`,
+        top: `${sy}%`,
+        scale: 0.08,
+        opacity: 0,
+        rotate: 0,
+      });
+      // Approach — slow zoom toward the viewer with slight drift.
+      await controls.start({
+        scale: 1.4,
+        opacity: 1,
+        left: `${sx + rand(-7, 7)}%`,
+        top: `${sy - 5}%`,
+        rotate: rand(-6, 6),
+        transition: { duration: 4.5, ease: [0.22, 1, 0.36, 1] },
+      });
+      if (cancelled) return;
+      await new Promise((r) => {
+        timer = window.setTimeout(r, 220);
+      });
+      if (cancelled) return;
+      // Zip-away — fast translate off-screen + shrink + tilt.
+      await controls.start({
+        left: `${zipX}%`,
+        top: `${zipY}%`,
+        scale: 0.3,
+        opacity: 0,
+        rotate: 32,
+        transition: { duration: 0.7, ease: "easeIn" },
+      });
+      if (cancelled) return;
+      timer = window.setTimeout(fly, rand(60_000, 180_000));
+    };
+    timer = window.setTimeout(fly, rand(30_000, 90_000));
+    return () => {
+      cancelled = true;
+      if (timer !== undefined) window.clearTimeout(timer);
+    };
+  }, [controls]);
+  return (
+    <motion.div
+      animate={controls}
+      initial={{ opacity: 0, scale: 0.08 }}
+      style={{
+        position: "absolute",
+        width: 48,
+        height: 24,
+        marginLeft: -24,
+        marginTop: -12,
+        pointerEvents: "none",
+        transformOrigin: "center",
+        willChange: "transform, opacity",
+      }}
+    >
+      <svg
+        width="48"
+        height="24"
+        viewBox="0 0 48 24"
+        style={{ display: "block", overflow: "visible" }}
+      >
+        {/* Dome */}
+        <path
+          d="M 14 14 Q 24 -1 34 14 Z"
+          fill="currentColor"
+          opacity="0.55"
+        />
+        {/* Saucer disk */}
+        <ellipse
+          cx="24"
+          cy="14"
+          rx="22"
+          ry="4"
+          fill="currentColor"
+          opacity="0.9"
+        />
+        {/* Underside taper */}
+        <ellipse
+          cx="24"
+          cy="15"
+          rx="14"
+          ry="2.5"
+          fill="currentColor"
+          opacity="0.55"
+        />
+        {/* Belly lights */}
+        <circle cx="12" cy="15.4" r="0.9" fill="#ffffff" opacity="0.95" />
+        <circle cx="24" cy="16.2" r="0.9" fill="#ffffff" opacity="0.95" />
+        <circle cx="36" cy="15.4" r="0.9" fill="#ffffff" opacity="0.95" />
+      </svg>
+    </motion.div>
   );
 }
 

@@ -100,7 +100,12 @@ export function MobileHelloPanel() {
           transition={{ delay: 1.8, duration: DUR.base, ease: EASE }}
           style={{ gridColumn: "1 / 8", color: "var(--fg)" }}
         >
-          {INTRO_LEAD}
+          I&apos;m{" "}
+          <strong style={{ fontWeight: 700 }}>
+            Nathaniel Robert Jones
+          </strong>
+          , an artist / designer with nearly 20 years of crafting
+          compelling experiences.
         </motion.p>
 
         {/* Scroll cue — part of the same centred group, with a bit of
@@ -238,8 +243,10 @@ export function MobileNamePanel() {
             <OutlineName word="Jones" delay={0.24} />
           </div>
 
-          {/* [ INTRO ] eyebrow + paragraphs */}
-          <div style={{ gridColumn: "1 / 9" }}>
+          {/* [ INTRO ] eyebrow + paragraphs. Shares the Hello intro
+              paragraph's column width (1 / 8) so the body copy reads
+              with a consistent measure across both WHO screens. */}
+          <div style={{ gridColumn: "1 / 8" }}>
             <motion.span
               className="text-label"
               initial={{ opacity: 0, y: 10 }}
@@ -285,10 +292,15 @@ export function MobileNamePanel() {
               transition={{ duration: DUR.base, ease: EASE }}
               style={{
                 fontFamily: "var(--font-body)",
-                // +30% from the previous 1.875rem so the heading
-                // reads as the section's clear anchor.
-                fontSize: "2.4375rem",
+                // 34px — paired with Select Work; smaller than before
+                // so the Download CV cue stays clear of the footer
+                // chrome on shorter phones.
+                fontSize: "2.125rem",
                 fontWeight: 700,
+                // Tight leading on the two wrapped lines so it reads
+                // with the same proportional rhythm as the display
+                // headlines (text-name = 0.95).
+                lineHeight: 0.95,
                 color: "var(--fg)",
                 letterSpacing: "-0.01em",
                 marginBottom: "0.875rem",

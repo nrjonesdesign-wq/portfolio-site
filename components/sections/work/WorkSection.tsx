@@ -649,15 +649,42 @@ function GroupLabel({ label }: { label: string }) {
   return (
     <div
       style={{
+        position: "relative",
         height: ROW_HEIGHT,
         display: "flex",
         alignItems: "center",
+        // Same 1rem inset as the project row headers in their open
+        // state, so HIRED / INSPIRED align with the project name
+        // column rather than sitting flush left.
+        paddingLeft: "1rem",
+        paddingRight: "1rem",
         borderBottom: "1px solid var(--fg)",
       }}
     >
+      {/* Dot-matrix lives on its OWN absolute layer with mix-blend
+          multiply so the text in front isn't multiplied with it. */}
+      <div
+        aria-hidden
+        style={{
+          position: "absolute",
+          inset: 0,
+          pointerEvents: "none",
+          backgroundImage:
+            "radial-gradient(var(--ink) 0.4px, transparent 0.65px)",
+          backgroundSize: "2.25px 2.25px",
+          mixBlendMode: "multiply",
+        }}
+      />
       <span
         className="text-label"
-        style={{ color: "var(--fg)", opacity: 0.7 }}
+        style={{
+          position: "relative",
+          // Match the rest of the accordion text — project names use
+          // var(--fg).
+          color: "var(--fg)",
+          opacity: 0.95,
+          fontWeight: 700,
+        }}
       >
         {label}
       </span>
@@ -750,13 +777,17 @@ function ProjectRow({
           gap: "1rem",
           width: "100%",
           height: ROW_HEIGHT,
-          padding: open ? "0 1rem" : "0",
+          // Always inset 1rem so the row content holds its position
+          // when the drawer opens/closes (was shifting left → right
+          // on open). Matches the GroupLabel and the open-drawer
+          // content's left edge.
+          padding: "0 1rem",
           background: open ? "var(--fg)" : "none",
           color: open ? "var(--bg)" : "var(--fg)",
           textAlign: "left",
           cursor: "inherit",
           transition:
-            "background-color 0.35s cubic-bezier(0.22, 1, 0.36, 1), color 0.35s cubic-bezier(0.22, 1, 0.36, 1), padding 0.35s cubic-bezier(0.22, 1, 0.36, 1)",
+            "background-color 0.35s cubic-bezier(0.22, 1, 0.36, 1), color 0.35s cubic-bezier(0.22, 1, 0.36, 1)",
         }}
       >
         <span
@@ -1127,6 +1158,12 @@ function CaseStudyPanel({
   const [tabIdx, setTabIdx] = useState(initialTabIdx);
   const tab = TAB_DEFS[tabIdx];
   const accentVar = `var(--${project.accent})`;
+  // Click-to-zoom lightbox for reel images (paintings / flyers / extra-
+  // tall page screenshots). Null = closed.
+  const [zoomedImage, setZoomedImage] = useState<{
+    src: string;
+    alt?: string;
+  } | null>(null);
   // Wheel-gesture lock state lives in refs so it survives re-renders
   // and tab changes. Previously these were locals inside the wheel
   // useEffect — every cycle re-attached a fresh listener with a
@@ -1571,6 +1608,34 @@ function CaseStudyPanel({
           </motion.div>
           </AnimatePresence>
 
+          {/* Tab progress dots — active tab filled, others outlined.
+              Sits at the bottom of the rail, centred, showing all 3
+              tabs at a glance. */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              gap: "0.5rem",
+              marginTop: "auto",
+              paddingTop: "1.5rem",
+            }}
+          >
+            {TAB_DEFS.map((_, i) => (
+              <span
+                key={i}
+                aria-hidden
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: "50%",
+                  backgroundColor:
+                    i === tabIdx ? accentVar : "transparent",
+                  border: `1px solid ${accentVar}`,
+                }}
+              />
+            ))}
+          </div>
+
         </div>
 
         {/* Right reel — cols 17-32 (was 13-32). Two cols of negative space
@@ -1593,6 +1658,7 @@ function CaseStudyPanel({
             items={cs.reel}
             fit={cs.reelFit ?? "cover"}
             bg={cs.reelBg}
+            onZoomImage={setZoomedImage}
           />
         </div>
       </div>
@@ -1624,7 +1690,76 @@ function CaseStudyPanel({
       >
         <span aria-hidden>↙</span>
       </button>
+
+      {/* Click-to-zoom lightbox for reel images. Sits at the panel
+          level so it can layer over the rail and reel together. */}
+      <AnimatePresence>
+        {zoomedImage && (
+          <CaseStudyImageLightbox
+            image={zoomedImage}
+            onClose={() => setZoomedImage(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
+  );
+}
+
+/* ─── Image lightbox ──────────────────────────────────────────────────── */
+
+function CaseStudyImageLightbox({
+  image,
+  onClose,
+}: {
+  image: { src: string; alt?: string };
+  onClose: () => void;
+}) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+  return (
+    <motion.div
+      key="case-study-lightbox"
+      role="dialog"
+      aria-modal="true"
+      data-no-advance
+      onClick={onClose}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.25, ease: EASE }}
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 100,
+        backgroundColor: "rgba(0, 0, 0, 0.92)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "2rem",
+        cursor: "zoom-out",
+      }}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={image.src}
+        alt={image.alt ?? ""}
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          maxWidth: "100%",
+          maxHeight: "100%",
+          objectFit: "contain",
+          display: "block",
+        }}
+      />
+    </motion.div>
   );
 }
 
@@ -1714,6 +1849,11 @@ function Rule({ accentVar }: { accentVar: string }) {
       aria-hidden
       style={{
         height: 1,
+        // Pin the 1px height — without flex-shrink:0 the rail's flex
+        // column would collapse this to 0 when content (notably BRIEF's
+        // body + 3 meta blocks + dots) exceeds the 100vh rail height,
+        // which is why the under-tabs rule was vanishing on BRIEF.
+        flexShrink: 0,
         // Left overflow into the col-1 gutter so the rule reads as if it
         // belongs to the ink block. Right edge stays flush with the rail
         // so the line doesn't run onto the reel media.
@@ -1786,6 +1926,7 @@ function CaseStudyReel({
   items,
   fit = "cover",
   bg,
+  onZoomImage,
 }: {
   slug: string;
   direction: "vertical" | "horizontal";
@@ -1796,6 +1937,8 @@ function CaseStudyReel({
   fit?: "cover" | "contain";
   /** CSS color override for the tile / container background. */
   bg?: string;
+  /** Image tiles call this to open the click-to-zoom lightbox. */
+  onZoomImage?: (img: { src: string; alt?: string }) => void;
 }) {
   const isVertical = direction === "vertical";
   const innerRef = useRef<HTMLDivElement>(null);
@@ -1948,6 +2091,7 @@ function CaseStudyReel({
                   onAudioActiveChange={(active) => {
                     audioPausedRef.current = active;
                   }}
+                  onZoomImage={onZoomImage}
                 />
               )}
             </div>
@@ -1987,6 +2131,7 @@ function ReelTileContent({
   sizingMode = "fixed",
   enableAudio = false,
   onAudioActiveChange,
+  onZoomImage,
 }: {
   item: ReelItem;
   fit?: "cover" | "contain";
@@ -1997,6 +2142,8 @@ function ReelTileContent({
   sizingMode?: "fixed" | "natural";
   enableAudio?: boolean;
   onAudioActiveChange?: (active: boolean) => void;
+  /** Image tiles fire this on click → opens the lightbox. */
+  onZoomImage?: (img: { src: string; alt?: string }) => void;
 }) {
   if (item.kind === "video") {
     return (
@@ -2040,11 +2187,17 @@ function ReelTileContent({
       <img
         src={item.src}
         alt={item.alt}
+        onClick={
+          onZoomImage
+            ? () => onZoomImage({ src: item.src, alt: item.alt })
+            : undefined
+        }
         style={{
           height: "100%",
           width: "auto",
           display: "block",
           objectFit: fit,
+          cursor: onZoomImage ? "zoom-in" : undefined,
         }}
       />
     );
@@ -2054,6 +2207,11 @@ function ReelTileContent({
     <img
       src={item.src}
       alt={item.alt}
+      onClick={
+        onZoomImage
+          ? () => onZoomImage({ src: item.src, alt: item.alt })
+          : undefined
+      }
       style={{
         position: "absolute",
         inset: 0,
@@ -2061,6 +2219,7 @@ function ReelTileContent({
         height: "100%",
         objectFit: fit,
         display: "block",
+        cursor: onZoomImage ? "zoom-in" : undefined,
       }}
     />
   );
@@ -2150,8 +2309,12 @@ function VideoReelTile({
               fontSize: "0.6875rem",
               textTransform: "uppercase",
               letterSpacing: "0.04em",
-              color: "var(--fg)",
-              opacity: 0.7,
+              // White + mix-blend difference inverts against any
+              // backdrop, so the hint stays legible across changing
+              // video frames.
+              color: "#ffffff",
+              mixBlendMode: "difference",
+              opacity: 0.85,
               pointerEvents: "none",
             }}
           >
@@ -2217,8 +2380,12 @@ function VideoReelTile({
             fontSize: "0.6875rem",
             textTransform: "uppercase",
             letterSpacing: "0.04em",
-            color: "var(--fg)",
-            opacity: 0.7,
+            // White + mix-blend difference inverts against any
+            // backdrop so the hint stays legible across changing
+            // video frames.
+            color: "#ffffff",
+            mixBlendMode: "difference",
+            opacity: 0.85,
             pointerEvents: "none",
             transition: "opacity 0.25s cubic-bezier(0.22,1,0.36,1)",
           }}
