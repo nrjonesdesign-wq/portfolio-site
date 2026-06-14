@@ -282,33 +282,55 @@ export default function DesktopHome() {
     };
   }, []);
 
-  // Loading → Who transition. Tightened timeline so the warp starts almost
-  // immediately after the user's wheel (eliminates the perceived "glitchy
-  // lag" before motion began). Colour invert still leads — it runs for
-  // 1.4s so the bg is still actively crossfading when the warp lands.
-  //   t=0    setPlanetMorphed → 1.4s colour invert starts
-  //   t=180  add .warping → stars stretch + translate (1.6s)
-  //   t=900  scrollIntoView('#who') — mid-warp, page slides up under the
-  //          still-streaking field
-  //   t=2000 remove .warping (well after Loading is off-screen)
+  // Loading → Who transition. Spin pre-rolls while the planet is still
+  // centred so the wind-up is the most visible thing on screen, then the
+  // morph + warp launch the planet down. Spin ends as the planet reaches
+  // the nav so it doesn't keep tumbling once docked.
+  //   t=0     .spin-boost → whole planet rotates (.planet-spin keyframe)
+  //           + electron orbits at --planet-spin-mult: 8.
+  //           Planet stays centred at loading position.
+  //   t=600   setPlanetMorphed → 1.4s colour invert + planet flies to nav
+  //           + .warping → stars stretch + translate (1.6s)
+  //   t=1300  scrollIntoView('#who') — mid-warp, page slides up under
+  //           the still-streaking field
+  //   t=1700  remove .spin-boost — spin ends around when planet lands in nav
+  //   t=2400  remove .warping
   const triggerLoadingTransition = useCallback(() => {
     if (planetMorphed) return;
-    setPlanetMorphed(true);
-    const t1 = window.setTimeout(() => {
+    document.documentElement.classList.add("spin-boost");
+    const t0 = window.setTimeout(() => {
+      setPlanetMorphed(true);
       document.documentElement.classList.add("warping");
-    }, 180);
-    const t2 = window.setTimeout(() => {
+    }, 600);
+    const t1 = window.setTimeout(() => {
       document.getElementById("who")?.scrollIntoView({ behavior: "smooth" });
-    }, 900);
+    }, 1300);
+    const t2 = window.setTimeout(() => {
+      document.documentElement.classList.remove("spin-boost");
+    }, 1700);
     const t3 = window.setTimeout(() => {
       document.documentElement.classList.remove("warping");
-    }, 2000);
+    }, 2400);
     return () => {
+      window.clearTimeout(t0);
       window.clearTimeout(t1);
       window.clearTimeout(t2);
       window.clearTimeout(t3);
     };
   }, [planetMorphed]);
+
+  // Loading auto-advance — without it the centred planet reads as a
+  // stuck loading indicator. Fires the normal transition path so the
+  // colour invert + planet morph + scrollIntoView all play exactly as
+  // they do on a user wheel. Only arms on the actual Loading section;
+  // a hard refresh mid-page (planetMorphed already true) is a no-op.
+  useEffect(() => {
+    if (activeSection !== "loading" || planetMorphed) return;
+    const t = window.setTimeout(() => {
+      triggerLoadingTransition();
+    }, 5000);
+    return () => window.clearTimeout(t);
+  }, [activeSection, planetMorphed, triggerLoadingTransition]);
 
   // Work → Contact transition. Three-phase timeline:
   //   t=0     setWorkExitingToContact → "name" / "nameMint" claims the
@@ -551,6 +573,10 @@ export default function DesktopHome() {
     //     through HIRED → INSPIRED projects with multiple wheel ticks
     //     in a comfortable cadence (the cycle is state-only, no scroll).
     const onWheel = (e: WheelEvent) => {
+      // Trackpad pinch fires wheel events with ctrlKey true. Don't
+      // preventDefault — let the browser zoom natively (the case-study
+      // image-zoom case especially relies on this).
+      if (e.ctrlKey) return;
       // Work has no internal scroll — each wheel step shifts the left
       // column transform so the next project locks at the SW header Y.
       // Wheel handling falls through directly to advance/retreat.
@@ -1057,7 +1083,12 @@ function MorphingPlanet({
           transform: `rotate(${rotation}deg)`,
         }}
       >
-        <NRJPlanet cascadeWordmark wordmarkDelay={0.55} />
+        {/* Inner wrapper picks up the .planet-spin keyframe animation
+            during the loading→who wind-up. Composes multiplicatively
+            with the scroll-driven rotation on the parent. */}
+        <div className="planet-spin" style={{ width: "100%", height: "100%" }}>
+          <NRJPlanet cascadeWordmark wordmarkDelay={0.55} />
+        </div>
       </div>
     </motion.button>
   );

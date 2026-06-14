@@ -60,7 +60,7 @@ function ExploreBlock() {
         [ Explore ]
       </span>
       <p className="text-body" style={{ marginBottom: "0.875rem" }}>
-        Hover any row to peek at the work, or scroll to step through each
+        Click any row to peek at the work, or scroll to step through each
         project in sequence.
       </p>
       <p className="text-body">
@@ -141,12 +141,11 @@ const COL_CASE_REEL = "11 / 33";  // outer cols 11-32 (22 cols, flush right)
 type WorkSectionProps = {
   /** Controlled: which row is currently expanded. `null` = closed. Driven
    *  from page.tsx so wheel events at the page level can step through
-   *  projects in sequence. Hover-intent inside the section also updates
+   *  projects in sequence. Click-to-toggle inside the section also updates
    *  this via onOpenSlugChange. */
   openSlug?: string | null;
-  /** Called when an internal interaction (hover-intent, click-to-toggle)
-   *  would change the open slug. Page.tsx applies it to the controlled
-   *  state. */
+  /** Called when an internal click-to-toggle would change the open slug.
+   *  Page.tsx applies it to the controlled state. */
   onOpenSlugChange?: (slug: string | null) => void;
   /** Reports whether the case-study tray is open — page.tsx uses this to
    *  freeze auto-advance scroll/click handlers while the tray covers Work. */
@@ -175,8 +174,6 @@ export default function WorkSection({
     setCaseStudySlug(itemNumber);
   };
   const closeCaseStudy = () => setCaseStudySlug(null);
-  /** Hover-intent — opens the hovered row. Replaces whatever was open. */
-  const hover = (slug: string) => onOpenSlugChange?.(slug);
   /** Click toggle. If the clicked row is already open, close it. If a
    *  different row is open (or none), open this one. Per the latest
    *  direction, clicks on a row no longer open the case study — only
@@ -402,7 +399,6 @@ export default function WorkSection({
               openSlug={openSlug}
               onToggle={toggle}
               onOpenCaseStudy={openCaseStudy}
-              onHover={hover}
             />
           </RiseOn>
         </motion.div>
@@ -479,33 +475,15 @@ function ProjectList({
   openSlug,
   onToggle,
   onOpenCaseStudy,
-  onHover,
 }: {
   hired: Project[];
   inspired: Project[];
   openSlug: string | null;
   onToggle: (slug: string) => void;
   onOpenCaseStudy: (slug: string) => void;
-  onHover: (slug: string) => void;
 }) {
-  // Hover-intent delay — short enough that mint kicks in nearly as fast
-  // as the user reaches the row, but long enough that the accordion
-  // doesn't flicker through every row as the cursor passes by mid-flight.
-  const hoverTimer = useRef<number | null>(null);
-  const scheduleHover = (slug: string) => {
-    if (hoverTimer.current) window.clearTimeout(hoverTimer.current);
-    hoverTimer.current = window.setTimeout(() => onHover(slug), 90);
-  };
-  const cancelHover = () => {
-    if (hoverTimer.current) window.clearTimeout(hoverTimer.current);
-    hoverTimer.current = null;
-  };
-
   return (
-    <div
-      style={{ borderTop: "1px solid var(--fg)" }}
-      onMouseLeave={cancelHover}
-    >
+    <div style={{ borderTop: "1px solid var(--fg)" }}>
       <GroupLabel label="Hired" />
       {hired.map((p, i) => (
         <ProjectRow
@@ -519,7 +497,6 @@ function ProjectList({
           // Bloomberg's UX/UI screenshot opens item 02, not the default
           // item 01). ProjectRow tracks the active entry internally.
           onOpenCaseStudy={onOpenCaseStudy}
-          onHover={() => scheduleHover(p.slug)}
         />
       ))}
       <GroupLabel label="Inspired" />
@@ -531,7 +508,6 @@ function ProjectList({
           open={openSlug === p.slug}
           onToggle={() => onToggle(p.slug)}
           onOpenCaseStudy={onOpenCaseStudy}
-          onHover={() => scheduleHover(p.slug)}
         />
       ))}
     </div>
@@ -544,7 +520,7 @@ function ProjectList({
  *  more ground per loop); Paintings' short list cycles faster, both
  *  passing glyphs by the viewport at the same constant rate. */
 function marqueeDurationSec(segment: string): number {
-  const TARGET_PX_PER_SEC = 42; // was 28 — slightly snappier crawl
+  const TARGET_PX_PER_SEC = 56;
   const APPROX_PX_PER_CHAR = 7.5; // Geist Mono 13 px, eyeballed
   const cycleDistancePx = segment.length * APPROX_PX_PER_CHAR;
   return Math.max(6, cycleDistancePx / TARGET_PX_PER_SEC);
@@ -702,7 +678,6 @@ function ProjectRow({
   open,
   onToggle,
   onOpenCaseStudy,
-  onHover,
 }: {
   project: Project;
   delay: number;
@@ -712,7 +687,6 @@ function ProjectRow({
   /** Click on the expanded preview (reel) opens the case study for the
    *  item whose asset is currently visible in the preview cross-fade. */
   onOpenCaseStudy: (itemNumber: string) => void;
-  onHover: () => void;
 }) {
   // Build the interleaved preview reel + track which entry is active so
   // a click on the preview opens the matching item's case study.
@@ -748,7 +722,6 @@ function ProjectRow({
         borderBottom: "1px solid var(--fg)",
         cursor: "default",
       }}
-      onMouseEnter={onHover}
     >
       {/* Header row — clickable tab. Click toggles open/close. */}
       <div
@@ -1193,6 +1166,10 @@ function CaseStudyPanel({
   // break the lock immediately so the user can reverse without waiting.
   useEffect(() => {
     const onWheel = (e: WheelEvent) => {
+      // Trackpad pinch fires wheel events with ctrlKey true. Bail so
+      // the browser's native zoom takes over instead of us cycling
+      // tabs / closing the tray.
+      if (e.ctrlKey) return;
       const target = e.target as HTMLElement | null;
       // Wheel over the reel drives the reel's own vertical/horizontal
       // scroll (handled by the reel's React onWheel below). Bail here
@@ -1753,9 +1730,16 @@ function CaseStudyImageLightbox({
         alt={image.alt ?? ""}
         onClick={(e) => e.stopPropagation()}
         style={{
+          // Intrinsic sizing within the viewport bounds — the <img>
+          // element box matches the rendered image, so background clicks
+          // around it reliably hit the wrapper. (objectFit: contain
+          // would letterbox the pixels INSIDE the img element, making
+          // those letterbox bands swallow the close click via the
+          // stopPropagation below.)
+          width: "auto",
+          height: "auto",
           maxWidth: "100%",
           maxHeight: "100%",
-          objectFit: "contain",
           display: "block",
         }}
       />
@@ -2013,6 +1997,8 @@ function CaseStudyReel({
     const el = reelHostRef.current;
     if (!el) return;
     const onWheel = (e: WheelEvent) => {
+      // Pinch-to-zoom: let the browser's native zoom run.
+      if (e.ctrlKey) return;
       e.preventDefault();
       e.stopPropagation();
       offsetRef.current -= e.deltaY;

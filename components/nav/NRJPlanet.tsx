@@ -231,6 +231,13 @@ export default function NRJPlanet({
       const styles = getComputedStyle(back);
       const fg = styles.color;
 
+      // Live spin-rate multiplier — the loading→who transition bumps
+      // this via html.spin-boost so the planet visibly winds up before
+      // the warp. Default 1 (normal orbit). NaN-guarded for the case
+      // where the var isn't set on this element's cascade.
+      const spinRaw = parseFloat(styles.getPropertyValue("--planet-spin-mult"));
+      const spinMult = Number.isFinite(spinRaw) && spinRaw > 0 ? spinRaw : 1;
+
       const cx = cssW / 2;
       const cy = cssH / 2;
       const dim = Math.min(cssW, cssH);
@@ -274,8 +281,8 @@ export default function NRJPlanet({
       // path is a smooth polygon instead of ~30 chords/orbit.
       const startPhase = phase;
       const startRot = rotation;
-      phase += omega * dt;
-      rotation += driftRadPerSec * dt;
+      phase += omega * spinMult * dt;
+      rotation += driftRadPerSec * spinMult * dt;
       const phaseStep = (phase - startPhase) / SUBSTEPS;
       const rotStep = (rotation - startRot) / SUBSTEPS;
 

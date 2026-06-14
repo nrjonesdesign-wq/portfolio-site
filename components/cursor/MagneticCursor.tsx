@@ -101,10 +101,10 @@ export default function MagneticCursor() {
   // wrapper's (0,0) without using transform — which would clash with
   // framer-motion's transform pipeline and silently zero things out.
   //
-  // Default (inactive) is now a MINI lens (~1/3 of the 96px active
-  // lens) — same chromatic-warp treatment, just smaller. Link/text
-  // hide the lens entirely; the ring / I-beam carry those states.
-  // No center dot in either lens size.
+  // Default (inactive) is a MINI lens (~1/3 of the 96px active lens) —
+  // same warp + chromatic split, just smaller. Link / text hide the
+  // lens entirely; the ring / I-beam carry those states. No centre dot
+  // in either lens size.
   const lensSize = isView ? 96 : isLink || isText ? 0 : 32;
   const linkSize = isLink ? 18 : 0;
 
@@ -215,17 +215,14 @@ export default function MagneticCursor() {
             left: -1,
             width: 2,
             height: 22,
-            // White + mix-blend difference makes the I-beam render as
-            // the inverse of whatever sits behind it — stays visible
-            // over light AND dark surfaces without theme overrides.
-            backgroundColor: "#ffffff",
-            mixBlendMode: "difference",
+            backgroundColor: "var(--cursor-fg, var(--cursor-default-fg, var(--fg)))",
             borderRadius: 1,
           }}
         />
       ) : (
         <>
-          {/* LINK ring */}
+          {/* LINK ring — outline circle that takes over when the cursor sits
+              on a [data-cursor="link"] target. */}
           <motion.div
             initial={false}
             animate={{
@@ -241,16 +238,16 @@ export default function MagneticCursor() {
               top: 0,
               left: 0,
               borderRadius: "50%",
-              // Inverted via mix-blend difference — see I-beam comment.
-              border: "1px solid #ffffff",
-              mixBlendMode: "difference",
+              border: "1px solid var(--cursor-fg, var(--cursor-default-fg, var(--fg)))",
             }}
           />
 
-          {/* Lens — thin outline circle whose backdrop is run through the
-              SVG filter (slight warp + tiny chromatic split). Visible in
-              BOTH default (mini, 32px) and view (full, 96px) states; the
-              size animates between the two. Hidden in link/text states. */}
+          {/* Lens — outline circle whose backdrop is run through the SVG
+              filter (slight warp + chromatic R/B split). Visible in both
+              default (mini, 32px) and view (full, 96px) states; size
+              animates between them. No saturation / contrast / brightness
+              boost — the lens reads as pure distorting glass over the
+              actual content. */}
           <motion.div
             initial={false}
             animate={{
@@ -266,12 +263,11 @@ export default function MagneticCursor() {
               top: 0,
               left: 0,
               borderRadius: "50%",
-              // Inverted via mix-blend difference — see I-beam comment.
-              border: "1px solid #ffffff",
+              border:
+                "1px solid var(--cursor-fg, var(--cursor-default-fg, var(--fg)))",
               backgroundColor: "transparent",
               backdropFilter: "url(#cursor-lens)",
               WebkitBackdropFilter: "url(#cursor-lens)",
-              mixBlendMode: "difference",
               overflow: "hidden",
             }}
           />

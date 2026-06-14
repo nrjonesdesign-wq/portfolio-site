@@ -206,6 +206,30 @@ body {
     -webkit-text-stroke-color   1.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/* Loading → Who fast-spin wind-up. Triggered by html.spin-boost during
+   the lead-in to the warp — the planet's electron whips around fast
+   for a short moment before the stars start streaking, giving the
+   transition a wind-up feel. Picked up by NRJPlanet's tick via
+   getPropertyValue. */
+html.spin-boost {
+  --planet-spin-mult: 8;
+}
+
+/* Whole-body planet rotation during the wind-up. The .planet-spin
+   wrapper sits inside the scroll-driven rotate wrapper in
+   MorphingPlanet, so the two transforms compose: scroll rotation +
+   spin. */
+@keyframes planet-spin-boost {
+  to { transform: rotate(360deg); }
+}
+.planet-spin {
+  transform: rotate(0deg);
+  transform-origin: center center;
+}
+html.spin-boost .planet-spin {
+  animation: planet-spin-boost 0.45s linear infinite;
+}
+
 /* Loading → Who warp transition. Triggered by html.warping during the
    user's first advance off the loading screen — the stars stretch
    vertically and shoot UP as if the camera is descending fast into the

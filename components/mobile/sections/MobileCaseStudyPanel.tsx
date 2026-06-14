@@ -676,9 +676,14 @@ function ImageLightbox({
         alt={image.alt ?? ""}
         onClick={(e) => e.stopPropagation()}
         style={{
+          // Intrinsic sizing — the <img> box matches the rendered
+          // image so taps around it reach the wrapper. objectFit:
+          // contain would letterbox inside the img element, and the
+          // stopPropagation below would swallow taps in those bands.
+          width: "auto",
+          height: "auto",
           maxWidth: "100%",
           maxHeight: "100%",
-          objectFit: "contain",
           display: "block",
           // Pinch-to-zoom works natively when the image isn't size-
           // capped by transform; the max-width/height let the user
