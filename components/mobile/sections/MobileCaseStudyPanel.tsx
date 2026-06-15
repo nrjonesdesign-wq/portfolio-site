@@ -685,10 +685,9 @@ function ImageLightbox({
           maxWidth: "100%",
           maxHeight: "100%",
           display: "block",
-          // Pinch-to-zoom works natively when the image isn't size-
-          // capped by transform; the max-width/height let the user
-          // double-tap-zoom on iOS Safari.
-          touchAction: "manipulation",
+          // Default touch-action (auto) lets iOS Safari's native pinch
+          // and double-tap-zoom run on the image; "manipulation" was
+          // suppressing pinch on some devices.
         }}
       />
     </motion.div>

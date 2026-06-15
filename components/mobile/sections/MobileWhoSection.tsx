@@ -179,10 +179,11 @@ export function MobileHelloPanel() {
 /**
  * WHO panel — second screen of the Who section (Hello is the first).
  * Holds name stack, intro paragraphs, Select Engagements, and the CV
- * link in a single 100dvh snap stop. Type sizes are tuned to fit
- * phone viewports without an inner scroll (the inner scroll was
- * intercepting wheel events from the page-level scroll-snap and
- * trapping upward scrolls).
+ * link in a 100dvh snap stop. The inner column scrolls when content
+ * exceeds the viewport (taller phones still get the original centred
+ * look; shorter phones can reach Engagements + Download CV by scrolling
+ * within the section). `justify-content: safe center` keeps the top of
+ * the content visible when it overflows instead of clipping it.
  */
 export function MobileNamePanel() {
   return (
@@ -193,8 +194,7 @@ export function MobileNamePanel() {
         backgroundColor: "var(--bg)",
         position: "relative",
         // Fixed 100dvh so the snap point sits exactly one viewport
-        // below Hello. Inner scroll (below) handles the rare case
-        // where content runs taller than the viewport.
+        // below Hello. The inner column handles its own overflow.
         height: "100dvh",
         overflow: "hidden",
       }}
@@ -213,12 +213,24 @@ export function MobileNamePanel() {
           top: 0,
           left: 0,
           right: 0,
-          height: "calc(100dvh - var(--m-nav-h) - var(--m-foot-h))",
-          display: "grid",
-          gridTemplateRows: "1fr auto 1fr",
+          bottom: 0,
+          // Inset for the mobile nav (top) and footer (bottom) so the
+          // scrollable area sits between them. Extra 1rem on each side
+          // for breathing room.
+          paddingTop: "calc(var(--m-nav-h) + 1rem)",
+          paddingBottom: "calc(var(--m-foot-h) + 1rem)",
+          // Scroll when content overflows. -webkit-overflow-scrolling is
+          // legacy but harmless and still kicks momentum on older iOS.
+          overflowY: "auto",
+          WebkitOverflowScrolling: "touch",
+          display: "flex",
+          flexDirection: "column",
+          // Centre short content; when content overflows, "safe" falls
+          // back to flex-start so the name stack stays visible at top
+          // instead of being clipped above the scroll viewport.
+          justifyContent: "safe center",
         }}
       >
-        <div />
         <div
           className="m-content-grid"
           style={{ rowGap: "2rem" }}
@@ -398,7 +410,6 @@ export function MobileNamePanel() {
             </a>
           </div>
         </div>
-        <div />
       </div>
     </section>
   );
