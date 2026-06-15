@@ -269,16 +269,17 @@ html.warping .star-field {
 }
 
 /* Phones are taller-than-wide so the desktop warp distance reads as a
-   short skip up. Give the mobile warp more vertical reach + a longer
-   streak so it feels like the same dive. */
+   short skip up. Crank the translate way past viewport so the stars
+   actually keep streaking past the edge for the whole warp window,
+   instead of clearing the screen halfway through. */
 @media (max-width: 768px) {
   html.warping .star-field {
-    transform: translate3d(0, -360vh, 0) scaleY(22);
+    transform: translate3d(0, -1100vh, 0) scaleY(26);
     filter: blur(9px);
     transition:
-      transform 1.9s cubic-bezier(0.55, 0, 0.4, 1),
-      filter   1.9s linear,
-      opacity  1.9s linear;
+      transform 2.2s cubic-bezier(0.55, 0, 0.4, 1),
+      filter   2.2s linear,
+      opacity  2.2s linear;
   }
 }
 
