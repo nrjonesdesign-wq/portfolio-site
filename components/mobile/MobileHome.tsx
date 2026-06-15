@@ -100,6 +100,20 @@ export default function MobileHome() {
     };
   }, []);
 
+  // Loading auto-advance — mirrors desktop. After 5s on the loading
+  // panel the page smooth-scrolls into the WHO Hello panel so users
+  // who never tap the planet still get into the site. No-ops once
+  // the user has navigated past loading.
+  useEffect(() => {
+    if (activeSection !== "loading") return;
+    const t = window.setTimeout(() => {
+      document
+        .getElementById("who")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 5000);
+    return () => window.clearTimeout(t);
+  }, [activeSection]);
+
   // Drive the color scheme via the same useColorScheme helper desktop
   // uses. While on Loading: pre-invert flips loading ↔ who. After
   // loading: the section's own scheme drives the page tokens.
