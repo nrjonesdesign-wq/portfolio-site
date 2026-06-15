@@ -42,6 +42,7 @@ export const tuesgay: Project = {
           { kind: "image", src: "/case-study/tuesgay/LaBuBu_Tuesgay_04.jpg", alt: "TUESGAY flyer — Labubu" },
           { kind: "image", src: "/case-study/tuesgay/TAKIS_Tuesgay.jpg", alt: "TUESGAY flyer — Takis" },
           { kind: "image", src: "/case-study/tuesgay/Mermaid_050226_002.jpg", alt: "TUESGAY flyer — Mermaid" },
+          { kind: "image", src: "/case-study/tuesgay/Mermaid_053126_v3.jpg", alt: "DJ Sensitive Boys at the Mermaid — May 31 flyer" },
           { kind: "image", src: "/case-study/tuesgay/Tuesgay_FEB_2026_v2.jpg", alt: "TUESGAY flyer — Feb 2026" },
           { kind: "image", src: "/case-study/tuesgay/Tuesgay_0225_01.jpg", alt: "TUESGAY flyer — Feb 2025" },
           { kind: "image", src: "/case-study/tuesgay/tuesgay-dec-2025.jpg", alt: "TUESGAY flyer — Dec 2025" },
