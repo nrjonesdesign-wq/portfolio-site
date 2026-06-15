@@ -177,13 +177,12 @@ export function MobileHelloPanel() {
 /* ─── Name panel ─────────────────────────────────────────────────────── */
 
 /**
- * WHO Name panel — second screen of WHO (Hello is the first).
- * Holds name stack, intro paragraphs, Select Engagements list, and
- * Download CV in one section. Grows past 100dvh on shorter phones;
- * the user scrolls naturally through it via the main scroll. Pairs
- * with proximity snap on main (set in MobileHome) so the user can
- * rest mid-section to read Engagements without being yanked back
- * to a snap point.
+ * Name panel — second screen of WHO (Hello is the first).
+ * "Nathaniel Robert Jones" stack + [ Intro ] paragraphs. Locked to
+ * 100dvh so mandatory snap can land cleanly. Engagements + CV live
+ * on the next snap (MobileEngagementsPanel). Extra bottom padding
+ * gives the [Intro] paragraphs breathing room so the user can read
+ * the full second paragraph before the snap advances.
  */
 export function MobileNamePanel() {
   return (
@@ -193,7 +192,7 @@ export function MobileNamePanel() {
       style={{
         backgroundColor: "var(--bg)",
         position: "relative",
-        minHeight: "100dvh",
+        height: "100dvh",
         overflow: "hidden",
       }}
     >
@@ -208,9 +207,12 @@ export function MobileNamePanel() {
       <div
         style={{
           position: "relative",
-          minHeight: "100dvh",
+          height: "100%",
           paddingTop: "calc(var(--m-nav-h) + 1rem)",
-          paddingBottom: "calc(var(--m-foot-h) + 1.5rem)",
+          // Generous bottom padding so the second [Intro] paragraph
+          // finishes well above the snap boundary — the user can read
+          // it fully before the page advances to Engagements.
+          paddingBottom: "calc(var(--m-foot-h) + 12dvh)",
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
@@ -274,8 +276,51 @@ export function MobileNamePanel() {
               {INTRO_PARA_2}
             </motion.p>
           </div>
+        </div>
+      </div>
+    </section>
+  );
+}
 
-          {/* Select Engagements */}
+/* ─── Engagements panel ──────────────────────────────────────────────── */
+
+/**
+ * Third WHO screen — Select Engagements list + Download CV.
+ * Split off from Name so each snap stop fits 100dvh cleanly on short
+ * phones.
+ */
+export function MobileEngagementsPanel() {
+  return (
+    <section
+      id="who-engagements"
+      className="snap"
+      style={{
+        backgroundColor: "var(--bg)",
+        position: "relative",
+        height: "100dvh",
+        overflow: "hidden",
+      }}
+    >
+      <div
+        aria-hidden
+        className="absolute inset-0 pointer-events-none"
+        style={{ color: "var(--fg)", opacity: 0.4 }}
+      >
+        <StarField className="w-full h-full" count={10} size={20} />
+      </div>
+
+      <div
+        style={{
+          position: "relative",
+          height: "100%",
+          paddingTop: "calc(var(--m-nav-h) + 1rem)",
+          paddingBottom: "calc(var(--m-foot-h) + 1rem)",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+        }}
+      >
+        <div className="m-content-grid" style={{ rowGap: "2rem" }}>
           <div style={{ gridColumn: "1 / 9" }}>
             <motion.h3
               initial={{ opacity: 0, y: 14 }}
@@ -289,7 +334,7 @@ export function MobileNamePanel() {
                 lineHeight: 0.95,
                 color: "var(--fg)",
                 letterSpacing: "-0.01em",
-                marginBottom: "0.875rem",
+                marginBottom: "1.25rem",
               }}
             >
               Select Engagements
@@ -298,7 +343,7 @@ export function MobileNamePanel() {
               style={{
                 display: "flex",
                 flexDirection: "column",
-                gap: "0.55rem",
+                gap: "0.6rem",
               }}
             >
               {ENGAGEMENTS.map(({ label, years }, i) => (
@@ -358,7 +403,6 @@ export function MobileNamePanel() {
             </div>
           </div>
 
-          {/* Download CV cue */}
           <div
             style={{
               gridColumn: "1 / 9",
