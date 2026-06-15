@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import StarField from "@/components/starfield/StarField";
 import LetterCascade from "@/components/primitives/LetterCascade";
@@ -180,52 +179,22 @@ export function MobileHelloPanel() {
 /**
  * WHO panel — second screen of the Who section (Hello is the first).
  * Holds name stack, intro paragraphs, Select Engagements, and the CV
- * link in a 100dvh snap stop. The inner column scrolls when content
- * exceeds the viewport (taller phones still get the original centred
- * look; shorter phones can reach Engagements + Download CV by scrolling
- * within the section). `justify-content: safe center` keeps the top of
- * the content visible when it overflows instead of clipping it.
+ * link. Grows naturally past 100dvh on shorter phones so all content
+ * stays reachable via the main page scroll (no nested overflow — that
+ * caused snap-glitch transitions on iOS where Name and Work could
+ * render simultaneously mid-scroll).
  */
 export function MobileNamePanel() {
-  const sectionRef = useRef<HTMLElement | null>(null);
-  const scrollRef = useRef<HTMLDivElement | null>(null);
-  const wasVisibleRef = useRef(false);
-
-  // Reset the inner scroll to the top every time the section enters
-  // the viewport. Without this, the inner column remembers where it
-  // was left — so re-entering from Work (going up) lands the user
-  // mid-bottom (CV link), past the Engagements list. With reset,
-  // the user always starts on Name and scrolls forward through
-  // Intro → Engagements → CV regardless of direction.
-  useEffect(() => {
-    const sec = sectionRef.current;
-    const scr = scrollRef.current;
-    if (!sec || !scr) return;
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        const nowVisible = entry.intersectionRatio > 0.5;
-        if (nowVisible && !wasVisibleRef.current) {
-          scr.scrollTop = 0;
-        }
-        wasVisibleRef.current = nowVisible;
-      },
-      { threshold: [0.5] }
-    );
-    io.observe(sec);
-    return () => io.disconnect();
-  }, []);
-
   return (
     <section
-      ref={sectionRef}
       id="who-bio"
       className="snap"
       style={{
         backgroundColor: "var(--bg)",
         position: "relative",
-        // Fixed 100dvh so the snap point sits exactly one viewport
-        // below Hello. The inner column handles its own overflow.
-        height: "100dvh",
+        // min-height instead of fixed height — section grows with
+        // content on short phones; centred layout on tall ones.
+        minHeight: "100dvh",
         overflow: "hidden",
       }}
     >
@@ -238,31 +207,18 @@ export function MobileNamePanel() {
       </div>
 
       <div
-        ref={scrollRef}
         style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          // Inset for the mobile nav (top) and footer (bottom) so the
-          // scrollable area sits between them. Extra 1rem on each side
-          // for breathing room.
+          position: "relative",
+          minHeight: "100dvh",
+          // Inset for the mobile nav (top) and footer (bottom).
           paddingTop: "calc(var(--m-nav-h) + 1rem)",
-          // Generous bottom padding so the Download CV link lands near
-          // vertical centre — not right above the footer — when the
-          // user has scrolled to the bottom of the section.
-          paddingBottom: "calc(var(--m-foot-h) + 22dvh)",
-          // Scroll when content overflows. -webkit-overflow-scrolling is
-          // legacy but harmless and still kicks momentum on older iOS.
-          overflowY: "auto",
-          WebkitOverflowScrolling: "touch",
+          paddingBottom: "calc(var(--m-foot-h) + 2.5rem)",
           display: "flex",
           flexDirection: "column",
-          // Centre short content; when content overflows, "safe" falls
-          // back to flex-start so the name stack stays visible at top
-          // instead of being clipped above the scroll viewport.
-          justifyContent: "safe center",
+          // Centre content vertically when it fits in the viewport;
+          // on shorter phones content grows past min-height and the
+          // user scrolls main to see the rest.
+          justifyContent: "center",
         }}
       >
         <div

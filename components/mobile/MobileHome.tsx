@@ -201,7 +201,12 @@ export default function MobileHome() {
           height: "100dvh",
           overflowY: "auto",
           overflowX: "hidden",
-          scrollSnapType: "y mandatory",
+          // Proximity (not mandatory) so taller sections — like the Name
+          // panel on shorter phones — can be scrolled through naturally
+          // without iOS yanking the user back to a snap point mid-scroll.
+          // Snap still engages when the user releases near a section
+          // boundary.
+          scrollSnapType: "y proximity",
           scrollPaddingTop: "var(--m-nav-h)",
           WebkitOverflowScrolling: "touch",
         } as React.CSSProperties
