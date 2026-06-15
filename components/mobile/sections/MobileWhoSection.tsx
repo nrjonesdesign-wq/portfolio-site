@@ -19,11 +19,8 @@ import { DUR, EASE, STAGGER } from "@/lib/motion";
 const INTRO_LEAD =
   "I'm Nathaniel Robert Jones, an artist / designer with nearly 20 years of crafting compelling experiences.";
 
-const INTRO_PARA_1 =
-  "Senior Visual Designer with nearly 20 years of experience combining creativity with technical skill and a refined aesthetic sensibility—informed by a personal artistic practice as a painter and musician, and fueled by an insatiable curiosity and love of culture.";
-
-const INTRO_PARA_2 =
-  "Specialized in helping organizations translate complex ideas into clear, compelling visual narratives, designing and applying brand systems, and creating polished, high-fidelity visual assets that bridge user experience with brand identity.";
+const INTRO_PARA =
+  "Senior Visual Designer with nearly 20 years combining creativity, technical skill, and a refined aesthetic sensibility—rooted in a personal practice as painter and musician, fueled by an insatiable curiosity and love of culture. I help organizations translate complex ideas into clear, compelling visual narratives, design cohesive brand systems, and craft polished, high-fidelity assets that bridge user experience with brand identity.";
 
 const ENGAGEMENTS = [
   { label: "Freelance Services", years: "2008 — Present" },
@@ -261,19 +258,9 @@ export function MobileNamePanel() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: DUR.base, ease: EASE, delay: 0.18 }}
-              style={{ color: "var(--fg)", marginBottom: "0.75rem" }}
+              style={{ color: "var(--fg)" }}
             >
-              {INTRO_PARA_1}
-            </motion.p>
-            <motion.p
-              className="text-body"
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: DUR.base, ease: EASE, delay: 0.28 }}
-              style={{ color: "var(--fg)", opacity: 0.85 }}
-            >
-              {INTRO_PARA_2}
+              {INTRO_PARA}
             </motion.p>
           </div>
         </div>

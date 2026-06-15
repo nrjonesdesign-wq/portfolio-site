@@ -672,27 +672,133 @@ function DisciplineMarquee({ text }: { text: string }) {
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean);
-  // Approximate character count for duration; six chars per separator
-  // is the rough on-screen width of " ★ ".
-  const approxChars = tags.join("").length + tags.length * 6;
+  // Constant on-screen drift speed (px/s) so longer disciplines lists
+  // cycle slower in seconds-per-loop but the same speed past your eye.
+  const baseSpeedPxPerSec = 38;
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const innerRef = useRef<HTMLDivElement>(null);
+  const offsetRef = useRef(0);
+  const interactingRef = useRef(false);
+  const velocityRef = useRef(0);
+
+  // Auto-drift + inertia loop. Same shape as MobileReel — raf-driven
+  // so we can pause / scrub / flick with native touch handlers.
+  useEffect(() => {
+    let raf = 0;
+    let lastT = performance.now();
+    const tick = (t: number) => {
+      const dt = Math.max(0, Math.min(0.1, (t - lastT) / 1000));
+      lastT = t;
+      const inner = innerRef.current;
+      if (inner) {
+        const halfStack = inner.scrollWidth / 2;
+        if (halfStack > 0) {
+          if (!interactingRef.current) {
+            if (Math.abs(velocityRef.current) > 8) {
+              offsetRef.current += velocityRef.current * dt;
+              velocityRef.current *= Math.exp(-2.6 * dt);
+              if (Math.abs(velocityRef.current) <= 8) {
+                velocityRef.current = 0;
+              }
+            } else {
+              offsetRef.current -= baseSpeedPxPerSec * dt;
+            }
+          }
+          // Wrap so the doubled segment loops seamlessly.
+          if (offsetRef.current <= -halfStack) {
+            offsetRef.current += halfStack;
+          } else if (offsetRef.current > 0) {
+            offsetRef.current -= halfStack;
+          }
+          inner.style.transform = `translate3d(${offsetRef.current}px, 0, 0)`;
+        }
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [baseSpeedPxPerSec]);
+
+  // Touch scrub. Distinguishes tap from drag via total horizontal
+  // travel — a stationary tap passes through to the row's onClick so
+  // the accordion can still open; a drag captures the gesture and
+  // scrubs the marquee with inertia on release.
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    let lastX = 0;
+    let lastT = 0;
+    let totalAbsDx = 0;
+    let active = false;
+    const DRAG_GAIN = 1.4;
+    const TAP_VS_DRAG_PX = 8;
+    const start = (e: TouchEvent) => {
+      lastX = e.touches[0]?.clientX ?? 0;
+      lastT = performance.now();
+      totalAbsDx = 0;
+      active = true;
+      // Don't claim the gesture until we know it's a drag.
+      interactingRef.current = true;
+      velocityRef.current = 0;
+    };
+    const move = (e: TouchEvent) => {
+      if (!active) return;
+      const x = e.touches[0]?.clientX ?? 0;
+      const now = performance.now();
+      const rawDx = x - lastX;
+      totalAbsDx += Math.abs(rawDx);
+      if (totalAbsDx > TAP_VS_DRAG_PX) {
+        // We're scrubbing — block the row's synthetic click + native
+        // scroll chain so the marquee is the gesture target.
+        e.preventDefault();
+        e.stopPropagation();
+        const dx = rawDx * DRAG_GAIN;
+        const dt = Math.max(1, now - lastT) / 1000;
+        const instVel = dx / dt;
+        velocityRef.current =
+          velocityRef.current * 0.4 + instVel * 0.6;
+        offsetRef.current += dx;
+      }
+      lastX = x;
+      lastT = now;
+    };
+    const end = () => {
+      active = false;
+      interactingRef.current = false;
+      if (totalAbsDx <= TAP_VS_DRAG_PX) {
+        // Stationary tap — discard any tiny accumulated velocity so
+        // the marquee doesn't twitch when the row opens.
+        velocityRef.current = 0;
+      }
+    };
+    el.addEventListener("touchstart", start, { passive: true });
+    el.addEventListener("touchmove", move, { passive: false });
+    el.addEventListener("touchend", end);
+    el.addEventListener("touchcancel", end);
+    return () => {
+      el.removeEventListener("touchstart", start);
+      el.removeEventListener("touchmove", move);
+      el.removeEventListener("touchend", end);
+      el.removeEventListener("touchcancel", end);
+    };
+  }, []);
 
   return (
     <div
+      ref={containerRef}
       style={{
         position: "relative",
         overflow: "hidden",
         width: "100%",
         height: "1.5rem",
+        // Let vertical scroll pass through; we'll capture horizontal
+        // ourselves once a drag is detected.
+        touchAction: "pan-y",
       }}
     >
-      <motion.div
-        animate={{ x: ["0%", "-50%"] }}
-        transition={{
-          duration: marqueeDurationSec(approxChars),
-          ease: "linear",
-          repeat: Infinity,
-          repeatType: "loop",
-        }}
+      <div
+        ref={innerRef}
         style={{
           display: "flex",
           alignItems: "center",
@@ -710,7 +816,7 @@ function DisciplineMarquee({ text }: { text: string }) {
       >
         <span>{renderMarqueeSegment(tags, 0)}</span>
         <span>{renderMarqueeSegment(tags, 1)}</span>
-      </motion.div>
+      </div>
     </div>
   );
 }
