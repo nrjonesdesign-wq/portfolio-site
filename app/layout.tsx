@@ -40,6 +40,10 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
+  // Seed iOS Safari's status-bar / home-indicator tint with the loading
+  // sage. useColorScheme then swaps this in JS as the user moves
+  // between sections.
+  themeColor: "#D7DAAC",
 };
 
 export default function RootLayout({

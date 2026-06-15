@@ -19,19 +19,18 @@ export function useColorScheme(section: Section) {
     document.body.style.backgroundColor = bg;
 
     // Drive iOS Safari's status-bar + bottom-chrome tint to match the
-    // current section bg. Without this, the safe-area regions sample a
-    // stale colour from earlier in the page and read as sage bands
-    // around the live content. Two tags so iOS picks the right one in
-    // both light + dark schemes.
-    let meta = document.querySelector<HTMLMetaElement>(
+    // current section bg. iOS Safari often caches the initial
+    // theme-color and ignores `meta.content = ...` updates, so REMOVE
+    // the existing meta and re-append a fresh one — that forces
+    // re-evaluation.
+    const old = document.querySelectorAll<HTMLMetaElement>(
       'meta[name="theme-color"]',
     );
-    if (!meta) {
-      meta = document.createElement("meta");
-      meta.name = "theme-color";
-      document.head.appendChild(meta);
-    }
+    old.forEach((m) => m.remove());
+    const meta = document.createElement("meta");
+    meta.name = "theme-color";
     meta.content = bg;
+    document.head.appendChild(meta);
   }, [section]);
 }
 

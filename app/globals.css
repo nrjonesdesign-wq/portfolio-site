@@ -90,10 +90,12 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-y: scroll;
-  /* Smooth color invert as the scroll position moves between sections. */
-  transition:
-    background-color 1.4s cubic-bezier(0.22, 1, 0.36, 1),
-    color            1.4s cubic-bezier(0.22, 1, 0.36, 1);
+  /* No bg transition on html — the iOS safe-area regions (status bar /
+     home indicator) tint from html bg; lagging that transition was
+     making the bands hold a stale colour while sections were already
+     mid-invert. Sections keep their own 1.4s transition for the smooth
+     content cross-fade. */
+  transition: color 1.4s cubic-bezier(0.22, 1, 0.36, 1);
   /* scroll-snap-type is activated via JS after the loading sequence exits */
 }
 
@@ -117,9 +119,9 @@ body {
   background-color: var(--bg);
   color: var(--fg);
   overflow-x: hidden;
-  transition:
-    background-color 1.4s cubic-bezier(0.22, 1, 0.36, 1),
-    color            1.4s cubic-bezier(0.22, 1, 0.36, 1);
+  /* No bg transition on body either — body sits above html and covers
+     the safe-area zones. Sections + chrome carry the smooth invert. */
+  transition: color 1.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* Snap section — applied to every full-viewport panel */
