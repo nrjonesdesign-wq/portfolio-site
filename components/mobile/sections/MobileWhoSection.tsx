@@ -19,8 +19,8 @@ import { DUR, EASE, STAGGER } from "@/lib/motion";
 const INTRO_LEAD =
   "I'm Nathaniel Robert Jones, an artist / designer with nearly 20 years of crafting compelling experiences.";
 
-const INTRO_PARA =
-  "Senior Visual Designer with nearly 20 years combining creativity, technical skill, and a refined aesthetic sensibility—rooted in a personal practice as painter and musician, fueled by an insatiable curiosity and love of culture. I help organizations translate complex ideas into clear, compelling visual narratives, design cohesive brand systems, and craft polished, high-fidelity assets that bridge user experience with brand identity.";
+const INTRO_REST =
+  " with nearly 20 years combining creativity, technical skill, and a refined aesthetic sensibility—rooted in a personal practice as painter and musician, fueled by an insatiable curiosity and love of culture. I help organizations translate complex ideas into clear, compelling visual narratives, design cohesive brand systems, and craft polished, high-fidelity assets that bridge user experience with brand identity.";
 
 const ENGAGEMENTS = [
   { label: "Freelance Services", years: "2008 — Present" },
@@ -260,7 +260,10 @@ export function MobileNamePanel() {
               transition={{ duration: DUR.base, ease: EASE, delay: 0.18 }}
               style={{ color: "var(--fg)" }}
             >
-              {INTRO_PARA}
+              <strong style={{ fontWeight: 600 }}>
+                Senior Visual Designer
+              </strong>
+              {INTRO_REST}
             </motion.p>
           </div>
         </div>
