@@ -670,9 +670,10 @@ function ImageLightbox({
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
 
-  const dist = (a: Touch, b: Touch) =>
+  type Pt = { clientX: number; clientY: number };
+  const dist = (a: Pt, b: Pt) =>
     Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
-  const mid = (a: Touch, b: Touch) => ({
+  const mid = (a: Pt, b: Pt) => ({
     x: (a.clientX + b.clientX) / 2,
     y: (a.clientY + b.clientY) / 2,
   });
