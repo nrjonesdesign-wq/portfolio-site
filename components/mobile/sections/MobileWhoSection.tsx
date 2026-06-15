@@ -212,7 +212,7 @@ export function MobileNamePanel() {
           // Generous bottom padding so the second [Intro] paragraph
           // finishes well above the snap boundary — the user can read
           // it fully before the page advances to Engagements.
-          paddingBottom: "calc(var(--m-foot-h) + 12dvh)",
+          paddingBottom: "calc(var(--m-foot-h) + 25dvh)",
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
