@@ -268,6 +268,20 @@ html.warping .star-field {
     opacity  1.6s linear;
 }
 
+/* Phones are taller-than-wide so the desktop warp distance reads as a
+   short skip up. Give the mobile warp more vertical reach + a longer
+   streak so it feels like the same dive. */
+@media (max-width: 768px) {
+  html.warping .star-field {
+    transform: translate3d(0, -360vh, 0) scaleY(22);
+    filter: blur(9px);
+    transition:
+      transform 1.9s cubic-bezier(0.55, 0, 0.4, 1),
+      filter   1.9s linear,
+      opacity  1.9s linear;
+  }
+}
+
 /* Case-study reel — placeholder loop. Translates the stack by one full
    half so the duplicate tiles flow in seamlessly. Replace with real
    assets when they arrive. */

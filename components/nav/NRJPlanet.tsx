@@ -15,6 +15,10 @@ type Props = {
    *  a single uniform weight. Defaults to false (desktop keeps its
    *  thinner-comet, heavier-circle balance). */
   equalStrokes?: boolean;
+  /** Multiplier on both the planet outline and the comet stroke. <1
+   *  makes them thinner — used on mobile loading so the planet reads
+   *  as a lighter line. Defaults to 1. */
+  strokeScale?: number;
   /** @deprecated retained for call-site compatibility — no longer used internally. */
   uid?: string;
 };
@@ -46,9 +50,9 @@ const TRAIL_ORBITS = 3.0;
 // Derived: one frame of trail = 60fps × SUBSTEPS sub-samples per second.
 const TRAIL_LEN = Math.round(60 * SUBSTEPS * ORBIT_DURATION_SEC * TRAIL_ORBITS);
 // Power curve for trail alpha decay. 1.0 = linear; >1 = sharper head.
-// Lower (closer to 1) keeps more of the trail visible at meaningful alpha
-// so older laps build the spirograph weave before fading out.
-const TRAIL_DECAY_POWER = 1.6;
+// Higher = faster fade of older samples, so the long trail accumulated
+// during a spin-boost wash-out clears more quickly once the boost ends.
+const TRAIL_DECAY_POWER = 2.6;
 
 const RING = {
   rxFrac: 0.42,            // ellipse semi-major axis as fraction of canvas dim
@@ -167,6 +171,7 @@ export default function NRJPlanet({
   wordmarkDelay = 0,
   className,
   equalStrokes = false,
+  strokeScale = 1,
 }: Props) {
   const backRef = useRef<HTMLCanvasElement>(null);
   const frontRef = useRef<HTMLCanvasElement>(null);
@@ -261,10 +266,9 @@ export default function NRJPlanet({
       // stroke widths so the static outline reads as the visual anchor
       // while the orbiting comet is a lighter accent. Both interpolate
       // up to a slightly heavier weight in the large loading state.
-      const circleStrokePx = 3.5 + 0.5 * morphT;
-      const cometStrokePx = equalStrokes
-        ? circleStrokePx
-        : 2 + 0.5 * morphT;
+      const circleStrokePx = (3.5 + 0.5 * morphT) * strokeScale;
+      const cometStrokePx =
+        (equalStrokes ? 3.5 + 0.5 * morphT : 2 + 0.5 * morphT) * strokeScale;
       // Kept under the original name for the SVG var below.
       const visualStrokePx = circleStrokePx;
       // Comet uses its own (thinner) target stroke; circle uses
@@ -352,7 +356,7 @@ export default function NRJPlanet({
       cancelAnimationFrame(raf);
       ro.disconnect();
     };
-  }, [equalStrokes]);
+  }, [equalStrokes, strokeScale]);
 
   // Sizing: large fills its container; nav uses 100% so callers can size it
   // explicitly via the wrapping element (Nav passes a 60px box).
