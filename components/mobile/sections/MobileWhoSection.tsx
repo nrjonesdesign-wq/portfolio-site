@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import StarField from "@/components/starfield/StarField";
 import LetterCascade from "@/components/primitives/LetterCascade";
@@ -186,8 +187,37 @@ export function MobileHelloPanel() {
  * the content visible when it overflows instead of clipping it.
  */
 export function MobileNamePanel() {
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const wasVisibleRef = useRef(false);
+
+  // Reset the inner scroll to the top every time the section enters
+  // the viewport. Without this, the inner column remembers where it
+  // was left — so re-entering from Work (going up) lands the user
+  // mid-bottom (CV link), past the Engagements list. With reset,
+  // the user always starts on Name and scrolls forward through
+  // Intro → Engagements → CV regardless of direction.
+  useEffect(() => {
+    const sec = sectionRef.current;
+    const scr = scrollRef.current;
+    if (!sec || !scr) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        const nowVisible = entry.intersectionRatio > 0.5;
+        if (nowVisible && !wasVisibleRef.current) {
+          scr.scrollTop = 0;
+        }
+        wasVisibleRef.current = nowVisible;
+      },
+      { threshold: [0.5] }
+    );
+    io.observe(sec);
+    return () => io.disconnect();
+  }, []);
+
   return (
     <section
+      ref={sectionRef}
       id="who-bio"
       className="snap"
       style={{
@@ -208,6 +238,7 @@ export function MobileNamePanel() {
       </div>
 
       <div
+        ref={scrollRef}
         style={{
           position: "absolute",
           top: 0,
