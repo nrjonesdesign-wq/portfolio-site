@@ -218,7 +218,10 @@ export function MobileNamePanel() {
           // scrollable area sits between them. Extra 1rem on each side
           // for breathing room.
           paddingTop: "calc(var(--m-nav-h) + 1rem)",
-          paddingBottom: "calc(var(--m-foot-h) + 1rem)",
+          // Generous bottom padding so the Download CV link lands near
+          // vertical centre — not right above the footer — when the
+          // user has scrolled to the bottom of the section.
+          paddingBottom: "calc(var(--m-foot-h) + 22dvh)",
           // Scroll when content overflows. -webkit-overflow-scrolling is
           // legacy but harmless and still kicks momentum on older iOS.
           overflowY: "auto",
