@@ -10,12 +10,13 @@ export function useColorScheme(section: Section) {
     root.style.setProperty("--bg", bg);
     root.style.setProperty("--fg", fg);
     root.style.setProperty("--accent", accent);
-    // Also set the bg directly on html so iOS Safari safe-area regions
-    // (visible with viewport-fit: cover) pick up the new colour reliably
-    // — CSS var() resolution + transition on html sometimes lagged on
-    // iOS Safari, leaving the status bar / home indicator tinted with
-    // a stale colour from earlier in the page.
+    // Also set the bg directly on html AND body so iOS Safari safe-area
+    // regions (visible with viewport-fit: cover) pick up the new colour
+    // reliably. body sits above html and covers the safe-area zones, so
+    // if body's CSS-var-driven bg lags the scheme swap, the safe area
+    // shows the stale colour even though html is already updated.
     root.style.backgroundColor = bg;
+    document.body.style.backgroundColor = bg;
 
     // Drive iOS Safari's status-bar + bottom-chrome tint to match the
     // current section bg. Without this, the safe-area regions sample a
