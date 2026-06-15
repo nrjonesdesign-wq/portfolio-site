@@ -404,7 +404,9 @@ export default function MobileCaseStudyPanel({
               style={{
                 paddingLeft: "var(--m-gutter)",
                 paddingRight: "var(--m-gutter)",
-                paddingBottom: "1.5rem",
+                // Generous bottom space so CREDITS / SERVICES don't
+                // butt up against the toggle/footer below the card.
+                paddingBottom: "3rem",
                 touchAction: "pan-y",
                 cursor: "grab",
               }}
@@ -638,6 +640,25 @@ function ImageLightbox({
   image: { src: string; alt?: string };
   onClose: () => void;
 }) {
+  // Custom pinch + pan handler — iOS Safari's native viewport zoom is
+  // unreliable over a fixed-position overlay, so we apply the scale to
+  // the <img> directly via a CSS transform. One finger pans when zoomed
+  // (scale > 1); two fingers pinch to zoom and pan together.
+  const [scale, setScale] = useState(1);
+  const [tx, setTx] = useState(0);
+  const [ty, setTy] = useState(0);
+  // Snapshot of state at gesture start. Refs so the handlers don't
+  // re-bind on every render and lose the in-progress values.
+  const startRef = useRef<{
+    scale: number;
+    tx: number;
+    ty: number;
+    dist: number;
+    cx: number;
+    cy: number;
+    mode: "pinch" | "pan" | null;
+  }>({ scale: 1, tx: 0, ty: 0, dist: 0, cx: 0, cy: 0, mode: null });
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -649,12 +670,87 @@ function ImageLightbox({
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
 
+  const dist = (a: Touch, b: Touch) =>
+    Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+  const mid = (a: Touch, b: Touch) => ({
+    x: (a.clientX + b.clientX) / 2,
+    y: (a.clientY + b.clientY) / 2,
+  });
+
+  const onTouchStart = (e: React.TouchEvent<HTMLImageElement>) => {
+    e.stopPropagation();
+    if (e.touches.length === 2) {
+      const [a, b] = [e.touches[0], e.touches[1]];
+      const m = mid(a, b);
+      startRef.current = {
+        scale,
+        tx,
+        ty,
+        dist: dist(a, b),
+        cx: m.x,
+        cy: m.y,
+        mode: "pinch",
+      };
+    } else if (e.touches.length === 1 && scale > 1) {
+      const t = e.touches[0];
+      startRef.current = {
+        scale,
+        tx,
+        ty,
+        dist: 0,
+        cx: t.clientX,
+        cy: t.clientY,
+        mode: "pan",
+      };
+    } else {
+      startRef.current.mode = null;
+    }
+  };
+
+  const onTouchMove = (e: React.TouchEvent<HTMLImageElement>) => {
+    const s = startRef.current;
+    if (s.mode === "pinch" && e.touches.length === 2) {
+      e.preventDefault();
+      e.stopPropagation();
+      const [a, b] = [e.touches[0], e.touches[1]];
+      const newDist = dist(a, b);
+      const newScale = Math.max(1, Math.min(6, s.scale * (newDist / s.dist)));
+      const m = mid(a, b);
+      setScale(newScale);
+      setTx(s.tx + (m.x - s.cx));
+      setTy(s.ty + (m.y - s.cy));
+    } else if (s.mode === "pan" && e.touches.length === 1) {
+      e.preventDefault();
+      e.stopPropagation();
+      const t = e.touches[0];
+      setTx(s.tx + (t.clientX - s.cx));
+      setTy(s.ty + (t.clientY - s.cy));
+    }
+  };
+
+  const onTouchEnd = (e: React.TouchEvent<HTMLImageElement>) => {
+    // If zoom drops back to ~1, snap fully home so the next gesture
+    // starts clean and any pan offset disappears.
+    if (scale <= 1.02) {
+      setScale(1);
+      setTx(0);
+      setTy(0);
+    }
+    if (e.touches.length === 0) startRef.current.mode = null;
+  };
+
+  // Tap empty space to close (only when not zoomed — otherwise a tap-
+  // ending pan would dismiss the lightbox unexpectedly).
+  const onBackdropClick = () => {
+    if (scale === 1) onClose();
+  };
+
   return (
     <motion.div
       key="lightbox"
       role="dialog"
       aria-modal="true"
-      onClick={onClose}
+      onClick={onBackdropClick}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -669,25 +765,31 @@ function ImageLightbox({
         justifyContent: "center",
         padding: "1rem",
         cursor: "zoom-out",
+        // Prevent the page underneath from scrolling while pinching.
+        touchAction: "none",
+        overflow: "hidden",
       }}
     >
       <img
         src={image.src}
         alt={image.alt ?? ""}
         onClick={(e) => e.stopPropagation()}
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+        onTouchCancel={onTouchEnd}
         style={{
-          // Intrinsic sizing — the <img> box matches the rendered
-          // image so taps around it reach the wrapper. objectFit:
-          // contain would letterbox inside the img element, and the
-          // stopPropagation below would swallow taps in those bands.
           width: "auto",
           height: "auto",
           maxWidth: "100%",
           maxHeight: "100%",
           display: "block",
-          // Default touch-action (auto) lets iOS Safari's native pinch
-          // and double-tap-zoom run on the image; "manipulation" was
-          // suppressing pinch on some devices.
+          transform: `translate3d(${tx}px, ${ty}px, 0) scale(${scale})`,
+          transformOrigin: "center center",
+          transition: startRef.current.mode ? "none" : "transform 0.2s ease-out",
+          touchAction: "none",
+          userSelect: "none",
+          WebkitUserSelect: "none",
         }}
       />
     </motion.div>
