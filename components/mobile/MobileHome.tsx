@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { useColorScheme } from "@/lib/scroll";
 import type { Section } from "@/lib/colors";
@@ -100,19 +100,49 @@ export default function MobileHome() {
     };
   }, []);
 
-  // Loading auto-advance — mirrors desktop. After 5s on the loading
-  // panel the page smooth-scrolls into the WHO Hello panel so users
-  // who never tap the planet still get into the site. No-ops once
-  // the user has navigated past loading.
-  useEffect(() => {
-    if (activeSection !== "loading") return;
-    const t = window.setTimeout(() => {
+  // Loading → Hello transition, identical timeline to desktop:
+  //   t=0     .spin-boost → planet body + electron whip around
+  //   t=600   .warping    → stars streak vertically (~1.6s)
+  //   t=1100  scrollIntoView('#who') — page slides under the warp
+  //   t=1700  remove .spin-boost (planet has docked off-screen)
+  //   t=2400  remove .warping
+  // Used by the auto-advance timer below AND by the planet tap on
+  // MobileLoadingSection.
+  const triggerLoadingTransition = useCallback(() => {
+    const html = document.documentElement;
+    if (html.classList.contains("warping")) return;
+    html.classList.add("spin-boost");
+    const t1 = window.setTimeout(() => {
+      html.classList.add("warping");
+    }, 600);
+    const t2 = window.setTimeout(() => {
       document
         .getElementById("who")
         ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 1100);
+    const t3 = window.setTimeout(() => {
+      html.classList.remove("spin-boost");
+    }, 1700);
+    const t4 = window.setTimeout(() => {
+      html.classList.remove("warping");
+    }, 2400);
+    return () => {
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+      window.clearTimeout(t3);
+      window.clearTimeout(t4);
+    };
+  }, []);
+
+  // Loading auto-advance — fires the same transition after 5s on the
+  // loading panel so users who never tap the planet still land in WHO.
+  useEffect(() => {
+    if (activeSection !== "loading") return;
+    const t = window.setTimeout(() => {
+      triggerLoadingTransition();
     }, 5000);
     return () => window.clearTimeout(t);
-  }, [activeSection]);
+  }, [activeSection, triggerLoadingTransition]);
 
   // Drive the color scheme via the same useColorScheme helper desktop
   // uses. While on Loading: pre-invert flips loading ↔ who. After
@@ -231,7 +261,10 @@ export default function MobileHome() {
         visible={chromeVisible}
         onOpenMenu={() => setMenuOpen(true)}
       >
-        <MobileLoadingSection inverted={loadingInverted} />
+        <MobileLoadingSection
+          inverted={loadingInverted}
+          onAdvance={triggerLoadingTransition}
+        />
         <MobileHelloPanel />
         <MobileNamePanel />
         <MobileEngagementsPanel />

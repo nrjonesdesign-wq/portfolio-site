@@ -20,9 +20,11 @@ import { EASE_SPRING } from "@/lib/motion";
 type Props = {
   /** Driven from MobileHome's loadingInverted state. */
   inverted: boolean;
+  /** Fires the warp + smooth-scroll sequence when the planet is tapped. */
+  onAdvance?: () => void;
 };
 
-export default function MobileLoadingSection({ inverted }: Props) {
+export default function MobileLoadingSection({ inverted, onAdvance }: Props) {
   // Local mount flag so the planet only scale-in animates once.
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
@@ -40,15 +42,16 @@ export default function MobileLoadingSection({ inverted }: Props) {
         height: "100dvh",
       }}
     >
-      {/* Star field */}
+      {/* Star field — `.star-field` is the hook the warp transition
+          latches onto (see html.warping rule in globals.css). */}
       <div
         aria-hidden
+        className="star-field"
         style={{
           position: "absolute",
           inset: 0,
           color: "var(--fg)",
           opacity: inverted ? 0.55 : 0.45,
-          transition: "opacity 1.4s cubic-bezier(0.22, 1, 0.36, 1)",
         }}
       >
         <StarField className="w-full h-full" count={16} size={22} />
@@ -63,9 +66,13 @@ export default function MobileLoadingSection({ inverted }: Props) {
         type="button"
         aria-label="Continue to bio"
         onClick={() => {
-          document
-            .getElementById("who")
-            ?.scrollIntoView({ behavior: "smooth", block: "start" });
+          if (onAdvance) {
+            onAdvance();
+          } else {
+            document
+              .getElementById("who")
+              ?.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
         }}
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: mounted ? 1 : 0, opacity: mounted ? 1 : 0 }}
