@@ -44,19 +44,21 @@ export default function MobileChrome({
     <>
       {children}
 
-      {/* Top nav. With viewport-fit: cover the header extends edge-to-
-          edge — its backdrop fills behind the iOS status bar, while
-          the content row sits below the status bar via safe-area-inset. */}
+      {/* Top nav. Positioned with `top: env(safe-area-inset-top)` so it
+          sits BELOW the iOS status bar — leaving the safe-area band
+          transparent so it picks up the html bg (which follows --bg
+          per useColorScheme) instead of the chrome's gradient (whose
+          CSS-variable transitions can lag during scheme swaps). */}
       <motion.header
         initial={false}
         animate={{ opacity: visible ? 1 : 0, y: visible ? 0 : -8 }}
         transition={{ duration: DUR.base, ease: EASE }}
         style={{
           position: "fixed",
-          top: 0,
+          top: "env(safe-area-inset-top, 0px)",
           left: 0,
           right: 0,
-          height: `calc(${NAV_H} + env(safe-area-inset-top, 0px))`,
+          height: NAV_H,
           zIndex: 60,
           pointerEvents: visible ? "auto" : "none",
         }}
@@ -66,15 +68,11 @@ export default function MobileChrome({
         <ChromeBackdrop edge="top" />
 
         {/* Content row — flex centred so the planet and the bracket
-            label sit on the same vertical axis. Top padding pushes
-            content clear of the status bar. */}
+            label sit on the same vertical axis. */}
         <div
           style={{
             position: "absolute",
-            top: "env(safe-area-inset-top, 0px)",
-            left: 0,
-            right: 0,
-            bottom: 0,
+            inset: 0,
             paddingLeft: GUTTER,
             paddingRight: GUTTER,
             display: "flex",
@@ -140,18 +138,19 @@ export default function MobileChrome({
         </div>
       </motion.header>
 
-      {/* Bottom footer. Backdrop fills behind the iOS home indicator
-          while the content row sits above it via safe-area-inset. */}
+      {/* Bottom footer. Positioned with `bottom: env(safe-area-inset-bottom)`
+          so it sits ABOVE the iOS home-indicator strip — leaving the
+          safe-area band transparent to pick up html bg. */}
       <motion.footer
         initial={false}
         animate={{ opacity: visible ? 1 : 0, y: visible ? 0 : 8 }}
         transition={{ duration: DUR.base, ease: EASE }}
         style={{
           position: "fixed",
-          bottom: 0,
+          bottom: "env(safe-area-inset-bottom, 0px)",
           left: 0,
           right: 0,
-          height: `calc(${FOOT_H} + env(safe-area-inset-bottom, 0px))`,
+          height: FOOT_H,
           zIndex: 60,
           pointerEvents: "none",
         }}
@@ -160,10 +159,7 @@ export default function MobileChrome({
         <div
           style={{
             position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: "env(safe-area-inset-bottom, 0px)",
+            inset: 0,
             paddingLeft: GUTTER,
             paddingRight: GUTTER,
             display: "flex",
