@@ -987,6 +987,12 @@ function MobileReel({
   // unmuted a video — same pattern as the desktop reel.
   const interactingRef = useRef(false);
   const audioPausedRef = useRef(false);
+  // Inertia carry-over after a touch release — gives long reels a
+  // flick-and-glide feel instead of stopping dead the moment the
+  // finger lifts. Updated during touchmove (recent-velocity EMA);
+  // decays in the tick loop until it falls below a stop threshold,
+  // at which point auto-drift resumes.
+  const velocityRef = useRef(0);
 
   // Auto-drift loop: translate the inner stack upward; wrap on every
   // half-stack to make the seam between the duplicated copies
@@ -1002,8 +1008,19 @@ function MobileReel({
         const halfStack = inner.scrollHeight / 2;
         if (halfStack > 0) {
           if (!interactingRef.current && !audioPausedRef.current) {
-            const pxPerSec = halfStack / (Math.max(1, items.length) * 9);
-            offsetRef.current -= pxPerSec * dt;
+            if (Math.abs(velocityRef.current) > 8) {
+              // Inertia phase — keep the flick going, decay
+              // exponentially so it eases out cleanly.
+              offsetRef.current += velocityRef.current * dt;
+              velocityRef.current *= Math.exp(-2.6 * dt);
+              if (Math.abs(velocityRef.current) <= 8) {
+                velocityRef.current = 0;
+              }
+            } else {
+              // Auto-drift baseline.
+              const pxPerSec = halfStack / (Math.max(1, items.length) * 9);
+              offsetRef.current -= pxPerSec * dt;
+            }
           }
           // Keep offset in [-halfStack, 0] so the doubled stack
           // always covers the viewport.
@@ -1035,23 +1052,41 @@ function MobileReel({
     return () => el.removeEventListener("wheel", onWheel);
   }, []);
 
-  // Touch scrub. Pauses auto-drift while the user is touching.
+  // Touch scrub. Pauses auto-drift while the user is touching, and
+  // carries momentum into the inertia loop on release so long reels
+  // feel quick to navigate via flick.
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
     let lastY = 0;
+    let lastT = 0;
     let active = false;
+    // 1:1 finger movement felt too slow on long reels — a small boost
+    // tracks the finger snappier without losing the direct-manipulation
+    // feel.
+    const DRAG_GAIN = 1.6;
     const start = (e: TouchEvent) => {
       lastY = e.touches[0]?.clientY ?? 0;
+      lastT = performance.now();
       active = true;
       interactingRef.current = true;
+      velocityRef.current = 0;
     };
     const move = (e: TouchEvent) => {
       if (!active) return;
       const y = e.touches[0]?.clientY ?? 0;
-      const dy = y - lastY;
+      const now = performance.now();
+      const rawDy = y - lastY;
+      const dy = rawDy * DRAG_GAIN;
+      const dt = Math.max(1, now - lastT) / 1000;
+      // EMA of instantaneous velocity so a quick jitter at the end of
+      // the gesture doesn't dominate the release vector.
+      const instVel = dy / dt;
+      velocityRef.current =
+        velocityRef.current * 0.4 + instVel * 0.6;
       offsetRef.current += dy;
       lastY = y;
+      lastT = now;
       // Prevent the case-study tray from also scrolling while we're
       // scrubbing the reel.
       e.preventDefault();
@@ -1059,6 +1094,7 @@ function MobileReel({
     const end = () => {
       active = false;
       interactingRef.current = false;
+      // velocityRef.current is preserved → tick loop carries it.
     };
     el.addEventListener("touchstart", start, { passive: true });
     el.addEventListener("touchmove", move, { passive: false });
