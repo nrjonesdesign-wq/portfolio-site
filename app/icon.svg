@@ -1,6 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <g transform="rotate(-15 50 50)" fill="none" stroke="#D7DAAC" stroke-width="5" stroke-linecap="round">
-    <ellipse cx="50" cy="50" rx="42" ry="16"/>
+  <style>
+    .planet { fill: #151515; stroke: #151515; }
+    .ring { stroke: #151515; }
+    @media (prefers-color-scheme: dark) {
+      .planet { fill: #D7DAAC; stroke: #D7DAAC; }
+      .ring { stroke: #D7DAAC; }
+    }
+  </style>
+  <g transform="rotate(-15 50 50)" fill="none" stroke-width="5" stroke-linecap="round">
+    <ellipse class="ring" cx="50" cy="50" rx="42" ry="16"/>
   </g>
-  <circle cx="50" cy="50" r="20" fill="#D7DAAC" stroke="#D7DAAC" stroke-width="5"/>
+  <circle class="planet" cx="50" cy="50" r="20" stroke-width="5"/>
 </svg>
