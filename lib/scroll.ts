@@ -10,6 +10,21 @@ export function useColorScheme(section: Section) {
     root.style.setProperty("--bg", bg);
     root.style.setProperty("--fg", fg);
     root.style.setProperty("--accent", accent);
+
+    // Drive iOS Safari's status-bar + bottom-chrome tint to match the
+    // current section bg. Without this, the safe-area regions sample a
+    // stale colour from earlier in the page and read as sage bands
+    // around the live content. Two tags so iOS picks the right one in
+    // both light + dark schemes.
+    let meta = document.querySelector<HTMLMetaElement>(
+      'meta[name="theme-color"]',
+    );
+    if (!meta) {
+      meta = document.createElement("meta");
+      meta.name = "theme-color";
+      document.head.appendChild(meta);
+    }
+    meta.content = bg;
   }, [section]);
 }
 

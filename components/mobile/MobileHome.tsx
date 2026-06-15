@@ -201,12 +201,13 @@ export default function MobileHome() {
           height: "100dvh",
           overflowY: "auto",
           overflowX: "hidden",
-          // Proximity (not mandatory) so taller sections — like the Name
-          // panel on shorter phones — can be scrolled through naturally
-          // without iOS yanking the user back to a snap point mid-scroll.
-          // Snap still engages when the user releases near a section
-          // boundary.
-          scrollSnapType: "y proximity",
+          // Mandatory snap so the user always lands on a section,
+          // never mid-scroll between two. The original nested-overflow
+          // glitch (Name + Work rendering simultaneously) was caused
+          // by inner overflow on Name fighting mandatory; with Name
+          // now using natural flow under min-height: 100dvh, mandatory
+          // resolves cleanly.
+          scrollSnapType: "y mandatory",
           scrollPaddingTop: "var(--m-nav-h)",
           WebkitOverflowScrolling: "touch",
         } as React.CSSProperties
