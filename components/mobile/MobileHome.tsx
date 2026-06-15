@@ -10,7 +10,6 @@ import MobileLoadingSection from "./sections/MobileLoadingSection";
 import {
   MobileHelloPanel,
   MobileNamePanel,
-  MobileEngagementsPanel,
 } from "./sections/MobileWhoSection";
 import MobileWorkSection from "./sections/MobileWorkSection";
 import MobileCaseStudyPanel from "./sections/MobileCaseStudyPanel";
@@ -126,13 +125,12 @@ export default function MobileHome() {
       "loading",
       "who",
       "who-bio",
-      "who-engagements",
       "work",
       "contact",
     ];
     const sectionForId = (id: string): "loading" | Section => {
       if (id === "loading") return "loading";
-      if (id === "who" || id === "who-bio" || id === "who-engagements") return "who";
+      if (id === "who" || id === "who-bio") return "who";
       if (id === "work") return "hired";
       if (id === "contact") return "contact";
       return "loading";
@@ -203,13 +201,12 @@ export default function MobileHome() {
           height: "100dvh",
           overflowY: "auto",
           overflowX: "hidden",
-          // Mandatory snap so the user always lands on a section,
-          // never mid-scroll between two. The original nested-overflow
-          // glitch (Name + Work rendering simultaneously) was caused
-          // by inner overflow on Name fighting mandatory; with Name
-          // now using natural flow under min-height: 100dvh, mandatory
-          // resolves cleanly.
-          scrollSnapType: "y mandatory",
+          // Proximity (not mandatory) so the user can scroll within
+          // the Name panel — which grows past 100dvh to fit Engagements
+          // + CV on short phones — without being yanked back to the
+          // section's top. Snap still engages when the user releases
+          // near a section boundary.
+          scrollSnapType: "y proximity",
           scrollPaddingTop: "var(--m-nav-h)",
           WebkitOverflowScrolling: "touch",
         } as React.CSSProperties
@@ -223,7 +220,6 @@ export default function MobileHome() {
         <MobileLoadingSection inverted={loadingInverted} />
         <MobileHelloPanel />
         <MobileNamePanel />
-        <MobileEngagementsPanel />
         <MobileWorkSection
           openSlug={workOpenSlug}
           onOpenSlugChange={setWorkOpenSlug}

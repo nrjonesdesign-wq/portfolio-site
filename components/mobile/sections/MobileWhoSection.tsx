@@ -177,11 +177,13 @@ export function MobileHelloPanel() {
 /* ─── Name panel ─────────────────────────────────────────────────────── */
 
 /**
- * Name panel — second screen of WHO (Hello is the first).
- * Just the "Nathaniel Robert Jones" stack + [ Intro ] paragraphs.
- * Locked to 100dvh so mandatory snap can land cleanly. Engagements +
- * CV moved to a third WHO snap (MobileEngagementsPanel) so each panel
- * fits comfortably on short phones.
+ * WHO Name panel — second screen of WHO (Hello is the first).
+ * Holds name stack, intro paragraphs, Select Engagements list, and
+ * Download CV in one section. Grows past 100dvh on shorter phones;
+ * the user scrolls naturally through it via the main scroll. Pairs
+ * with proximity snap on main (set in MobileHome) so the user can
+ * rest mid-section to read Engagements without being yanked back
+ * to a snap point.
  */
 export function MobileNamePanel() {
   return (
@@ -191,7 +193,7 @@ export function MobileNamePanel() {
       style={{
         backgroundColor: "var(--bg)",
         position: "relative",
-        height: "100dvh",
+        minHeight: "100dvh",
         overflow: "hidden",
       }}
     >
@@ -206,9 +208,9 @@ export function MobileNamePanel() {
       <div
         style={{
           position: "relative",
-          height: "100%",
+          minHeight: "100dvh",
           paddingTop: "calc(var(--m-nav-h) + 1rem)",
-          paddingBottom: "calc(var(--m-foot-h) + 1rem)",
+          paddingBottom: "calc(var(--m-foot-h) + 1.5rem)",
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
@@ -272,52 +274,8 @@ export function MobileNamePanel() {
               {INTRO_PARA_2}
             </motion.p>
           </div>
-        </div>
-      </div>
-    </section>
-  );
-}
 
-/* ─── Engagements panel ──────────────────────────────────────────────── */
-
-/**
- * Third WHO screen — Select Engagements list + Download CV.
- * Split off from Name so each snap stop fits 100dvh cleanly on short
- * phones (the original combined panel was overflowing and breaking
- * mandatory scroll-snap with mid-state Name+Work renders).
- */
-export function MobileEngagementsPanel() {
-  return (
-    <section
-      id="who-engagements"
-      className="snap"
-      style={{
-        backgroundColor: "var(--bg)",
-        position: "relative",
-        height: "100dvh",
-        overflow: "hidden",
-      }}
-    >
-      <div
-        aria-hidden
-        className="absolute inset-0 pointer-events-none"
-        style={{ color: "var(--fg)", opacity: 0.4 }}
-      >
-        <StarField className="w-full h-full" count={10} size={20} />
-      </div>
-
-      <div
-        style={{
-          position: "relative",
-          height: "100%",
-          paddingTop: "calc(var(--m-nav-h) + 1rem)",
-          paddingBottom: "calc(var(--m-foot-h) + 1rem)",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-        }}
-      >
-        <div className="m-content-grid" style={{ rowGap: "2rem" }}>
+          {/* Select Engagements */}
           <div style={{ gridColumn: "1 / 9" }}>
             <motion.h3
               initial={{ opacity: 0, y: 14 }}
@@ -331,7 +289,7 @@ export function MobileEngagementsPanel() {
                 lineHeight: 0.95,
                 color: "var(--fg)",
                 letterSpacing: "-0.01em",
-                marginBottom: "1.25rem",
+                marginBottom: "0.875rem",
               }}
             >
               Select Engagements
@@ -340,7 +298,7 @@ export function MobileEngagementsPanel() {
               style={{
                 display: "flex",
                 flexDirection: "column",
-                gap: "0.6rem",
+                gap: "0.55rem",
               }}
             >
               {ENGAGEMENTS.map(({ label, years }, i) => (
@@ -400,6 +358,7 @@ export function MobileEngagementsPanel() {
             </div>
           </div>
 
+          {/* Download CV cue */}
           <div
             style={{
               gridColumn: "1 / 9",
