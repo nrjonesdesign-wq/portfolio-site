@@ -177,12 +177,11 @@ export function MobileHelloPanel() {
 /* ─── Name panel ─────────────────────────────────────────────────────── */
 
 /**
- * WHO panel — second screen of the Who section (Hello is the first).
- * Holds name stack, intro paragraphs, Select Engagements, and the CV
- * link. Grows naturally past 100dvh on shorter phones so all content
- * stays reachable via the main page scroll (no nested overflow — that
- * caused snap-glitch transitions on iOS where Name and Work could
- * render simultaneously mid-scroll).
+ * Name panel — second screen of WHO (Hello is the first).
+ * Just the "Nathaniel Robert Jones" stack + [ Intro ] paragraphs.
+ * Locked to 100dvh so mandatory snap can land cleanly. Engagements +
+ * CV moved to a third WHO snap (MobileEngagementsPanel) so each panel
+ * fits comfortably on short phones.
  */
 export function MobileNamePanel() {
   return (
@@ -192,9 +191,7 @@ export function MobileNamePanel() {
       style={{
         backgroundColor: "var(--bg)",
         position: "relative",
-        // min-height instead of fixed height — section grows with
-        // content on short phones; centred layout on tall ones.
-        minHeight: "100dvh",
+        height: "100dvh",
         overflow: "hidden",
       }}
     >
@@ -209,22 +206,15 @@ export function MobileNamePanel() {
       <div
         style={{
           position: "relative",
-          minHeight: "100dvh",
-          // Inset for the mobile nav (top) and footer (bottom).
+          height: "100%",
           paddingTop: "calc(var(--m-nav-h) + 1rem)",
-          paddingBottom: "calc(var(--m-foot-h) + 2.5rem)",
+          paddingBottom: "calc(var(--m-foot-h) + 1rem)",
           display: "flex",
           flexDirection: "column",
-          // Centre content vertically when it fits in the viewport;
-          // on shorter phones content grows past min-height and the
-          // user scrolls main to see the rest.
           justifyContent: "center",
         }}
       >
-        <div
-          className="m-content-grid"
-          style={{ rowGap: "2rem" }}
-        >
+        <div className="m-content-grid" style={{ rowGap: "1.75rem" }}>
           {/* Name stack — full 8-col span */}
           <div style={{ gridColumn: "1 / 9" }}>
             <motion.h2
@@ -245,9 +235,7 @@ export function MobileNamePanel() {
             <OutlineName word="Jones" delay={0.24} />
           </div>
 
-          {/* [ INTRO ] eyebrow + paragraphs. Shares the Hello intro
-              paragraph's column width (1 / 8) so the body copy reads
-              with a consistent measure across both WHO screens. */}
+          {/* [ INTRO ] eyebrow + paragraphs */}
           <div style={{ gridColumn: "1 / 8" }}>
             <motion.span
               className="text-label"
@@ -284,8 +272,52 @@ export function MobileNamePanel() {
               {INTRO_PARA_2}
             </motion.p>
           </div>
+        </div>
+      </div>
+    </section>
+  );
+}
 
-          {/* Select Engagements */}
+/* ─── Engagements panel ──────────────────────────────────────────────── */
+
+/**
+ * Third WHO screen — Select Engagements list + Download CV.
+ * Split off from Name so each snap stop fits 100dvh cleanly on short
+ * phones (the original combined panel was overflowing and breaking
+ * mandatory scroll-snap with mid-state Name+Work renders).
+ */
+export function MobileEngagementsPanel() {
+  return (
+    <section
+      id="who-engagements"
+      className="snap"
+      style={{
+        backgroundColor: "var(--bg)",
+        position: "relative",
+        height: "100dvh",
+        overflow: "hidden",
+      }}
+    >
+      <div
+        aria-hidden
+        className="absolute inset-0 pointer-events-none"
+        style={{ color: "var(--fg)", opacity: 0.4 }}
+      >
+        <StarField className="w-full h-full" count={10} size={20} />
+      </div>
+
+      <div
+        style={{
+          position: "relative",
+          height: "100%",
+          paddingTop: "calc(var(--m-nav-h) + 1rem)",
+          paddingBottom: "calc(var(--m-foot-h) + 1rem)",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+        }}
+      >
+        <div className="m-content-grid" style={{ rowGap: "2rem" }}>
           <div style={{ gridColumn: "1 / 9" }}>
             <motion.h3
               initial={{ opacity: 0, y: 14 }}
@@ -294,18 +326,12 @@ export function MobileNamePanel() {
               transition={{ duration: DUR.base, ease: EASE }}
               style={{
                 fontFamily: "var(--font-body)",
-                // 34px — paired with Select Work; smaller than before
-                // so the Download CV cue stays clear of the footer
-                // chrome on shorter phones.
                 fontSize: "2.125rem",
                 fontWeight: 700,
-                // Tight leading on the two wrapped lines so it reads
-                // with the same proportional rhythm as the display
-                // headlines (text-name = 0.95).
                 lineHeight: 0.95,
                 color: "var(--fg)",
                 letterSpacing: "-0.01em",
-                marginBottom: "0.875rem",
+                marginBottom: "1.25rem",
               }}
             >
               Select Engagements
@@ -314,7 +340,7 @@ export function MobileNamePanel() {
               style={{
                 display: "flex",
                 flexDirection: "column",
-                gap: "0.55rem",
+                gap: "0.6rem",
               }}
             >
               {ENGAGEMENTS.map(({ label, years }, i) => (
@@ -374,9 +400,6 @@ export function MobileNamePanel() {
             </div>
           </div>
 
-          {/* Download CV cue — bracketed mono link aligned right.
-              Sits in its own grid row so it follows the same rowGap
-              rhythm as Name / Intro / Engagements. */}
           <div
             style={{
               gridColumn: "1 / 9",

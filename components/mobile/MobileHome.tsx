@@ -10,6 +10,7 @@ import MobileLoadingSection from "./sections/MobileLoadingSection";
 import {
   MobileHelloPanel,
   MobileNamePanel,
+  MobileEngagementsPanel,
 } from "./sections/MobileWhoSection";
 import MobileWorkSection from "./sections/MobileWorkSection";
 import MobileCaseStudyPanel from "./sections/MobileCaseStudyPanel";
@@ -125,12 +126,13 @@ export default function MobileHome() {
       "loading",
       "who",
       "who-bio",
+      "who-engagements",
       "work",
       "contact",
     ];
     const sectionForId = (id: string): "loading" | Section => {
       if (id === "loading") return "loading";
-      if (id === "who" || id === "who-bio") return "who";
+      if (id === "who" || id === "who-bio" || id === "who-engagements") return "who";
       if (id === "work") return "hired";
       if (id === "contact") return "contact";
       return "loading";
@@ -221,6 +223,7 @@ export default function MobileHome() {
         <MobileLoadingSection inverted={loadingInverted} />
         <MobileHelloPanel />
         <MobileNamePanel />
+        <MobileEngagementsPanel />
         <MobileWorkSection
           openSlug={workOpenSlug}
           onOpenSlugChange={setWorkOpenSlug}
