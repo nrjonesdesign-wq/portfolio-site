@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Manrope, Geist, Geist_Mono } from "next/font/google";
 import MagneticCursor from "@/components/cursor/MagneticCursor";
 import "./globals.css";
@@ -29,6 +29,17 @@ export const metadata: Metadata = {
   title: "Nathaniel Robert Jones — Designer",
   description:
     "Senior visual designer with nearly 20 years of crafting compelling experiences. Available for work.",
+};
+
+// viewport-fit: cover lets the page bg extend edge-to-edge into iOS
+// safe-area regions (status bar / home indicator). Combined with the
+// dynamic <meta name="theme-color"> driven by useColorScheme, the
+// status bar + bottom chrome tint with the current section colour
+// instead of holding a stale colour from elsewhere on the page.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

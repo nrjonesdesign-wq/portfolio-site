@@ -44,7 +44,9 @@ export default function MobileChrome({
     <>
       {children}
 
-      {/* Top nav */}
+      {/* Top nav. With viewport-fit: cover the header extends edge-to-
+          edge — its backdrop fills behind the iOS status bar, while
+          the content row sits below the status bar via safe-area-inset. */}
       <motion.header
         initial={false}
         animate={{ opacity: visible ? 1 : 0, y: visible ? 0 : -8 }}
@@ -54,7 +56,7 @@ export default function MobileChrome({
           top: 0,
           left: 0,
           right: 0,
-          height: NAV_H,
+          height: `calc(${NAV_H} + env(safe-area-inset-top, 0px))`,
           zIndex: 60,
           pointerEvents: visible ? "auto" : "none",
         }}
@@ -64,11 +66,15 @@ export default function MobileChrome({
         <ChromeBackdrop edge="top" />
 
         {/* Content row — flex centred so the planet and the bracket
-            label sit on the same vertical axis. */}
+            label sit on the same vertical axis. Top padding pushes
+            content clear of the status bar. */}
         <div
           style={{
             position: "absolute",
-            inset: 0,
+            top: "env(safe-area-inset-top, 0px)",
+            left: 0,
+            right: 0,
+            bottom: 0,
             paddingLeft: GUTTER,
             paddingRight: GUTTER,
             display: "flex",
@@ -134,7 +140,8 @@ export default function MobileChrome({
         </div>
       </motion.header>
 
-      {/* Bottom footer */}
+      {/* Bottom footer. Backdrop fills behind the iOS home indicator
+          while the content row sits above it via safe-area-inset. */}
       <motion.footer
         initial={false}
         animate={{ opacity: visible ? 1 : 0, y: visible ? 0 : 8 }}
@@ -144,7 +151,7 @@ export default function MobileChrome({
           bottom: 0,
           left: 0,
           right: 0,
-          height: FOOT_H,
+          height: `calc(${FOOT_H} + env(safe-area-inset-bottom, 0px))`,
           zIndex: 60,
           pointerEvents: "none",
         }}
@@ -153,7 +160,10 @@ export default function MobileChrome({
         <div
           style={{
             position: "absolute",
-            inset: 0,
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: "env(safe-area-inset-bottom, 0px)",
             paddingLeft: GUTTER,
             paddingRight: GUTTER,
             display: "flex",
