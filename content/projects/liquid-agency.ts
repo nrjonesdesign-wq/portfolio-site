@@ -39,7 +39,7 @@ export const liquidAgency: Project = {
           },
           {
             kind: "image",
-            src: "/case-study/liquid-challenger-index/liquid-01.png",
+            src: "/case-study/liquid-challenger-index/liquid-01.jpg",
             alt: "Liquid Agency — Challenger Index visual identity 01",
           },
           {
@@ -49,7 +49,7 @@ export const liquidAgency: Project = {
           },
           {
             kind: "image",
-            src: "/case-study/liquid-challenger-index/liquid-02.png",
+            src: "/case-study/liquid-challenger-index/liquid-02.jpg",
             alt: "Liquid Agency — Challenger Index visual identity 02",
           },
           {
