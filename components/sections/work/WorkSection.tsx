@@ -579,153 +579,26 @@ function DisciplineMarquee({ text }: { text: string }) {
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean);
-  // Constant on-screen drift speed (px/s) — matches the previous
-  // framer-motion timing target.
-  const baseSpeedPxPerSec = 56;
-
-  const containerRef = useRef<HTMLDivElement>(null);
-  const innerRef = useRef<HTMLDivElement>(null);
-  const offsetRef = useRef(0);
-  const interactingRef = useRef(false);
-  const velocityRef = useRef(0);
-
-  // raf-driven auto-drift + flick inertia. Mirror of the mobile
-  // marquee — pause auto-drift while a pointer is dragging, decay
-  // residual velocity exponentially on release.
-  useEffect(() => {
-    let raf = 0;
-    let lastT = performance.now();
-    const tick = (t: number) => {
-      const dt = Math.max(0, Math.min(0.1, (t - lastT) / 1000));
-      lastT = t;
-      const inner = innerRef.current;
-      if (inner) {
-        const halfStack = inner.scrollWidth / 2;
-        if (halfStack > 0) {
-          if (!interactingRef.current) {
-            if (Math.abs(velocityRef.current) > 8) {
-              offsetRef.current += velocityRef.current * dt;
-              velocityRef.current *= Math.exp(-2.6 * dt);
-              if (Math.abs(velocityRef.current) <= 8) {
-                velocityRef.current = 0;
-              }
-            } else {
-              offsetRef.current -= baseSpeedPxPerSec * dt;
-            }
-          }
-          if (offsetRef.current <= -halfStack) {
-            offsetRef.current += halfStack;
-          } else if (offsetRef.current > 0) {
-            offsetRef.current -= halfStack;
-          }
-          inner.style.transform = `translate3d(${offsetRef.current}px, 0, 0)`;
-        }
-      }
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [baseSpeedPxPerSec]);
-
-  // Pointer scrub. Pointer events unify mouse + touch + pen. Drag-vs-
-  // tap detection at 8 px so a stationary click on the marquee still
-  // falls through to the row's onClick (open / close the accordion).
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    let lastX = 0;
-    let lastT = 0;
-    let totalAbsDx = 0;
-    let active = false;
-    let activeId = -1;
-    const DRAG_GAIN = 1.4;
-    const TAP_VS_DRAG_PX = 8;
-    const start = (e: PointerEvent) => {
-      if (e.button !== 0) return;
-      lastX = e.clientX;
-      lastT = performance.now();
-      totalAbsDx = 0;
-      active = true;
-      activeId = e.pointerId;
-      interactingRef.current = true;
-      velocityRef.current = 0;
-      try {
-        el.setPointerCapture(e.pointerId);
-      } catch {
-        // Some browsers refuse capture on non-touch pointers — fine,
-        // we still get move/up via the global listeners.
-      }
-    };
-    const move = (e: PointerEvent) => {
-      if (!active || e.pointerId !== activeId) return;
-      const x = e.clientX;
-      const now = performance.now();
-      const rawDx = x - lastX;
-      totalAbsDx += Math.abs(rawDx);
-      if (totalAbsDx > TAP_VS_DRAG_PX) {
-        const dx = rawDx * DRAG_GAIN;
-        const dt = Math.max(1, now - lastT) / 1000;
-        const instVel = dx / dt;
-        velocityRef.current =
-          velocityRef.current * 0.4 + instVel * 0.6;
-        offsetRef.current += dx;
-      }
-      lastX = x;
-      lastT = now;
-    };
-    const end = (e: PointerEvent) => {
-      if (!active || e.pointerId !== activeId) return;
-      active = false;
-      interactingRef.current = false;
-      const wasDrag = totalAbsDx > TAP_VS_DRAG_PX;
-      if (!wasDrag) {
-        velocityRef.current = 0;
-      } else {
-        // Swallow the synthetic click that fires after pointerup so
-        // the row's onClick doesn't toggle the accordion at the end
-        // of a drag. Capture-phase listener lasts one event.
-        const swallow = (ev: Event) => {
-          ev.stopPropagation();
-          ev.preventDefault();
-          window.removeEventListener("click", swallow, true);
-        };
-        window.addEventListener("click", swallow, true);
-        window.setTimeout(
-          () => window.removeEventListener("click", swallow, true),
-          80,
-        );
-      }
-      try {
-        el.releasePointerCapture(activeId);
-      } catch {
-        /* noop */
-      }
-      activeId = -1;
-    };
-    el.addEventListener("pointerdown", start);
-    el.addEventListener("pointermove", move);
-    el.addEventListener("pointerup", end);
-    el.addEventListener("pointercancel", end);
-    return () => {
-      el.removeEventListener("pointerdown", start);
-      el.removeEventListener("pointermove", move);
-      el.removeEventListener("pointerup", end);
-      el.removeEventListener("pointercancel", end);
-    };
-  }, []);
-
+  // Used only to compute a duration that scales with content length —
+  // not the rendered string.
+  const approxSegment =
+    tags.join(" star ") + " star "; // 6 chars per separator (with spaces)
   return (
     <div
-      ref={containerRef}
       style={{
         position: "relative",
         overflow: "hidden",
         height: "100%",
-        touchAction: "pan-y",
       }}
     >
-      <div
-        ref={innerRef}
+      <motion.div
+        animate={{ x: ["0%", "-50%"] }}
+        transition={{
+          duration: marqueeDurationSec(approxSegment),
+          ease: "linear",
+          repeat: Infinity,
+          repeatType: "loop",
+        }}
         style={{
           display: "flex",
           alignItems: "center",
@@ -743,7 +616,7 @@ function DisciplineMarquee({ text }: { text: string }) {
       >
         <span>{renderMarqueeSegment(tags, 0)}</span>
         <span>{renderMarqueeSegment(tags, 1)}</span>
-      </div>
+      </motion.div>
     </div>
   );
 }
