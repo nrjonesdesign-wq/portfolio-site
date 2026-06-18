@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Manrope, Geist, Geist_Mono } from "next/font/google";
 import MagneticCursor from "@/components/cursor/MagneticCursor";
+import PostHogProvider from "@/components/analytics/PostHogProvider";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -59,6 +60,7 @@ export default function RootLayout({
       <body className="font-body">
         {children}
         <MagneticCursor />
+        <PostHogProvider />
       </body>
     </html>
   );
