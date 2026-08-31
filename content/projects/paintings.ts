@@ -9,6 +9,7 @@ export const paintings: Project = {
   items: [
     {
       number: "07",
+      slug: "paintings",
       description:
         "An ongoing study in observation and memory. A sustaining personal fine art practice and outlet for my creative nervous energy.",
       caseStudy: {

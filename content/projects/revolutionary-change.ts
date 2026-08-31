@@ -10,6 +10,7 @@ export const revolutionaryChange: Project = {
   items: [
     {
       number: "05",
+      slug: "revolutionary-change",
       description:
         "Branding and opening animation for a politically progressive YouTube channel.",
       caseStudy: {

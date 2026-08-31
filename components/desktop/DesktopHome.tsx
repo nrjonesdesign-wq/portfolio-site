@@ -8,6 +8,7 @@ import WorkSection, {
   WORK_SLUGS,
   INSPIRED_SLUGS,
 } from "@/components/sections/work/WorkSection";
+import { itemNumberForSlug, slugForItemNumber } from "@/content/projects";
 import ContactSection from "@/components/sections/contact/ContactSection";
 import Nav, { NAV_PLANET_PX } from "@/components/nav/Nav";
 import NRJPlanet from "@/components/nav/NRJPlanet";
@@ -58,8 +59,23 @@ export default function DesktopHome() {
   // Initial value is read from current scroll position so a hard refresh
   // mid-page lands the planet in nav-mode immediately, not centred over
   // wherever the user happened to be (then awkwardly morphing on click).
+  // Deep-link entry: read the inbound `/#<slug>` hash once at first
+  // render and resolve it to a case-study item number (null for no /
+  // unknown hash). Drives both the initial planet-morphed state (so the
+  // planet lands in the nav immediately, no centred flash) and the mount
+  // effect that jumps to Work + opens the tray.
+  const [deepLinkItemNumber] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    const slug = window.location.hash.replace(/^#/, "");
+    return slug ? itemNumberForSlug(slug) : null;
+  });
+
   const [planetMorphed, setPlanetMorphed] = useState<boolean>(() => {
     if (typeof window === "undefined") return false;
+    // A valid deep-link jumps straight to Work, so dock the planet in the
+    // nav immediately rather than flashing it centred over the loader.
+    if (window.location.hash.replace(/^#/, "") &&
+        itemNumberForSlug(window.location.hash.replace(/^#/, ""))) return true;
     return window.scrollY > window.innerHeight * 0.5;
   });
 
@@ -398,6 +414,29 @@ export default function DesktopHome() {
   const handleCaseStudyOpenChange = useCallback((open: boolean) => {
     setCaseStudyOpen(open);
     if (!open) setWorkOpenSlug(null);
+  }, []);
+
+  // Deep-link entry: on mount, if the inbound hash resolved to a case
+  // study, jump straight to Work (bypassing the loading intro) so the
+  // tray — opened by WorkSection from initialCaseStudyNumber — is in
+  // view. Instant scroll; planetMorphed is already true from init so the
+  // planet never flashes centred.
+  useEffect(() => {
+    if (!deepLinkItemNumber) return;
+    document.getElementById("work")?.scrollIntoView({ behavior: "auto" });
+    // Runs once on mount for the inbound hash only.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Live URL sync: mirror the open case study into the address bar so the
+  // URL is always a shareable deep-link. Open → `/#<slug>`; close → bare
+  // path. replaceState (not push) so the back button doesn't fill up with
+  // tray open/close toggles.
+  const handleCaseStudyItemChange = useCallback((itemNumber: string | null) => {
+    if (typeof window === "undefined") return;
+    const base = window.location.pathname + window.location.search;
+    const slug = itemNumber ? slugForItemNumber(itemNumber) : null;
+    window.history.replaceState(null, "", slug ? `${base}#${slug}` : base);
   }, []);
 
   // Global auto-advance: any forward-nav input (click outside interactive
@@ -796,6 +835,8 @@ export default function DesktopHome() {
           onOpenSlugChange={setWorkOpenSlug}
           onCaseStudyOpenChange={handleCaseStudyOpenChange}
           onCaseStudySlugChange={setCaseStudySlugForAccent}
+          initialCaseStudyNumber={deepLinkItemNumber}
+          onCaseStudyItemChange={handleCaseStudyItemChange}
         />
       </div>
 

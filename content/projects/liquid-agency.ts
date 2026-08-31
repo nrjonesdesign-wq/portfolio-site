@@ -10,6 +10,7 @@ export const liquidAgency: Project = {
   items: [
     {
       number: "03",
+      slug: "liquid-challenger-index",
       description:
         "Art direction, document layout, infographics, video production, motion graphics, & social assets to promote this agency's flagship white paper, The Challenger Index.",
       caseStudy: {
@@ -72,6 +73,7 @@ export const liquidAgency: Project = {
     },
     {
       number: "04",
+      slug: "liquid-website-redesign",
       description:
         "UX design and Figma build for the agency's new website overhaul, based on a new brand system.",
       caseStudy: {

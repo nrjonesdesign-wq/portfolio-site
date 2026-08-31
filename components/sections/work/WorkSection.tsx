@@ -155,6 +155,14 @@ type WorkSectionProps = {
    *  applied while an INSPIRED case study is on screen — even if the
    *  accordion row beneath has been closed in the meantime. */
   onCaseStudySlugChange?: (slug: string | null) => void;
+  /** Deep-link entry: item `number` to open the case-study tray on when
+   *  the component first mounts (from an inbound `/#<slug>` hash). Applied
+   *  once as the tray's initial state; ignored on later renders. */
+  initialCaseStudyNumber?: string | null;
+  /** Reports the item `number` of the open case-study tray (or null) on
+   *  every change — page.tsx maps it back to a URL slug to keep the
+   *  address bar in sync (shareable deep-links). */
+  onCaseStudyItemChange?: (itemNumber: string | null) => void;
 };
 
 export default function WorkSection({
@@ -162,13 +170,17 @@ export default function WorkSection({
   onOpenSlugChange,
   onCaseStudyOpenChange,
   onCaseStudySlugChange,
+  initialCaseStudyNumber = null,
+  onCaseStudyItemChange,
 }: WorkSectionProps = {}) {
   // Case-study tray slug. Set by VIEW WORK click only. Stores the OPEN
   // item's `number` (e.g., "01") rather than a project slug — Bloomberg
   // and Liquid Agency each have multiple items with their own case
   // studies, so we identify the tray by item, not project. Item numbers
   // are unique across the whole site (01-07).
-  const [caseStudySlug, setCaseStudySlug] = useState<string | null>(null);
+  const [caseStudySlug, setCaseStudySlug] = useState<string | null>(
+    initialCaseStudyNumber
+  );
 
   const openCaseStudy = (itemNumber: string) => {
     setCaseStudySlug(itemNumber);
@@ -183,6 +195,13 @@ export default function WorkSection({
   useEffect(() => {
     onCaseStudyOpenChange?.(caseStudySlug !== null);
   }, [caseStudySlug, onCaseStudyOpenChange]);
+
+  // Report the open item number upward on every change so page.tsx can
+  // keep the shareable `/#<slug>` hash in sync with the tray (opens write
+  // the slug; close clears it back to the bare URL).
+  useEffect(() => {
+    onCaseStudyItemChange?.(caseStudySlug);
+  }, [caseStudySlug, onCaseStudyItemChange]);
 
   // Sticky-row positioning is handled by a CSS transform on the left
   // column (see `accordionShiftPx` below) rather than internal scroll.

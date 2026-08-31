@@ -15,7 +15,11 @@ import {
 import MobileWorkSection from "./sections/MobileWorkSection";
 import MobileCaseStudyPanel from "./sections/MobileCaseStudyPanel";
 import MobileContactSection from "./sections/MobileContactSection";
-import { ALL_PROJECTS } from "@/content/projects";
+import {
+  ALL_PROJECTS,
+  itemNumberForSlug,
+  slugForItemNumber,
+} from "@/content/projects";
 
 /**
  * Mobile entry. Stacks the snap panels vertically with native scroll —
@@ -39,10 +43,18 @@ export default function MobileHome() {
   // every time the user navigates away from the WORK section — the
   // user expects to always land on a closed accordion.
   const [workOpenSlug, setWorkOpenSlug] = useState<string | null>(null);
-  // Open case-study item number (e.g. "01"). Null = no tray.
+  // Deep-link entry: resolve the inbound `/#<slug>` hash to a case-study
+  // item number once at first render (null for no / unknown hash).
+  const [deepLinkItemNumber] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    const slug = window.location.hash.replace(/^#/, "");
+    return slug ? itemNumberForSlug(slug) : null;
+  });
+  // Open case-study item number (e.g. "01"). Null = no tray. Seeded from
+  // the deep-link so an inbound hash opens straight into the tray.
   const [caseStudyItemNumber, setCaseStudyItemNumber] = useState<
     string | null
-  >(null);
+  >(deepLinkItemNumber);
 
   const caseStudyMatch = caseStudyItemNumber
     ? (() => {
@@ -143,6 +155,30 @@ export default function MobileHome() {
     }, 5000);
     return () => window.clearTimeout(t);
   }, [activeSection, triggerLoadingTransition]);
+
+  // Deep-link entry: on mount, if the inbound hash resolved to a case
+  // study, jump straight to Work (bypassing the loading intro). The tray
+  // is already open from the seeded caseStudyItemNumber.
+  useEffect(() => {
+    if (!deepLinkItemNumber) return;
+    document
+      .getElementById("work")
+      ?.scrollIntoView({ behavior: "auto", block: "start" });
+    // Runs once on mount for the inbound hash only.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Live URL sync: mirror the open case study into the address bar so the
+  // URL is always a shareable deep-link. Open → `/#<slug>`; close → bare
+  // path. replaceState keeps the back button clean.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const base = window.location.pathname + window.location.search;
+    const slug = caseStudyItemNumber
+      ? slugForItemNumber(caseStudyItemNumber)
+      : null;
+    window.history.replaceState(null, "", slug ? `${base}#${slug}` : base);
+  }, [caseStudyItemNumber]);
 
   // Drive the color scheme via the same useColorScheme helper desktop
   // uses. While on Loading: pre-invert flips loading ↔ who. After

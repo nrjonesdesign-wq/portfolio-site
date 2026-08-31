@@ -9,6 +9,7 @@ export const tuesgay: Project = {
   items: [
     {
       number: "06",
+      slug: "dj-sensitive-boys",
       description:
         "Logo design and digital flyers for club nights my boyfriend and I have created and DJ'd together, including long-running queer club nights GAY SPORTS in Brooklyn and TUESGAY in Silverlake.",
       caseStudy: {

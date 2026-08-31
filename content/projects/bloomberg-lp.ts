@@ -10,6 +10,7 @@ export const bloombergLp: Project = {
   items: [
     {
       number: "01",
+      slug: "bloomberg-town-hall",
       description:
         "While at Bloomberg, I was tasked with creating the look and feel for the Annual End of Year Town Hall.",
       caseStudy: {
@@ -47,6 +48,7 @@ export const bloombergLp: Project = {
     },
     {
       number: "02",
+      slug: "bloomberg-websites",
       description:
         "UX / UI design for several Bloomberg websites, including: America's Pledge on Climate Change, Bloomberg Live, Bloomberg Media, Bloomberg Philanthropies annual reports, Bloomberg Media Studios, Bloomberg New Energy Finance, Climate Finance Leadership Initiative, and Global Covenant of Mayors for Climate & Energy.",
       caseStudy: {

@@ -101,6 +101,11 @@ export type ProjectItem = {
   /** Display number, e.g. "01", "02". Must be unique across the whole
    *  site — used as the case-study tray's identifier. */
   number: string;
+  /** URL-friendly slug for deep-linking this item's case study, e.g.
+   *  "bloomberg-town-hall". Must be unique across the whole site. Drives
+   *  the shareable `/#<slug>` hash — opening the tray writes it to the
+   *  URL, and an inbound hash opens the matching case study on load. */
+  slug: string;
   /** Body copy in the right column when this item's project row is
    *  expanded. One sentence to a short paragraph. */
   description: string;
