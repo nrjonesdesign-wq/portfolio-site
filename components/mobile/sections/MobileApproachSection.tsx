@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import LetterCascade from "@/components/primitives/LetterCascade";
 import StarField from "@/components/starfield/StarField";
-import { DUR, EASE } from "@/lib/motion";
+import { DUR, EASE, STAGGER } from "@/lib/motion";
 import {
   APPROACH_HREF,
   APPROACH_INTRO,
@@ -59,9 +59,9 @@ export default function MobileApproachSection() {
 
         <div className="m-content-grid" style={{ rowGap: "2rem" }}>
           <div style={{ gridColumn: "1 / 9" }}>
-            {/* Cascades on scroll-in, like the mobile "Hello". */}
-            <LetterCascade text="How I" as="div" animate={false} delay={0.1} className="text-hero" style={heroStyle} />
-            <LetterCascade text="work." as="div" animate={false} delay={0.4} className="text-hero" style={heroStyle} />
+            {/* Rises in word by word on scroll-in. */}
+            <LetterCascade text="How I" as="div" by="word" animate={false} delay={0.1} className="text-hero" style={heroStyle} />
+            <LetterCascade text="work." as="div" by="word" animate={false} delay={0.34} className="text-hero" style={heroStyle} />
           </div>
 
           <motion.div
@@ -83,8 +83,14 @@ export default function MobileApproachSection() {
 
             <ol style={{ listStyle: "none", margin: 0, padding: 0, width: "100%", borderTop: "1px solid var(--fg)" }}>
               {APPROACH_STEPS.map((step, i) => (
-                <li
+                // Select Engagements pattern: rows fade in one after
+                // another at STAGGER.item, after the intro paragraph.
+                <motion.li
                   key={step.title}
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 1.1 + i * STAGGER.item, duration: DUR.base, ease: EASE }}
                   style={{
                     display: "flex",
                     gap: "0.6rem",
@@ -99,7 +105,7 @@ export default function MobileApproachSection() {
                   <span className="text-body" style={{ color: "var(--fg)", fontWeight: 500 }}>
                     {step.title}
                   </span>
-                </li>
+                </motion.li>
               ))}
             </ol>
 

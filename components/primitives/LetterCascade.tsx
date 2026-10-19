@@ -11,15 +11,18 @@ type Props = {
   /** Animate immediately when true; waits for whileInView when false */
   animate?: boolean;
   delay?: number;
+  /** Animate per letter (default) or per word. Word mode keeps each
+   *  word whole and staggers words at STAGGER.section. */
+  by?: "letter" | "word";
   className?: string;
   style?: React.CSSProperties;
 };
 
-const containerVariants = (delay: number) => ({
+const containerVariants = (delay: number, stagger: number) => ({
   hidden: {},
   visible: {
     transition: {
-      staggerChildren: STAGGER.letter,
+      staggerChildren: stagger,
       delayChildren: delay,
     },
   },
@@ -30,6 +33,7 @@ export default function LetterCascade({
   as: Tag = "h1",
   animate = false,
   delay = 0,
+  by = "letter",
   className,
   style,
 }: Props) {
@@ -57,17 +61,22 @@ export default function LetterCascade({
       <motion.span
         aria-hidden
         style={{ display: "flex", flexWrap: "wrap" }}
-        variants={containerVariants(delay)}
+        variants={containerVariants(delay, by === "word" ? STAGGER.section : STAGGER.letter)}
         initial="hidden"
         {...animationProps}
       >
-        {text.split("").map((char, i) => (
+        {(by === "word"
+          ? // Keep the trailing space with each word so wrapping and
+            // spacing match plain text.
+            text.split(/(?<=\s)/)
+          : text.split("")
+        ).map((unit, i) => (
           <motion.span
             key={i}
             variants={letterVariant}
             style={{ display: "inline-block", whiteSpace: "pre" }}
           >
-            {char}
+            {unit}
           </motion.span>
         ))}
       </motion.span>

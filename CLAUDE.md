@@ -27,7 +27,7 @@ components/
     Nav.tsx                        # two-layer (backdrop + content), grid-placed labels, sliding brackets
     NRJPlanet.tsx                  # canvas-based comet electron + SVG planet circle + wordmark
   primitives/
-    LetterCascade.tsx              # per-letter rise (opacity + y offset)
+    LetterCascade.tsx              # per-letter (default) or per-word (`by="word"`) rise (opacity + y offset)
     RiseOn.tsx                     # opacity+y on whileInView
     RuleDraw.tsx                   # scaleX 0→1
     SequenceReveal.tsx             # consecutive (not staggered) sequencer
@@ -156,7 +156,7 @@ All sections are full-viewport `.snap` panels. `html.snapping { scroll-snap-type
 2. **Hello** (`#who`) — ink+sage. "Hello" headline, intro paragraph lower-right.
 3. **Name** (`#who-bio`) — ink+sage. Nathaniel/Robert/Jones stack, [INTRO] + bio top-aligned right, Select Engagements lower-right.
 4. **Work** (`#work`) — sky+ink (inverted). Select Work + HIRED/INSPIRED list left, [INTRO] + bio right.
-5. **Approach** (`#approach`) — lavender+ink. Desktop: one `.content-grid` at top 42% (Contact's headline landing spot). Row 1 = "How I / work." cascade (cols 3–20) + [ Approach ] teaser in the body column (21–28: intro line + "Read the full approach" pill to `/approach`), teaser `alignSelf: end` like Contact's CTA. Row 2 = the 4 process steps as a horizontal row of outlined cards (cols 3–28; `[ 0N ]` label nowrap, Geist 700 19px title, body). Entrance follows Hello/Work: headline `LetterCascade animate={false}` (cascades on scroll-in, not page load), teaser rises in at 0.7s (RiseOn pattern), cards stagger in from 1.0s (Work-row pattern). Mobile (`MobileApproachSection.tsx`) keeps its stacked list, same scroll-in cascade. Both share copy constants from `ApproachSection.tsx`.
+5. **Approach** (`#approach`) — lavender+ink. Desktop: one `.content-grid` at top 42% (Contact's headline landing spot). Row 1 = "How I / work." cascade (cols 3–20) + [ Approach ] teaser in the body column (21–28: intro line + "Read the full approach" pill to `/approach`), teaser `alignSelf: end` like Contact's CTA. Row 2 = the 4 process steps as a horizontal row of outlined cards (cols 3–28; `[ 0N ]` label nowrap, Geist 700 19px title, body). Entrance: headline `LetterCascade by="word" animate={false}` (rises in word by word on scroll-in, 0.12s steps), teaser rises in at 0.7s (RiseOn pattern), cards fade in one after another from 1.0s at `STAGGER.item` (Select Engagements pattern, opacity only). Mobile (`MobileApproachSection.tsx`) keeps its stacked list: same word cascade, rows fade in one by one from 1.1s. Both share copy constants from `ApproachSection.tsx`.
 6. **Contact** (`#contact`) — placeholder, not yet built.
 
 **Active section detection**: `useSectionEntry(ref, () => setActiveSection(...), 0.5)` in `page.tsx`. Threshold 0.5. Re-fires on every entry (not one-shot) so scrolling back up restores schemes correctly.

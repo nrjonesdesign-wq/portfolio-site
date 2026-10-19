@@ -71,10 +71,12 @@ export default function ApproachSection() {
             color: "var(--fg)",
           }}
         >
-          {/* Cascades on scroll-in (whileInView), like "Hello" — not on
-              page load, which would finish long before the panel is seen. */}
-          <LetterCascade text="How I" as="div" animate={false} delay={0.1} />
-          <LetterCascade text="work." as="div" animate={false} delay={0.4} />
+          {/* Rises in word by word on scroll-in (whileInView) — not on
+              page load, which would finish long before the panel is seen.
+              Words step at STAGGER.section (0.12s): How 0.10 → I 0.22 →
+              work. 0.34. */}
+          <LetterCascade text="How I" as="div" by="word" animate={false} delay={0.1} />
+          <LetterCascade text="work." as="div" by="word" animate={false} delay={0.34} />
         </div>
 
         <motion.div
@@ -143,10 +145,10 @@ export default function ApproachSection() {
           {APPROACH_STEPS.map((step, i) => (
             <motion.li
               key={step.title}
-              // Work-row pattern (opacity + 10px rise, item stagger),
-              // following the teaser.
-              initial={{ opacity: 0, y: 10 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              // Select Engagements pattern: opacity-only fade, one item
+              // after another at STAGGER.item, following the teaser.
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
               transition={{ delay: 1.0 + i * STAGGER.item, duration: DUR.base, ease: EASE }}
               style={{
