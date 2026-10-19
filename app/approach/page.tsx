@@ -41,26 +41,30 @@ const PROJECTS: {
   {
     meta: "Brand identity",
     title: "Revolutionary Change Rebrand",
-    body: "A more revolutionary identity to match the show's tone, values, and the urgency of the political moment. The goal: welcome progressives, committed leftists, and newcomers alike, and fire up a community of YouTube viewers, Patreon supporters, and activists.",
+    body: "A rebrand for Revolutionary Change, a left political show on YouTube. Its first identity grew out of a host's congressional run, and the hosts were ready for something more overtly radical. The new one had to welcome progressives, committed leftists, and newcomers alike, and give viewers, Patreon supporters, and organizers something to rally behind.",
     bullets: [
       "Audience psychographics and mood boards",
       "Concepts, mockups, and a brand guidelines document",
-      "Client buy-in through goal alignment and rounds of feedback",
+      "Got the client to yes through goal-setting up front and several rounds of feedback",
     ],
     link: { href: "/#revolutionary-change", label: "[ View case study ]" },
   },
   {
     meta: "Brand identity",
     title: "Velvet Isles",
-    body: "A thoughtful brief, which the client built with help from AI, gave me rich context to explore from. As with every project, close collaboration, iteration, and refinement carried the identity through to buy-in.",
+    body: "The client came in with a detailed brief, which gave me a lot to work from. As with every project, I got the client to yes through close collaboration, iteration, and refinement.",
     soon: true,
+  },
+  {
+    meta: "Self-initiated · Daily newsletter",
+    title: "Morning Brief",
+    body: "A daily newsletter I designed, built, and run. It pulls from 598 curated sources across 49 sections, sorted by an AI curation layer that follows an editorial perspective I wrote myself. It arrives as an HTML email built to hold up across mail clients. Under the hood: Python, the Claude API, RSS parsing, and GitHub Actions.",
   },
   {
     meta: "Self-initiated · This site",
     title: "Personal Portfolio & Brand",
-    body: "My first experiment building with Claude Code. I started by surveying portfolio sites I admire, noted the features I wanted, prototyped fully in Figma with notes, then iterated in code. The goal was to show as well as tell: solid structure and hierarchy, high-impact sans-serif type with personality, a palette of muted yet saturated color fields, and interactions that surprise and reward exploration.",
+    body: "My first experiment building with Claude Code. I surveyed portfolio sites I admire, noted the features I wanted, prototyped the whole site in Figma, then iterated in code. The goal was to show as well as tell. That meant solid structure and hierarchy, high-impact sans-serif type with personality, and a palette of muted yet saturated color fields. The interactions are meant to surprise and reward exploration.",
     link: { href: "/", label: "[ You're looking at it ]" },
-    wide: true,
   },
 ];
 
@@ -126,7 +130,7 @@ export default function ApproachPage() {
             </div>
             <div className={styles.col}>
               <span className={styles.label}>Craft</span>
-              <h3 className={styles.h3}>Care, precision, intention, execution</h3>
+              <h3 className={styles.h3}>Careful, precise, finished</h3>
               <ul>
                 <li>I teach myself new tools, techniques, and technologies as they emerge</li>
                 <li>I identify with the audience and use what I learn to tune their experience</li>
@@ -146,23 +150,23 @@ export default function ApproachPage() {
           <ul className={styles.tenets}>
             <li>
               <h3 className={styles.h3}>Taste, applied with judgment</h3>
-              <p>My taste is a big part of what clients hire me for. I apply it deliberately, tuned by what I learn about the audience, so every aesthetic choice earns its place and resonates with the people it&apos;s for.</p>
+              <p>My taste is a big part of what clients hire me for. I apply it deliberately, tuned by what I learn about the audience, so every aesthetic choice earns its place and fits the people it&apos;s for.</p>
             </li>
             <li>
               <h3 className={styles.h3}>Serve the user, and the business follows</h3>
-              <p>I advocate for the user. That means knowing best practices well, championing them, and staying curious and empathetic about who I&apos;m designing for.</p>
+              <p>I advocate for the user. I know the conventions and when to push on them, and I stay curious and empathetic about who I&apos;m designing for.</p>
             </li>
             <li>
               <h3 className={styles.h3}>Nobody does their best work in a silo</h3>
-              <p>The smartest solutions come from different minds working toward a shared goal. I earn stakeholder buy-in by collaborating closely from the start, agreeing on goals and limits, and presenting work clearly. With senior stakeholders, the real skill is reading the context and listening closely, including to what goes unsaid.</p>
+              <p>I earn stakeholder buy-in by collaborating closely from the start, agreeing on goals and limits, and presenting work clearly. With senior stakeholders, the real skill is reading the context and listening closely, including to what goes unsaid.</p>
             </li>
             <li>
-              <h3 className={styles.h3}>Stay humble</h3>
+              <h3 className={styles.h3}>Feedback makes the work better</h3>
               <p>I welcome feedback and treat every round as a chance to sharpen the work. Experimentation and iteration are how good work moves forward.</p>
             </li>
             <li>
-              <h3 className={styles.h3}>Stay curious</h3>
-              <p>I absorb the visual culture around me constantly. Books, records, museums, openings, concerts, nightlife, travel, and time in nature all refill the well, and they feed a growing archive of reference I draw on every day.</p>
+              <h3 className={styles.h3}>Curiosity is the job</h3>
+              <p>I absorb the visual culture around me constantly. Books, records, museums, openings, concerts, nightlife, travel, and time in nature keep my references fresh. They also feed a growing archive I draw on every day.</p>
             </li>
           </ul>
         </div>
@@ -181,7 +185,7 @@ export default function ApproachPage() {
             </li>
             <li>
               <h3 className={styles.h3}>Research</h3>
-              <p>I gather everything I can about the subject. The deeper I know the material, the better my recommendations. Front-loading the study is how I make decisions that land.</p>
+              <p>I gather everything I can about the subject. The deeper I know the material, the better my recommendations. Front-loading the study is how I make better decisions.</p>
               <p className={styles.aside}>One of my favorite parts of this career.</p>
             </li>
             <li>
@@ -274,6 +278,7 @@ export default function ApproachPage() {
         <div className={styles.wrap}>
           <span className={styles.label}>[ Contact ]</span>
           <h2 className={`${styles.h2} ${styles.ctaTitle}`}>Let&apos;s make things happen!</h2>
+          <p className={styles.ctaNote}>Taking on brand, web, and ongoing retainer work for small teams, startups, and agencies.</p>
           <div className={styles.ctaRow}>
             <a className={styles.email} href={`mailto:${EMAIL}`}>{EMAIL}</a>
             <CopyEmail email={EMAIL} />
