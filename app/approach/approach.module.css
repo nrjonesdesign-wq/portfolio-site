@@ -79,7 +79,9 @@
 /* columns */
 .cols3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(24px, 4vw, 48px); }
 .col { display: grid; gap: 12px; align-content: start; border-top: 2px solid var(--ink); padding-top: 18px; min-width: 0; }
-.col ul, .proj ul { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; }
+/* Tailwind's preflight sets list-style: none on every ul, which hides
+   ::marker — restore it so the mock-up's bullets render. */
+.col ul, .proj ul { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; list-style-type: disc; }
 .col li::marker { content: "★  "; font-size: 0.8em; }
 .infl .col { border-top-width: 6px; border-top-color: var(--l-deep); }
 .quote { margin: 8px 0 0; font-family: var(--font-manrope), sans-serif; font-weight: 800; font-size: 22px; line-height: 1.25; }
