@@ -126,9 +126,11 @@ Children place via inline `style={{ gridColumn: "3 / 19" }}` (CSS-Grid syntax: i
 | Work             | [Intro] / project items list   | 20–30    | `"20 / 31"`       |
 | Nav              | NRJ planet logo                | 3–5      | `"3 / 6"`         |
 | Nav              | WHO label                      | 7–8      | `"7 / 9"`         |
-| Nav              | rule WHO → WORK                | 9–20     | `"9 / 21"`        |
-| Nav              | WORK label                     | 21–22    | `"21 / 23"`       |
-| Nav              | rule WORK → CONTACT            | 23–28    | `"23 / 29"`       |
+| Nav              | rule WHO → WORK                | 9–13     | `"9 / 14"`        |
+| Nav              | WORK label                     | 14–15    | `"14 / 16"`       |
+| Nav              | rule WORK → APPROACH           | 16–21    | `"16 / 22"` (end inset 1.5rem) |
+| Nav              | APPROACH label                 | 22–23    | `"22 / 24"`       |
+| Nav              | rule APPROACH → CONTACT        | 24–28    | `"24 / 29"` (start + end inset 1.5rem) |
 | Nav              | CONTACT label                  | 29–30    | `"29 / 31"`       |
 | Footer           | SENIOR DESIGNER                | 3–5      | `"3 / 6"`         |
 | Footer           | rule (only one)                | 6–17     | `"6 / 18"`        |
@@ -297,7 +299,8 @@ Standalone route (`app/approach/`), not a snap panel. Plain scrolling page built
 - **`ApproachTint`** (client) sets `--bg`/`--fg` + theme-color to lavender on mount and restores them on unmount, so overscroll and iOS safe-area bands match.
 - **Project links** use the home page's case-study deep links (`/#<item-slug>`, e.g. `/#liquid-challenger-index`). Keep the hrefs in `PROJECTS` in sync with item slugs in `content/projects/*.ts`. Velvet Isles shows "[ Case study coming soon ]" until it has a project file.
 - Links back to `/` are plain `<a>` (full load) on purpose: the home page reads its hash and runs its intro/snap setup on a fresh mount.
-- Main-site nav does not link to `/approach` yet.
+- **Nav entry**: APPROACH sits between WORK and CONTACT in the desktop `Nav` (label centres on grid lines 8 / 15 / 23 / 30 — a symmetric 7 / 8 / 7 split) and in `MobileMenuOverlay` (lavender highlight). It is never the scroll-driven active section; clicking it sets a local `pendingRoute` so the shared brackets slide onto it, then loads `/approach` after ~380ms (mobile: 450ms, matching its existing tap timing).
+- At the narrowest desktop widths (~800px) label→rule gaps drop to ~10px, slightly under the bracket overhang — same as the three-label nav before it.
 
 ## Out of Scope (current state)
 

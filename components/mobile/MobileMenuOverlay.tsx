@@ -7,20 +7,26 @@ import { DUR, EASE, STAGGER } from "@/lib/motion";
 
 export type ChromeSection = "who" | "work" | "contact";
 
-type Section = { key: ChromeSection; label: string; targetId: string };
+/** Menu entries are the three snap sections plus APPROACH, which is a
+ *  separate route (/approach) rather than a section of this page. */
+type MenuKey = ChromeSection | "approach";
+
+type Section = { key: MenuKey; label: string; targetId: string };
 
 const SECTIONS: Section[] = [
   { key: "who", label: "WHO", targetId: "who" },
   { key: "work", label: "WORK", targetId: "work" },
+  { key: "approach", label: "APPROACH", targetId: "/approach" },
   { key: "contact", label: "CONTACT", targetId: "contact" },
 ];
 
 // Each section's signature highlight colour. The whole menu wears the
 // highlighted section's colour and transitions to the tapped section's
 // colour before the parent scrolls there.
-const SECTION_HIGHLIGHT: Record<ChromeSection, string> = {
+const SECTION_HIGHLIGHT: Record<MenuKey, string> = {
   who: COLORS.sage,
   work: COLORS.sky,
+  approach: COLORS.lavender,
   contact: COLORS.coral,
 };
 
@@ -40,7 +46,7 @@ type Props = {
  *
  * Choreography:
  *   1. Backdrop fades in + applies blur to whatever section is behind.
- *   2. Labels rise on sequentially (WHO → WORK → CONTACT).
+ *   2. Labels rise on sequentially (WHO → WORK → APPROACH → CONTACT).
  *   3. Once labels are in, the brackets snap-close around the current
  *      section's label.
  *   4. Tap a different label: brackets morph (spring) to the new label
@@ -63,7 +69,7 @@ export default function MobileMenuOverlay({
   // updates it (triggers the bracket morph) before the parent fires
   // onSelect.
   const [highlighted, setHighlighted] =
-    useState<ChromeSection>(activeSection);
+    useState<MenuKey>(activeSection);
   // Whether the bracket pair is visible. Held false until the labels
   // have finished rising, then flipped true so the brackets "snap into
   // place" around the active section as the final beat.
@@ -81,9 +87,17 @@ export default function MobileMenuOverlay({
     return () => window.clearTimeout(t);
   }, [open, activeSection]);
 
-  const handleTap = (key: ChromeSection) => {
+  const handleTap = (key: MenuKey) => {
     if (key === highlighted) {
       onClose();
+      return;
+    }
+    if (key === "approach") {
+      // Separate route: same bracket morph + colour shift, then load it.
+      setHighlighted(key);
+      window.setTimeout(() => {
+        window.location.href = "/approach";
+      }, 450);
       return;
     }
     // Move the brackets + transition the menu colour to the tapped
@@ -144,7 +158,7 @@ export default function MobileMenuOverlay({
                     e.stopPropagation();
                     handleTap(s.key);
                   }}
-                  aria-label={`Go to ${s.label} section`}
+                  aria-label={s.key === "approach" ? "Go to Approach page" : `Go to ${s.label} section`}
                   aria-current={isActive ? "page" : undefined}
                   initial={{ opacity: 0, y: 18 }}
                   animate={{ opacity: 1, y: 0 }}

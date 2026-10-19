@@ -74,6 +74,19 @@ export default function Nav({
   chromeVisible = true,
   planetSlotRef,
 }: Props) {
+  // APPROACH is a separate route, not a snap panel, so it can never be
+  // the scroll-driven active section. On click we mark it pending, which
+  // slides the shared brackets onto it like any other label, then load
+  // the route once the bracket spring has landed (mirrors the mobile
+  // menu's tap → bracket morph → navigate timing).
+  const [pendingRoute, setPendingRoute] = useState<string | null>(null);
+  const goToRoute = (href: string) => {
+    setPendingRoute(href);
+    window.setTimeout(() => {
+      window.location.href = href;
+    }, 380);
+  };
+
   return (
     <motion.header
       // Two layers: a masked backdrop (blur + gradient fade) BEHIND the nav
@@ -154,39 +167,48 @@ export default function Nav({
           />
         </motion.div>
 
-        {/* Equally-spaced nav grid: WHO / WORK / CONTACT centres are
-            11 cols apart, and the rules between them are both 9 cols
-            wide. CONTACT is the widest label, so its centroid sits much
-            closer to its cell's left edge than WHO or WORK — without
-            compensation, rule 2's right gap reads as visibly tighter
-            than its left gap (and the active "[" bracket can clip the
-            rule). The two rules each get a small `endInset` on their
-            rule-to-wider-label side so the visible stroke is centred
-            between the labels' inner edges, not between their cells. */}
+        {/* Nav grid: WHO / WORK / APPROACH / CONTACT centres sit on grid
+            lines 8 / 15 / 23 / 30 — the most even split the 32-col grid
+            allows (7 / 8 / 7 cols, symmetric about the middle). Rules
+            fill the cells between labels. APPROACH and CONTACT are the
+            wide labels, so the rules that touch them get a 1.5rem inset
+            on that side (start or end) to keep the visible stroke
+            centred between the labels' inner edges and clear of the
+            active brackets. */}
         <NavLabel
           gridColumn="7 / 9"
           label="WHO"
-          active={activeSection === "name"}
+          active={!pendingRoute && activeSection === "name"}
           onClick={() => scrollToSection("who-bio")}
           align="center"
         />
 
-        <NavRule gridColumn="9 / 18" />
+        <NavRule gridColumn="9 / 14" />
 
         <NavLabel
-          gridColumn="18 / 20"
+          gridColumn="14 / 16"
           label="WORK"
-          active={activeSection === "work"}
+          active={!pendingRoute && activeSection === "work"}
           onClick={() => scrollToSection("work")}
           align="center"
         />
 
-        <NavRule gridColumn="20 / 29" endInset="1.5rem" />
+        <NavRule gridColumn="16 / 22" endInset="1.5rem" />
+
+        <NavLabel
+          gridColumn="22 / 24"
+          label="APPROACH"
+          active={pendingRoute === "/approach"}
+          onClick={() => goToRoute("/approach")}
+          align="center"
+        />
+
+        <NavRule gridColumn="24 / 29" startInset="1.5rem" endInset="1.5rem" />
 
         <NavLabel
           gridColumn="29 / 31"
           label="CONTACT"
-          active={activeSection === "contact"}
+          active={!pendingRoute && activeSection === "contact"}
           onClick={() => scrollToSection("contact")}
           align="center"
         />
@@ -343,9 +365,12 @@ function NavLabel({
 
 function NavRule({
   gridColumn,
+  startInset,
   endInset,
 }: {
   gridColumn: string;
+  /** Same as endInset, for the rule's left edge (a wide label on the left). */
+  startInset?: string;
   /** Pixel/CSS-length value to shorten the rule's right edge. Used to
    *  rebalance the gap on either side of a rule when its neighbour
    *  labels have very different widths (e.g., CONTACT vs. WORK). */
@@ -359,6 +384,7 @@ function NavRule({
         display: "flex",
         alignItems: "center",
         transformOrigin: "left center",
+        marginLeft: startInset,
         marginRight: endInset,
       }}
     >

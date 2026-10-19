@@ -4,6 +4,8 @@ export const COLORS = {
   sky:   "#94D9F3",
   mint:  "#A8D8B9",
   coral: "#EC7A55",
+  /** Approach page signature (see app/approach). Not a snap-panel scheme. */
+  lavender: "#C4B6F2",
 } as const;
 
 export type Section =
