@@ -3,32 +3,135 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import NRJPlanet from "@/components/nav/NRJPlanet";
+import { ChromeBackdrop, PlanetMark } from "@/components/mobile/MobileChrome";
+import MobileMenuOverlay, { type ChromeSection } from "@/components/mobile/MobileMenuOverlay";
 import styles from "./approach.module.css";
 
 const LAVENDER = "#c4b6f2";
+const INK = "#151515";
+
+/** Root colours per section scheme — the same pair the homepage's
+ *  "approach" / "approachIntro" schemes use (lib/colors.ts). */
+const SCHEMES = {
+  light: { bg: LAVENDER, fg: INK },
+  dark: { bg: INK, fg: LAVENDER },
+} as const;
 
 /**
- * Tints html/body (and the iOS status-bar theme colour) lavender while the
- * Approach page is mounted, so overscroll and safe-area bands match the page
- * instead of showing the home page's runtime --bg. Restores on unmount.
+ * Drives the root --bg / --fg / --accent (and the iOS theme colour) from
+ * whichever [data-scheme] band sits under the middle of the viewport —
+ * the Approach-page version of the homepage's useColorScheme. Anything
+ * outside the page tree that reads the root tokens (the custom cursor,
+ * the mobile nav bar, overscroll, the status bar) then matches the
+ * section on screen. Restores the previous values on unmount.
  */
 export function ApproachTint() {
   useEffect(() => {
     const root = document.documentElement;
-    const prevBg = root.style.getPropertyValue("--bg");
-    const prevFg = root.style.getPropertyValue("--fg");
-    root.style.setProperty("--bg", LAVENDER);
-    root.style.setProperty("--fg", "#151515");
-    const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-    const prevTheme = meta?.content;
-    if (meta) meta.content = LAVENDER;
+    const prev = {
+      bg: root.style.getPropertyValue("--bg"),
+      fg: root.style.getPropertyValue("--fg"),
+      accent: root.style.getPropertyValue("--accent"),
+      htmlBg: root.style.backgroundColor,
+      bodyBg: document.body.style.backgroundColor,
+    };
+    let current: keyof typeof SCHEMES | null = null;
+
+    const apply = (scheme: keyof typeof SCHEMES) => {
+      if (scheme === current) return;
+      current = scheme;
+      const { bg, fg } = SCHEMES[scheme];
+      root.style.setProperty("--bg", bg);
+      root.style.setProperty("--fg", fg);
+      root.style.setProperty("--accent", fg);
+      root.style.backgroundColor = bg;
+      document.body.style.backgroundColor = bg;
+      // Same remove-and-re-append trick as useColorScheme so iOS Safari
+      // re-reads the status-bar tint.
+      document.querySelectorAll('meta[name="theme-color"]').forEach((m) => m.remove());
+      const meta = document.createElement("meta");
+      meta.name = "theme-color";
+      meta.content = bg;
+      document.head.appendChild(meta);
+    };
+
+    const update = () => {
+      const mid = window.innerHeight / 2;
+      const bands = document.querySelectorAll<HTMLElement>("[data-scheme]");
+      for (const band of bands) {
+        const r = band.getBoundingClientRect();
+        if (r.top <= mid && r.bottom > mid) {
+          apply(band.dataset.scheme === "dark" ? "dark" : "light");
+          return;
+        }
+      }
+    };
+
+    apply("light");
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
     return () => {
-      root.style.setProperty("--bg", prevBg);
-      root.style.setProperty("--fg", prevFg);
-      if (meta && prevTheme) meta.content = prevTheme;
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+      root.style.setProperty("--bg", prev.bg);
+      root.style.setProperty("--fg", prev.fg);
+      root.style.setProperty("--accent", prev.accent);
+      root.style.backgroundColor = prev.htmlBg;
+      document.body.style.backgroundColor = prev.bodyBg;
     };
   }, []);
   return null;
+}
+
+/**
+ * Phone nav — the homepage's mobile bar (MobileChrome): SVG planet mark
+ * with a scroll-driven ring, hairline rule, and a Geist Bold
+ * "[ APPROACH ]" label that opens the same full-screen MobileMenuOverlay.
+ * Picking WHO / WORK / CONTACT loads the homepage at that section;
+ * picking APPROACH just closes the menu. Fixed under the iOS status bar,
+ * tinted by the root --bg / --fg that ApproachTint keeps in sync.
+ * Shown only under 768px (CSS module).
+ */
+export function ApproachMobileNav() {
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const handleSelect = (section: ChromeSection) => {
+    setMenuOpen(false);
+    if (section === "approach") return;
+    const id = section === "who" ? "who-bio" : section;
+    window.location.href = `/#${id}`;
+  };
+
+  return (
+    <>
+      <header className={styles.mobileNav}>
+        <ChromeBackdrop edge="top" />
+        <div className={styles.mobileNavRow}>
+          {/* Full page load on purpose — see the note on links home in page.tsx. */}
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+          <a href="/" aria-label="Nathaniel Robert Jones — home" className={styles.mobilePlanet}>
+            <PlanetMark scrollSource="window" />
+          </a>
+          <div className={styles.mobileNavRule} />
+          <button
+            type="button"
+            onClick={() => setMenuOpen(true)}
+            aria-label="Open menu"
+            className={styles.mobileNavLabel}
+          >
+            [ APPROACH ]
+          </button>
+        </div>
+      </header>
+      <MobileMenuOverlay
+        open={menuOpen}
+        activeSection="approach"
+        onSelect={handleSelect}
+        onClose={() => setMenuOpen(false)}
+      />
+    </>
+  );
 }
 
 export function CopyEmail({ email }: { email: string }) {

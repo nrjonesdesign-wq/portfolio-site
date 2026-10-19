@@ -208,7 +208,7 @@ export default function MobileChrome({
  * cohesive across the colour-scheme swaps. Same pattern as desktop's
  * two-layer Nav.
  */
-function ChromeBackdrop({ edge }: { edge: "top" | "bottom" }) {
+export function ChromeBackdrop({ edge }: { edge: "top" | "bottom" }) {
   // Two-layer composition so the chrome reads as a soft gradient even
   // when the page content behind it is a uniform colour (e.g. the sky
   // bg of WORK):
@@ -267,26 +267,35 @@ function ChromeBackdrop({ edge }: { edge: "top" | "bottom" }) {
  * share the same weight (1.1) so the mark reads as a single
  * consistent linework.
  */
-function PlanetMark() {
+export function PlanetMark({
+  scrollSource = "main",
+}: {
+  /** Which scroller drives the ring: the home page's <main> scroll
+   *  container (default), or the window (plain-scrolling pages such as
+   *  /approach). */
+  scrollSource?: "main" | "window";
+} = {}) {
   const ellipseRef = useRef<SVGEllipseElement>(null);
-  // Drive the ring rotation from main's scroll position. Updates the
+  // Drive the ring rotation from the scroll position. Updates the
   // transform attribute directly to avoid re-rendering on every frame.
   useEffect(() => {
-    const main = document.querySelector("main");
-    if (!main) return;
+    const main = scrollSource === "main" ? document.querySelector("main") : null;
+    if (scrollSource === "main" && !main) return;
+    const target: HTMLElement | Window = main ?? window;
+    const readTop = () => (main ? main.scrollTop : window.scrollY);
     const onScroll = () => {
       const el = ellipseRef.current;
       if (!el) return;
       // Base tilt is -18°. Scroll progress maps to ~360° per 4000px
       // scrolled — slow enough that a phone-height nudge reads as a
       // gentle drift rather than a spin.
-      const rotation = -18 + (main.scrollTop * 360) / 4000;
+      const rotation = -18 + (readTop() * 360) / 4000;
       el.setAttribute("transform", `rotate(${rotation} 18 18)`);
     };
     onScroll();
-    main.addEventListener("scroll", onScroll, { passive: true });
-    return () => main.removeEventListener("scroll", onScroll);
-  }, []);
+    target.addEventListener("scroll", onScroll, { passive: true });
+    return () => target.removeEventListener("scroll", onScroll);
+  }, [scrollSource]);
 
   return (
     <svg viewBox="0 0 36 36" width="100%" height="100%" aria-hidden>

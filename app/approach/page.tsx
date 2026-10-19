@@ -4,7 +4,7 @@
 /* eslint-disable @next/next/no-html-link-for-pages */
 import type { Metadata } from "next";
 import styles from "./approach.module.css";
-import { ApproachTint, CopyEmail, NavPlanet } from "./ApproachChrome";
+import { ApproachMobileNav, ApproachTint, CopyEmail, NavPlanet } from "./ApproachChrome";
 import { DisciplineMarquee } from "@/components/sections/work/WorkSection";
 
 export const metadata: Metadata = {
@@ -74,8 +74,9 @@ export default function ApproachPage() {
   return (
     <div className={styles.page}>
       <ApproachTint />
+      <ApproachMobileNav />
 
-      <nav className={styles.nav} aria-label="Site">
+      <nav className={`${styles.nav} ${styles.light}`} data-scheme="light" aria-label="Site">
         <div className={`${styles.wrap} ${styles.navRow}`}>
           <NavPlanet />
           <ul className={styles.navList}>
@@ -87,7 +88,7 @@ export default function ApproachPage() {
         </div>
       </nav>
 
-      <header className={styles.hero}>
+      <header className={`${styles.hero} ${styles.light}`} data-scheme="light">
         <div className={styles.wrap}>
           <span className={styles.label}>[ Approach ]</span>
           <h1 className={styles.h1}>How I<br /><em>work.</em></h1>
@@ -98,7 +99,7 @@ export default function ApproachPage() {
         </div>
       </header>
 
-      <section className={`${styles.band} ${styles.bandLight}`}>
+      <section className={`${styles.band} ${styles.dark}`} data-scheme="dark">
         <div className={styles.wrap}>
           <div className={styles.head}>
             <span className={styles.label}>[ Foundation ]</span>
@@ -137,7 +138,7 @@ export default function ApproachPage() {
         </div>
       </section>
 
-      <section className={`${styles.band} ${styles.bandStrong}`}>
+      <section className={`${styles.band} ${styles.light}`} data-scheme="light">
         <div className={styles.wrap}>
           <div className={styles.head}>
             <span className={styles.label}>[ Philosophy ]</span>
@@ -168,7 +169,7 @@ export default function ApproachPage() {
         </div>
       </section>
 
-      <section className={`${styles.band} ${styles.bandMid}`}>
+      <section className={`${styles.band} ${styles.dark}`} data-scheme="dark">
         <div className={styles.wrap}>
           <div className={styles.head}>
             <span className={styles.label}>[ Process ]</span>
@@ -202,7 +203,7 @@ export default function ApproachPage() {
         </div>
       </section>
 
-      <section className={`${styles.band} ${styles.bandPale}`}>
+      <section className={`${styles.band} ${styles.light}`} data-scheme="light">
         <div className={styles.wrap}>
           <div className={styles.head}>
             <span className={styles.label}>[ Influences ]</span>
@@ -241,11 +242,11 @@ export default function ApproachPage() {
         </div>
       </section>
 
-      <div className={styles.marquee} aria-hidden="true">
+      <div className={`${styles.marquee} ${styles.dark}`} data-scheme="dark" aria-hidden="true">
         <DisciplineMarquee text={MARQUEE} />
       </div>
 
-      <section className={`${styles.band} ${styles.bandDeep}`}>
+      <section className={`${styles.band} ${styles.light}`} data-scheme="light">
         <div className={styles.wrap}>
           <div className={styles.head}>
             <span className={styles.label}>[ In Practice ]</span>
@@ -270,7 +271,7 @@ export default function ApproachPage() {
         </div>
       </section>
 
-      <section className={styles.cta} id="contact">
+      <section className={`${styles.cta} ${styles.dark}`} data-scheme="dark" id="contact">
         <div className={styles.wrap}>
           <span className={styles.label}>[ Contact ]</span>
           <h2 className={`${styles.h2} ${styles.ctaTitle}`}>Let&apos;s make things happen!</h2>
@@ -281,7 +282,7 @@ export default function ApproachPage() {
         </div>
       </section>
 
-      <footer className={styles.footer}>
+      <footer className={`${styles.footer} ${styles.dark}`} data-scheme="dark">
         <div className={`${styles.wrap} ${styles.footRow}`}>
           <span>Senior Visual Designer</span>
           <span className={styles.footRule} aria-hidden="true" />
