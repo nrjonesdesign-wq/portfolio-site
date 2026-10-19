@@ -9,6 +9,7 @@ import WorkSection, {
   INSPIRED_SLUGS,
 } from "@/components/sections/work/WorkSection";
 import { itemNumberForSlug, slugForItemNumber } from "@/content/projects";
+import ApproachSection from "@/components/sections/approach/ApproachSection";
 import ContactSection from "@/components/sections/contact/ContactSection";
 import Nav, { NAV_PLANET_PX } from "@/components/nav/Nav";
 import NRJPlanet from "@/components/nav/NRJPlanet";
@@ -36,13 +37,17 @@ export default function DesktopHome() {
   const [caseStudySlugForAccent, setCaseStudySlugForAccent] = useState<
     string | null
   >(null);
-  // Pre-scroll color invert flag for Work → Contact transition: set true
+  // Pre-scroll color invert flag for Work → Approach transition: set true
   // when the user advances out of Work, holds the colour scheme on
   // "name" / "nameMint" (sky/mint text on ink bg) for a beat before the
-  // smooth-scroll fires, then a contactTop-driven override carries the
-  // scheme into "contactIntro" (coral on ink) and finally "contact".
-  // Reset when activeSection switches to "contact".
-  const [workExitingToContact, setWorkExitingToContact] = useState(false);
+  // smooth-scroll fires, then an approachTop-driven override carries the
+  // scheme into "approachIntro" (lavender on ink) and finally "approach".
+  // Reset when activeSection switches to "approach".
+  const [workExitingToApproach, setWorkExitingToApproach] = useState(false);
+  // Same pattern one step later, Approach → Contact: holds
+  // "approachIntro" (lavender on ink) before the scroll, then the
+  // contactTop-driven override carries it into "contactIntro" → "contact".
+  const [approachExitingToContact, setApproachExitingToContact] = useState(false);
 
   // workAccent is derived synchronously on every render — no useState +
   // useEffect round-trip, which was leaving the page-level color scheme
@@ -95,6 +100,7 @@ export default function DesktopHome() {
   const helloRef   = useRef<HTMLDivElement>(null);
   const nameRef    = useRef<HTMLDivElement>(null);
   const workRef    = useRef<HTMLDivElement>(null);
+  const approachRef = useRef<HTMLDivElement>(null);
   const contactRef = useRef<HTMLDivElement>(null);
   // Ref'd by Nav to mark where the singleton planet should land when it
   // morphs out of the loading screen.
@@ -104,6 +110,7 @@ export default function DesktopHome() {
   useSectionEntry(helloRef,   () => setActiveSection("who"),     0.5);
   useSectionEntry(nameRef,    () => setActiveSection("name"),    0.5);
   useSectionEntry(workRef,    () => setActiveSection("work"),    0.5);
+  useSectionEntry(approachRef, () => setActiveSection("approach"), 0.5);
   useSectionEntry(contactRef, () => setActiveSection("contact"), 0.5);
 
   // Color scheme is mostly driven by activeSection, but we override it on
@@ -119,6 +126,8 @@ export default function DesktopHome() {
     | "nameMint"
     | "hired"
     | "inspired"
+    | "approachIntro"
+    | "approach"
     | "contactIntro"
     | "contact"
   >("loading");
@@ -127,6 +136,7 @@ export default function DesktopHome() {
     const computeScheme = () => {
       const vh = window.innerHeight;
       const workTop = workRef.current?.getBoundingClientRect().top ?? Infinity;
+      const approachTop = approachRef.current?.getBoundingClientRect().top ?? Infinity;
       const contactTop = contactRef.current?.getBoundingClientRect().top ?? Infinity;
 
       // Base mapping from activeSection. Loading stays sage/ink until the
@@ -137,6 +147,7 @@ export default function DesktopHome() {
       if (activeSection === "loading") next = planetMorphed ? "who" : "loading";
       else if (activeSection === "who" || activeSection === "name") next = "who";
       else if (activeSection === "work") next = workAccent === "mint" ? "inspired" : "hired";
+      else if (activeSection === "approach") next = "approach";
       else next = "contact";
 
       // Scroll-driven override on the Name → Work boundary so the sage→sky
@@ -162,38 +173,54 @@ export default function DesktopHome() {
         next = workAccent === "mint" ? "inspired" : "hired";
       }
 
-      // Pre-scroll color invert: while workExitingToContact is true and
-      // Contact has not started crossing in yet, hold the scheme on
+      // Pre-scroll color invert: while workExitingToApproach is true and
+      // Approach has not started crossing in yet, hold the scheme on
       // "name" / "nameMint" so the user sees the sky/mint-on-ink invert
-      // BEFORE the page scrolls. Once Contact crosses into view, the
-      // contactTop-driven override below takes the wheel.
-      if (workExitingToContact && contactTop > vh * 0.55) {
+      // BEFORE the page scrolls. Once Approach crosses into view, the
+      // approachTop-driven override below takes the wheel.
+      if (workExitingToApproach && approachTop > vh * 0.55) {
         next = workAccent === "mint" ? "nameMint" : "name";
       }
 
-      // Scroll-driven override on the Work → Contact boundary. The user
-      // sees a three-stage colour cascade during the scroll:
-      //   contactTop ∈ (vh*0.55, vh)  → "name" / "nameMint" (Work invert:
-      //                                  sky-or-mint text on ink bg).
-      //                                  The mint variant fires when the
-      //                                  active Work accent is mint (an
-      //                                  INSPIRED project is open) so the
-      //                                  ink-on-mint → mint-on-ink invert
-      //                                  plays before the coral arrives.
-      //   contactTop ∈ (0, vh*0.55)   → "contactIntro" (coral on ink)
-      //   contactTop ≤ 0 (Contact full) → "contact"    (ink on coral)
-      // Same pattern as Name → Work — the colour change leads the scroll
-      // visually so each transition reads as smooth bg cross-fades.
-      // Buffer-gated contactTop transition. Buffers are now ~5% of vh
-      // on both sides so the transition cascade only fires when Contact
-      // is meaningfully transitioning into view (or just receded out).
-      // The narrow 4px buffers were letting the override fire during
-      // Work's fully-snapped state — sub-pixel contactTop a few px
-      // under vh would trigger "name" and pin Work in sky-on-ink.
+      // Scroll-driven override on the Work → Approach boundary. Three-stage
+      // colour cascade during the scroll (same shape as every boundary):
+      //   approachTop ∈ (vh*0.55, vh)  → "name" / "nameMint" (Work invert:
+      //                                   sky-or-mint text on ink bg)
+      //   approachTop ∈ (0, vh*0.55)   → "approachIntro" (lavender on ink)
+      //   approachTop ≤ 0 (snapped)    → "approach"      (ink on lavender)
+      // Buffers are ~5% of vh on both sides so sub-pixel tops while a
+      // panel is fully snapped can't trigger the cascade (see the old
+      // narrow-buffer bug that pinned Work in sky-on-ink).
       const cBuffer = vh * 0.05;
+      if (approachTop > cBuffer && approachTop < vh - cBuffer) {
+        if (approachTop > vh * 0.55) {
+          next = workAccent === "mint" ? "nameMint" : "name";
+        } else {
+          next = "approachIntro";
+        }
+      } else if (
+        approachTop <= 0 &&
+        Math.abs(approachTop) < vh * 0.5 &&
+        activeSection === "approach"
+      ) {
+        next = "approach";
+      }
+
+      // Approach → Contact pre-scroll invert (lavender on ink) before the
+      // page moves, mirroring Work's exit.
+      if (approachExitingToContact && contactTop > vh * 0.55) {
+        next = "approachIntro";
+      }
+
+      // Scroll-driven override on the Approach → Contact boundary:
+      //   contactTop ∈ (vh*0.55, vh)  → "approachIntro" (Approach invert)
+      //   contactTop ∈ (0, vh*0.55)   → "contactIntro"  (coral on ink)
+      //   contactTop ≤ 0 (snapped)    → "contact"       (ink on coral)
+      // Comes after the Approach block so it wins while Contact is the
+      // panel crossing in.
       if (contactTop > cBuffer && contactTop < vh - cBuffer) {
         if (contactTop > vh * 0.55) {
-          next = workAccent === "mint" ? "nameMint" : "name";
+          next = "approachIntro";
         } else {
           next = "contactIntro";
         }
@@ -215,27 +242,36 @@ export default function DesktopHome() {
       window.removeEventListener("scroll", computeScheme);
       window.removeEventListener("resize", computeScheme);
     };
-  }, [activeSection, planetMorphed, workAccent, workExitingToContact]);
+  }, [activeSection, planetMorphed, workAccent, workExitingToApproach, approachExitingToContact]);
 
-  // Clear the Work→Contact exit flag whenever the user is no longer in
+  // Clear the Work→Approach exit flag whenever the user is no longer in
   // the transition zone. Two cases:
-  //   - finished: activeSection became "contact" (intended completion).
+  //   - finished: activeSection became "approach" (intended completion).
   //   - aborted: activeSection became name/who/loading (user retreated
   //     out of Work before the transition completed). Without this, the
   //     flag stayed true forever and the colorScheme override pinned the
-  //     page to "name"/"nameMint" — the user saw inverted sky/mint-on-
-  //     ink colours while physically on Work or Name. Symptom: page
-  //     stuck in "no man's land" with inverted colours and content
-  //     visually low.
+  //     page to "name"/"nameMint" — inverted sky/mint-on-ink colours
+  //     while physically on Work or Name.
   useEffect(() => {
-    if (!workExitingToContact) return;
+    if (!workExitingToApproach) return;
+    const finished = activeSection === "approach";
+    const aborted =
+      activeSection !== "work" && activeSection !== "approach";
+    if (finished || aborted) {
+      setWorkExitingToApproach(false);
+    }
+  }, [activeSection, workExitingToApproach]);
+
+  // Same guard for the Approach→Contact exit flag.
+  useEffect(() => {
+    if (!approachExitingToContact) return;
     const finished = activeSection === "contact";
     const aborted =
-      activeSection !== "work" && activeSection !== "contact";
+      activeSection !== "approach" && activeSection !== "contact";
     if (finished || aborted) {
-      setWorkExitingToContact(false);
+      setApproachExitingToContact(false);
     }
-  }, [activeSection, workExitingToContact]);
+  }, [activeSection, approachExitingToContact]);
 
   useColorScheme(colorScheme);
 
@@ -348,18 +384,28 @@ export default function DesktopHome() {
     return () => window.clearTimeout(t);
   }, [activeSection, planetMorphed, triggerLoadingTransition]);
 
-  // Work → Contact transition. Three-phase timeline:
-  //   t=0     setWorkExitingToContact → "name" / "nameMint" claims the
+  // Work → Approach transition. Three-phase timeline:
+  //   t=0     setWorkExitingToApproach → "name" / "nameMint" claims the
   //           scheme (sky-or-mint text on ink bg). The 1.4s CSS bg
   //           transition starts immediately, so the user sees the
   //           invert play out before any page movement.
-  //   t=900   scrollIntoView('#contact') — mid-invert. The contactTop-
-  //           driven override carries the scheme through "contactIntro"
-  //           (coral on ink) as Contact enters view, then "contact"
-  //           (ink on coral) once it's fully snapped in. The exit flag
+  //   t=900   scrollIntoView('#approach') — mid-invert. The approachTop-
+  //           driven override carries the scheme through "approachIntro"
+  //           (lavender on ink) as Approach enters view, then "approach"
+  //           (ink on lavender) once it's fully snapped in. The exit flag
   //           is cleared by the useEffect watching activeSection.
-  const triggerWorkToContactTransition = useCallback(() => {
-    setWorkExitingToContact(true);
+  const triggerWorkToApproachTransition = useCallback(() => {
+    setWorkExitingToApproach(true);
+    window.setTimeout(() => {
+      document.getElementById("approach")?.scrollIntoView({ behavior: "smooth" });
+    }, 900);
+  }, []);
+
+  // Approach → Contact: identical timeline. "approachIntro" (lavender on
+  // ink) holds for 900ms, then the scroll carries it into "contactIntro"
+  // (coral on ink) and "contact" (ink on coral).
+  const triggerApproachToContactTransition = useCallback(() => {
+    setApproachExitingToContact(true);
     window.setTimeout(() => {
       document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
     }, 900);
@@ -447,7 +493,8 @@ export default function DesktopHome() {
       loading: "who",
       who:     "who-bio",
       name:    "work",
-      work:    "contact",
+      work:    "approach",
+      approach: "contact",
       contact: null,
     };
     const PREV: Record<ActiveSection, string | null> = {
@@ -455,7 +502,8 @@ export default function DesktopHome() {
       who:     "loading",
       name:    "who",
       work:    "who-bio",
-      contact: "work",
+      approach: "work",
+      contact: "approach",
     };
 
     // No pre-scroll holds — colour transitions ride on the smooth scroll
@@ -488,13 +536,17 @@ export default function DesktopHome() {
           }
         }
         // Past the last project — or wheel over negative space — trigger
-        // the colour-invert-first transition to Contact. The trigger sets
+        // the colour-invert-first transition to Approach. The trigger sets
         // the exit flag (which the colour-scheme computer reads to claim
         // "name" / "nameMint" right away) and fires scrollIntoView after
         // a 900ms beat so the user actually sees the invert before the
         // page moves. workOpenSlug stays so inertia wheels don't re-open
         // the first project mid-scroll.
-        triggerWorkToContactTransition();
+        triggerWorkToApproachTransition();
+        return;
+      }
+      if (activeSection === "approach") {
+        triggerApproachToContactTransition();
         return;
       }
       const next = NEXT[activeSection];
@@ -522,23 +574,24 @@ export default function DesktopHome() {
         }
         // Wheel over negative space: retreat straight back to Name and
         // close the accordion as we leave. Also cancel any in-flight
-        // Work→Contact transition so the colour scheme doesn't stay
+        // Work→Approach transition so the colour scheme doesn't stay
         // pinned to "name"/"nameMint" after the user has reversed.
         setWorkOpenSlug(null);
-        setWorkExitingToContact(false);
+        setWorkExitingToApproach(false);
         document
           .getElementById("who-bio")
           ?.scrollIntoView({ behavior: "smooth" });
         return;
       }
-      if (activeSection === "contact") {
-        // Coming back from Contact lands on Work with a closed accordion
+      if (activeSection === "approach") {
+        // Coming back from Approach lands on Work with a closed accordion
         // (sky scheme by default). Previously this auto-opened the last
         // project, which left the page in the mint INSPIRED scheme on
         // arrival — confusing if the user expected Select Work's default
         // sky look. From here, the user can scroll back down to step into
         // projects again, or scroll up to Name.
         setWorkOpenSlug(null);
+        setApproachExitingToContact(false);
         document
           .getElementById("work")
           ?.scrollIntoView({ behavior: "smooth" });
@@ -693,10 +746,16 @@ export default function DesktopHome() {
           lockMs = 650;
           maxLockMs = 1700;
         } else if (e.deltaY > 0) {
-          // Last project → Contact: cover the colour invert + scroll.
+          // Last project → Approach: cover the colour invert + scroll.
           lockMs = 1600;
           maxLockMs = 2400;
         }
+      }
+      // Approach → Contact has the same 900ms invert hold before its
+      // scroll, so give it the same long lock.
+      if (activeSection === "approach" && e.deltaY > 0) {
+        lockMs = 1600;
+        maxLockMs = 2400;
       }
       lockedUntilRef.current = now + lockMs;
       lockMaxRef.current = now + maxLockMs;
@@ -713,7 +772,7 @@ export default function DesktopHome() {
       window.removeEventListener("keydown", onKey);
       window.removeEventListener("wheel", onWheel);
     };
-  }, [activeSection, caseStudyOpen, triggerLoadingTransition, triggerWorkToContactTransition, workOpenSlug]);
+  }, [activeSection, caseStudyOpen, triggerLoadingTransition, triggerWorkToApproachTransition, triggerApproachToContactTransition, workOpenSlug]);
 
   // Safety net for "no-man's-land" scroll states — when the page comes
   // to rest BETWEEN two snap panels (e.g., a wheel gesture got cut off
@@ -725,7 +784,7 @@ export default function DesktopHome() {
   // > 0 (the user is intentionally viewing the accordion overflow).
   useEffect(() => {
     let timer: number | null = null;
-    const refs = [loadingRef, helloRef, nameRef, workRef, contactRef];
+    const refs = [loadingRef, helloRef, nameRef, workRef, approachRef, contactRef];
     const onScroll = () => {
       if (timer !== null) window.clearTimeout(timer);
       timer = window.setTimeout(() => {
@@ -755,12 +814,13 @@ export default function DesktopHome() {
           document
             .getElementById(bestId)
             ?.scrollIntoView({ behavior: "smooth" });
-          // Reset any in-flight Work→Contact transition flag. If the
-          // safety net is firing, the transition's scroll didn't
-          // complete cleanly — leaving the flag true would keep the
-          // colorScheme pinned to "name"/"nameMint" even after the
-          // snap-back lands. Safe to call when not in transition.
-          setWorkExitingToContact(false);
+          // Reset any in-flight exit transition flags. If the safety
+          // net is firing, the transition's scroll didn't complete
+          // cleanly — leaving a flag true would keep the colorScheme
+          // pinned to an invert scheme even after the snap-back lands.
+          // Safe to call when not in transition.
+          setWorkExitingToApproach(false);
+          setApproachExitingToContact(false);
         }
       }, 300);
     };
@@ -838,6 +898,10 @@ export default function DesktopHome() {
           initialCaseStudyNumber={deepLinkItemNumber}
           onCaseStudyItemChange={handleCaseStudyItemChange}
         />
+      </div>
+
+      <div ref={approachRef}>
+        <ApproachSection />
       </div>
 
       <div ref={contactRef}>

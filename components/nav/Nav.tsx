@@ -4,7 +4,7 @@ import { useState } from "react";
 import { motion, LayoutGroup } from "framer-motion";
 import { EASE } from "@/lib/motion";
 
-export type ActiveSection = "loading" | "who" | "name" | "work" | "contact";
+export type ActiveSection = "loading" | "who" | "name" | "work" | "approach" | "contact";
 
 type Props = {
   activeSection: ActiveSection;
@@ -74,19 +74,6 @@ export default function Nav({
   chromeVisible = true,
   planetSlotRef,
 }: Props) {
-  // APPROACH is a separate route, not a snap panel, so it can never be
-  // the scroll-driven active section. On click we mark it pending, which
-  // slides the shared brackets onto it like any other label, then load
-  // the route once the bracket spring has landed (mirrors the mobile
-  // menu's tap → bracket morph → navigate timing).
-  const [pendingRoute, setPendingRoute] = useState<string | null>(null);
-  const goToRoute = (href: string) => {
-    setPendingRoute(href);
-    window.setTimeout(() => {
-      window.location.href = href;
-    }, 380);
-  };
-
   return (
     <motion.header
       // Two layers: a masked backdrop (blur + gradient fade) BEHIND the nav
@@ -178,7 +165,7 @@ export default function Nav({
         <NavLabel
           gridColumn="7 / 9"
           label="WHO"
-          active={!pendingRoute && activeSection === "name"}
+          active={activeSection === "name"}
           onClick={() => scrollToSection("who-bio")}
           align="center"
         />
@@ -188,7 +175,7 @@ export default function Nav({
         <NavLabel
           gridColumn="14 / 16"
           label="WORK"
-          active={!pendingRoute && activeSection === "work"}
+          active={activeSection === "work"}
           onClick={() => scrollToSection("work")}
           align="center"
         />
@@ -198,8 +185,8 @@ export default function Nav({
         <NavLabel
           gridColumn="22 / 24"
           label="APPROACH"
-          active={pendingRoute === "/approach"}
-          onClick={() => goToRoute("/approach")}
+          active={activeSection === "approach"}
+          onClick={() => scrollToSection("approach")}
           align="center"
         />
 
@@ -208,7 +195,7 @@ export default function Nav({
         <NavLabel
           gridColumn="29 / 31"
           label="CONTACT"
-          active={!pendingRoute && activeSection === "contact"}
+          active={activeSection === "contact"}
           onClick={() => scrollToSection("contact")}
           align="center"
         />

@@ -4,7 +4,7 @@ export const COLORS = {
   sky:   "#94D9F3",
   mint:  "#A8D8B9",
   coral: "#EC7A55",
-  /** Approach page signature (see app/approach). Not a snap-panel scheme. */
+  /** Approach signature — the homepage Approach panel and the /approach page. */
   lavender: "#C4B6F2",
 } as const;
 
@@ -15,6 +15,8 @@ export type Section =
   | "nameMint"
   | "hired"
   | "inspired"
+  | "approachIntro"
+  | "approach"
   | "contactIntro"
   | "contact";
 
@@ -32,6 +34,12 @@ export const SECTION_COLORS: Record<Section, { bg: string; fg: string; accent: s
   nameMint:     { bg: COLORS.ink,   fg: COLORS.mint,  accent: COLORS.mint  },
   hired:        { bg: COLORS.sky,   fg: COLORS.ink,   accent: COLORS.ink   },
   inspired:     { bg: COLORS.mint,  fg: COLORS.ink,   accent: COLORS.ink   },
+  // Approach panel (between Work and Contact). Same intro → settled pair
+  // as Contact: lavender text on ink while the panel scrolls in, then
+  // ink on lavender once it lands. "approachIntro" also serves as the
+  // Approach → Contact pre-scroll invert.
+  approachIntro: { bg: COLORS.ink,      fg: COLORS.lavender, accent: COLORS.lavender },
+  approach:      { bg: COLORS.lavender, fg: COLORS.ink,      accent: COLORS.ink      },
   // Intermediate scheme between Work and Contact (coral text on ink bg).
   // Mirrors the "name" pattern for the inbound coral accent so the
   // Work → Contact transition reads as: sky/mint bg → ink bg (with sky

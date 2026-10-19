@@ -5,18 +5,16 @@ import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
 import { COLORS } from "@/lib/colors";
 import { DUR, EASE, STAGGER } from "@/lib/motion";
 
-export type ChromeSection = "who" | "work" | "contact";
+export type ChromeSection = "who" | "work" | "approach" | "contact";
 
-/** Menu entries are the three snap sections plus APPROACH, which is a
- *  separate route (/approach) rather than a section of this page. */
-type MenuKey = ChromeSection | "approach";
+type MenuKey = ChromeSection;
 
 type Section = { key: MenuKey; label: string; targetId: string };
 
 const SECTIONS: Section[] = [
   { key: "who", label: "WHO", targetId: "who" },
   { key: "work", label: "WORK", targetId: "work" },
-  { key: "approach", label: "APPROACH", targetId: "/approach" },
+  { key: "approach", label: "APPROACH", targetId: "approach" },
   { key: "contact", label: "CONTACT", targetId: "contact" },
 ];
 
@@ -92,14 +90,6 @@ export default function MobileMenuOverlay({
       onClose();
       return;
     }
-    if (key === "approach") {
-      // Separate route: same bracket morph + colour shift, then load it.
-      setHighlighted(key);
-      window.setTimeout(() => {
-        window.location.href = "/approach";
-      }, 450);
-      return;
-    }
     // Move the brackets + transition the menu colour to the tapped
     // section's highlight first; let that play before we ask the
     // parent to fade us out + scroll into the section.
@@ -158,7 +148,7 @@ export default function MobileMenuOverlay({
                     e.stopPropagation();
                     handleTap(s.key);
                   }}
-                  aria-label={s.key === "approach" ? "Go to Approach page" : `Go to ${s.label} section`}
+                  aria-label={`Go to ${s.label} section`}
                   aria-current={isActive ? "page" : undefined}
                   initial={{ opacity: 0, y: 18 }}
                   animate={{ opacity: 1, y: 0 }}

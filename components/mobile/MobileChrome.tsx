@@ -21,7 +21,7 @@ const FOOT_H = "var(--m-foot-h)";
 const GUTTER = "var(--m-gutter)";
 
 type Props = {
-  activeSection: "who" | "work" | "contact";
+  activeSection: "who" | "work" | "approach" | "contact";
   visible: boolean;
   onOpenMenu?: () => void;
   children: ReactNode;
@@ -36,9 +36,11 @@ export default function MobileChrome({
   const label =
     activeSection === "work"
       ? "WORK"
-      : activeSection === "contact"
-        ? "CONTACT"
-        : "WHO";
+      : activeSection === "approach"
+        ? "APPROACH"
+        : activeSection === "contact"
+          ? "CONTACT"
+          : "WHO";
 
   return (
     <>

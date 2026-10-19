@@ -64,6 +64,8 @@ lib/
 | name     | ink   | sky   | sky    | **intermediate** — fires only via scroll override |
 | hired    | sky   | ink   | ink    | Work section, inverted state                      |
 | inspired | ink   | mint  | mint   | (reserved, not yet active)                        |
+| approachIntro | ink | lavender | lavender | **intermediate** — Work→Approach scroll-in, and Approach→Contact pre-scroll invert |
+| approach | lavender | ink | ink    | Approach teaser panel                             |
 | contact  | coral | ink   | ink    | Contact section (not yet built)                   |
 
 **Smooth color transitions**: `transition: background-color 1.4s cubic-bezier(0.22, 1, 0.36, 1)` on `html`, `body`, `.snap`. The same transition is on the nav + footer backdrop layers so blur tints stay in lockstep with section bg (no banding). The OutlineName component (Robert/Jones) gets a matching 1.4s transition on `-webkit-text-stroke-color` via the `.text-name-outline` class so the accent stroke morphs smoothly from sage → sky alongside the bg colour.
@@ -154,7 +156,8 @@ All sections are full-viewport `.snap` panels. `html.snapping { scroll-snap-type
 2. **Hello** (`#who`) — ink+sage. "Hello" headline, intro paragraph lower-right.
 3. **Name** (`#who-bio`) — ink+sage. Nathaniel/Robert/Jones stack, [INTRO] + bio top-aligned right, Select Engagements lower-right.
 4. **Work** (`#work`) — sky+ink (inverted). Select Work + HIRED/INSPIRED list left, [INTRO] + bio right.
-5. **Contact** (`#contact`) — placeholder, not yet built.
+5. **Approach** (`#approach`) — lavender+ink. "How I / work." cascade (cols 3–20) + [ Approach ] teaser in the body column (21–28): intro line, the 4 process steps, and a "Read the full approach" pill linking to `/approach`. `components/sections/approach/ApproachSection.tsx` (desktop) and `components/mobile/sections/MobileApproachSection.tsx` share copy constants.
+6. **Contact** (`#contact`) — placeholder, not yet built.
 
 **Active section detection**: `useSectionEntry(ref, () => setActiveSection(...), 0.5)` in `page.tsx`. Threshold 0.5. Re-fires on every entry (not one-shot) so scrolling back up restores schemes correctly.
 
@@ -165,7 +168,7 @@ Implemented in `page.tsx` global `useEffect`. Inputs:
 - **Keyboard**: ↓ / PgDn / Space / Enter → advance; ↑ / PgUp → retreat
 - **Wheel**: deltaY ≥ 30 fires once per gesture; lock window 1800ms (2500ms on Work boundary). `preventDefault` is called on **every** wheel event so the page never scrolls into "no-man's-land" between snaps.
 
-Section sequence: `loading → who → who-bio → work → contact`. The Name → Work transition has the 650ms color-morph hold (see Color flow above).
+Section sequence: `loading → who → who-bio → work → approach → contact`. The Name → Work transition has the 650ms color-morph hold (see Color flow above).
 
 ## Cursor (`MagneticCursor`)
 
@@ -300,7 +303,9 @@ Standalone route (`app/approach/`), not a snap panel. Plain scrolling page built
 - **Project links** use the home page's case-study deep links (`/#<item-slug>`, e.g. `/#liquid-challenger-index`). Keep the hrefs in `PROJECTS` in sync with item slugs in `content/projects/*.ts`. Velvet Isles shows "[ Case study coming soon ]" until it has a project file.
 - **Marquee** reuses `DisciplineMarquee` (exported from `WorkSection.tsx`) so its type, ★ separators and 56px/s speed match the Work rows; the CSS module only sets the band colour and 3rem height. Don't swap it for a CSS `@keyframes` marquee — those failed to animate in production builds.
 - Links back to `/` are plain `<a>` (full load) on purpose: the home page reads its hash and runs its intro/snap setup on a fresh mount.
-- **Nav entry**: APPROACH sits between WORK and CONTACT in the desktop `Nav` (label centres on grid lines 8 / 15 / 23 / 30 — a symmetric 7 / 8 / 7 split) and in `MobileMenuOverlay` (lavender highlight). It is never the scroll-driven active section; clicking it sets a local `pendingRoute` so the shared brackets slide onto it, then loads `/approach` after ~380ms (mobile: 450ms, matching its existing tap timing).
+- **Nav entry**: APPROACH sits between WORK and CONTACT in the desktop `Nav` (label centres on grid lines 8 / 15 / 23 / 30 — a symmetric 7 / 8 / 7 split) and in `MobileMenuOverlay` (lavender highlight). It scrolls to the homepage `#approach` snap panel like the other labels; that panel's pill links on to `/approach`.
+
+**Work → Approach → Contact transitions** (DesktopHome): each exit uses the pre-scroll invert pattern. Leaving Work sets `workExitingToApproach` (holds "name"/"nameMint" for 900ms, then scrolls; `approachTop` drives "approachIntro" → "approach"). Leaving Approach sets `approachExitingToContact` (holds "approachIntro" for 900ms, then scrolls; `contactTop` drives "contactIntro" → "contact"). Both flags clear on arrival or abort, and in the snap safety net. Retreating from Approach lands on Work with the accordion closed; retreating from Contact lands on Approach. Approach → Contact gets the same 1600/2400ms wheel lock as the last-project → next-section step.
 - At the narrowest desktop widths (~800px) label→rule gaps drop to ~10px, slightly under the bracket overhang — same as the three-label nav before it.
 
 ## Out of Scope (current state)

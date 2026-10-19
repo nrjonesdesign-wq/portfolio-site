@@ -14,6 +14,7 @@ import {
 } from "./sections/MobileWhoSection";
 import MobileWorkSection from "./sections/MobileWorkSection";
 import MobileCaseStudyPanel from "./sections/MobileCaseStudyPanel";
+import MobileApproachSection from "./sections/MobileApproachSection";
 import MobileContactSection from "./sections/MobileContactSection";
 import {
   ALL_PROJECTS,
@@ -208,12 +209,14 @@ export default function MobileHome() {
       "who-bio",
       "who-engagements",
       "work",
+      "approach",
       "contact",
     ];
     const sectionForId = (id: string): "loading" | Section => {
       if (id === "loading") return "loading";
       if (id === "who" || id === "who-bio" || id === "who-engagements") return "who";
       if (id === "work") return "hired";
+      if (id === "approach") return "approach";
       if (id === "contact") return "contact";
       return "loading";
     };
@@ -244,7 +247,9 @@ export default function MobileHome() {
       ? "who"
       : activeSection === "hired" || activeSection === "inspired"
         ? "work"
-        : "contact";
+        : activeSection === "approach"
+          ? "approach"
+          : "contact";
 
   const handleMenuSelect = (section: ChromeSection) => {
     setMenuOpen(false);
@@ -253,8 +258,7 @@ export default function MobileHome() {
     // [WHO] lands on the Name panel (#who-bio) — Hello is a brief
     // splash but Name is the canonical WHO screen with the bio +
     // engagements. Mirrors desktop nav.
-    const id =
-      section === "who" ? "who-bio" : section === "work" ? "work" : "contact";
+    const id = section === "who" ? "who-bio" : section;
     window.requestAnimationFrame(() => {
       document
         .getElementById(id)
@@ -310,6 +314,7 @@ export default function MobileHome() {
           onAccentChange={setWorkAccent}
           onOpenCaseStudy={setCaseStudyItemNumber}
         />
+        <MobileApproachSection />
         <MobileContactSection />
       </MobileChrome>
 
