@@ -4,7 +4,7 @@
 /* eslint-disable @next/next/no-html-link-for-pages */
 import type { Metadata } from "next";
 import styles from "./approach.module.css";
-import { ApproachTint, CopyEmail } from "./ApproachChrome";
+import { ApproachTint, CopyEmail, NavPlanet } from "./ApproachChrome";
 import { DisciplineMarquee } from "@/components/sections/work/WorkSection";
 
 export const metadata: Metadata = {
@@ -77,7 +77,7 @@ export default function ApproachPage() {
 
       <nav className={styles.nav} aria-label="Site">
         <div className={`${styles.wrap} ${styles.navRow}`}>
-          <a className={styles.navName} href="/">NRJ</a>
+          <NavPlanet />
           <ul className={styles.navList}>
             <li><a href="/#who">WHO</a></li>
             <li><a href="/#work">WORK</a></li>

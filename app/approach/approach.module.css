@@ -61,8 +61,12 @@
 
 /* nav */
 .nav { background: var(--l-hero); }
-.navRow { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding-block: 18px; flex-wrap: wrap; }
-.navName { font-family: var(--font-manrope), sans-serif; font-weight: 800; font-size: 18px; text-decoration: none; }
+.navRow { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding-block: 18px; min-height: 5rem; /* matches the home nav height */ flex-wrap: wrap; }
+/* Planet mark: 44px slot = the visible circle; the 113px NRJPlanet box
+   (home nav size) is centred on it and clipped to its inscribed circle,
+   exactly like the home page's docked planet. */
+.planetSlot { position: relative; display: block; flex: 0 0 auto; width: 44px; height: 44px; color: var(--ink); }
+.planetBox { position: absolute; left: 50%; top: 50%; width: 113px; height: 113px; margin: -56.5px 0 0 -56.5px; clip-path: circle(50% at 50% 50%); pointer-events: none; }
 .navList { list-style: none; margin: 0; padding: 0; display: flex; gap: 22px; font-family: var(--font-geist-mono), monospace; font-size: 13px; letter-spacing: 0.08em; }
 .navList a { text-decoration: none; }
 .navList a:hover, .navList a:focus-visible, .navList a[aria-current] { text-decoration: underline; text-underline-offset: 5px; text-decoration-thickness: 2px; }
