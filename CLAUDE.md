@@ -289,6 +289,16 @@ The `View Work` link uses `data-no-advance` so the global click-advance handler 
 
 Project group labels (HIRED / INSPIRED) and inter-row strokes are full opacity (`var(--fg)` directly, no `color-mix` transparency).
 
+## Approach page (`/approach`)
+
+Standalone route (`app/approach/`), not a snap panel. Plain scrolling page built with a CSS module (`approach.module.css`) so its `@media` rules stay out of globals.css (see Build Gotcha #1).
+
+- **Palette**: one hue, lavender, at a different value per section (hero `#c4b6f2`, foundation `#e7e1fb`, philosophy `#b2a1eb`, process `#d6ccf8`, influences `#f1edfd`, marquee `#2f2550`, in-practice `#a08ce3`, contact `#8f7ad9`). Ink text throughout.
+- **`ApproachTint`** (client) sets `--bg`/`--fg` + theme-color to lavender on mount and restores them on unmount, so overscroll and iOS safe-area bands match.
+- **Project links** use the home page's case-study deep links (`/#<item-slug>`, e.g. `/#liquid-challenger-index`). Keep the hrefs in `PROJECTS` in sync with item slugs in `content/projects/*.ts`. Velvet Isles shows "[ Case study coming soon ]" until it has a project file.
+- Links back to `/` are plain `<a>` (full load) on purpose: the home page reads its hash and runs its intro/snap setup on a fresh mount.
+- Main-site nav does not link to `/approach` yet.
+
 ## Out of Scope (current state)
 
 - Real OGL/Three.js GLSL shader (using SVG feDisplacementMap as proxy — visually equivalent for current "lens" use)

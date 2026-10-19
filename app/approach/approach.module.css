@@ -1,0 +1,145 @@
+/* Approach page — standalone route, not part of the snap-panel home.
+   Palette: one hue (lavender), a different value per section so each
+   band reads as its own step while the page holds together as one
+   section of the site. Ink text throughout, matching the home page. */
+
+.page {
+  --l-hero: #c4b6f2;     /* signature value — nav + hero */
+  --l-pale: #f1edfd;
+  --l-light: #e7e1fb;
+  --l-mid: #d6ccf8;
+  --l-strong: #b2a1eb;
+  --l-deep: #a08ce3;
+  --l-contact: #8f7ad9;
+  --l-night: #2f2550;    /* marquee band */
+  --card: #f6f3fe;
+  --ink: #151515;
+  --muted: #3b3355;
+  --rule: rgba(21, 21, 21, 0.2);
+
+  background: var(--l-hero);
+  color: var(--ink);
+  font-family: var(--font-geist), "Helvetica Neue", Arial, sans-serif;
+  font-size: 17px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+.page a { color: inherit; }
+
+.wrap {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+
+.band { padding-block: clamp(56px, 9vw, 112px); }
+.bandLight { background: var(--l-light); }
+.bandStrong { background: var(--l-strong); }
+.bandMid { background: var(--l-mid); }
+.bandPale { background: var(--l-pale); }
+.bandDeep { background: var(--l-deep); }
+
+.label {
+  font-family: var(--font-geist-mono), ui-monospace, Menlo, monospace;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.h1, .h2 {
+  font-family: var(--font-manrope), "Helvetica Neue", Arial, sans-serif;
+  font-weight: 800;
+  text-wrap: balance;
+  margin: 0;
+}
+.h2 { font-size: clamp(36px, 6vw, 68px); letter-spacing: -0.03em; line-height: 1.02; }
+.h3 { font-weight: 500; font-size: 22px; letter-spacing: -0.01em; line-height: 1.25; margin: 0; text-wrap: balance; }
+.page p { margin: 0; max-width: 62ch; }
+
+/* nav */
+.nav { background: var(--l-hero); }
+.navRow { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding-block: 18px; flex-wrap: wrap; }
+.navName { font-family: var(--font-manrope), sans-serif; font-weight: 800; font-size: 18px; text-decoration: none; }
+.navList { list-style: none; margin: 0; padding: 0; display: flex; gap: 22px; font-family: var(--font-geist-mono), monospace; font-size: 13px; letter-spacing: 0.08em; }
+.navList a { text-decoration: none; }
+.navList a:hover, .navList a:focus-visible, .navList a[aria-current] { text-decoration: underline; text-underline-offset: 5px; text-decoration-thickness: 2px; }
+
+/* hero */
+.hero { background: var(--l-hero); padding-block: clamp(40px, 7vw, 96px) clamp(48px, 8vw, 104px); }
+.h1 { font-size: clamp(64px, 14vw, 184px); letter-spacing: -0.05em; line-height: 0.9; }
+.h1 em { font-style: normal; color: var(--muted); }
+.lede { margin-top: 32px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 32px; align-items: end; }
+.lede p { font-size: clamp(19px, 2.2vw, 24px); line-height: 1.45; }
+
+.head { display: grid; gap: 14px; margin-bottom: clamp(32px, 5vw, 56px); }
+
+/* columns */
+.cols3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(24px, 4vw, 48px); }
+.col { display: grid; gap: 12px; align-content: start; border-top: 2px solid var(--ink); padding-top: 18px; min-width: 0; }
+.col ul, .proj ul { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; }
+.col li::marker { content: "★  "; font-size: 0.8em; }
+.infl .col { border-top-width: 6px; border-top-color: var(--l-deep); }
+.quote { margin: 8px 0 0; font-family: var(--font-manrope), sans-serif; font-weight: 800; font-size: 22px; line-height: 1.25; }
+.quote cite { display: block; margin-top: 6px; font-family: var(--font-geist-mono), monospace; font-size: 13px; font-style: normal; font-weight: 400; color: var(--muted); letter-spacing: 0.04em; }
+
+/* philosophy */
+.tenets { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule); }
+.tenets li { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 16px 40px; padding-block: 26px; border-bottom: 1px solid var(--rule); }
+.tenets .h3 { font-family: var(--font-manrope), sans-serif; font-weight: 800; font-size: clamp(24px, 3vw, 34px); line-height: 1.1; }
+
+/* process */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; counter-reset: step; }
+.steps li { counter-increment: step; background: var(--card); border-radius: 4px; padding: 22px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.steps li::before { content: "[ 0" counter(step) " ]"; font-family: var(--font-geist-mono), monospace; font-size: 13px; color: var(--muted); letter-spacing: 0.06em; }
+.aside { font-size: 15px; color: var(--muted); font-style: italic; }
+.toolbox { margin-top: 36px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.chip { font-family: var(--font-geist-mono), monospace; font-size: 13px; border: 1px solid var(--ink); border-radius: 999px; padding: 6px 12px; }
+
+/* marquee */
+.marquee { background: var(--l-night); color: var(--l-hero); overflow: hidden; padding-block: 16px; font-family: var(--font-manrope), sans-serif; font-weight: 800; font-size: 22px; white-space: nowrap; }
+.track { display: inline-flex; gap: 28px; padding-left: 28px; animation: approachSlide 40s linear infinite; }
+@keyframes approachSlide { to { transform: translateX(-50%); } }
+
+/* projects */
+.projects { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.proj { background: var(--l-pale); border-radius: 4px; padding: 26px; display: grid; gap: 12px; align-content: start; min-width: 0; }
+.wide { grid-column: 1 / -1; }
+.meta { font-family: var(--font-geist-mono), monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.more { justify-self: start; margin-top: 4px; font-family: var(--font-geist-mono), monospace; font-size: 13px; letter-spacing: 0.06em; text-decoration: none; border-bottom: 2px solid var(--ink); padding-bottom: 2px; }
+.more:hover { color: var(--muted); }
+.soon { border-bottom-style: dashed; color: var(--muted); }
+
+/* contact + footer */
+.cta { background: var(--l-contact); padding-block: clamp(64px, 10vw, 128px); }
+.cta .label { color: var(--ink); }
+.ctaTitle { font-size: clamp(48px, 10vw, 128px); letter-spacing: -0.05em; line-height: 0.92; }
+.ctaRow { margin-top: 32px; display: flex; flex-wrap: wrap; gap: 16px 32px; align-items: center; }
+.email { font-family: var(--font-manrope), sans-serif; font-weight: 800; font-size: clamp(20px, 3vw, 30px); text-decoration: none; overflow-wrap: anywhere; }
+.copy { font: 400 13px var(--font-geist-mono), monospace; letter-spacing: 0.06em; background: var(--ink); color: var(--l-hero); border: 0; border-radius: 999px; padding: 10px 16px; }
+.footer { background: var(--l-contact); border-top: 1px solid var(--rule); }
+.footRow { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding-block: 18px; font-family: var(--font-geist-mono), monospace; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
+
+.page a:focus-visible, .copy:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+/* responsive (component-scoped, per CLAUDE.md gotcha #1) */
+@media (max-width: 960px) {
+  .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 820px) {
+  .cols3 { grid-template-columns: 1fr; }
+}
+@media (max-width: 760px) {
+  .projects { grid-template-columns: 1fr; }
+}
+@media (max-width: 720px) {
+  .lede, .tenets li { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .steps { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .track { animation: none; }
+}
