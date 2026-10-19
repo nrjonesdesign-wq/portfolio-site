@@ -192,3 +192,48 @@ export function NavPlanet() {
     </motion.a>
   );
 }
+
+/**
+ * Footer — the homepage's fixed meta row, both versions:
+ *  - desktop (DesktopHome footer): 5rem bar on the 32-col grid, masked
+ *    blur + 45% --bg tint backdrop; SENIOR VISUAL DESIGNER — rule —
+ *    AVAILABLE FOR WORK across cols 3–17, (c) 2026 right-aligned at
+ *    cols 29–30; labels .text-label at 60%, rule at 35%.
+ *  - phones (MobileChrome footer): --m-foot-h bar with ChromeBackdrop;
+ *    SENIOR DESIGNER — AVAILABLE FOR WORK — © 2026 in mono --fs-sm,
+ *    rules at 70%.
+ * Fixed to the viewport bottom and coloured by the root --bg / --fg that
+ * ApproachTint switches per section, exactly as on the homepage.
+ */
+export function ApproachFooter() {
+  return (
+    <>
+      <footer className={styles.footDesk}>
+        <div aria-hidden className={styles.footDeskBackdrop} />
+        <div className="content-grid w-full" style={{ position: "relative", zIndex: 1 }}>
+          <div className={styles.footDeskLead}>
+            <span className="text-label" style={{ opacity: 0.6, flex: "0 0 auto" }}>
+              Senior Visual Designer
+            </span>
+            <div className={styles.footDeskRule} />
+            <span className="text-label" style={{ opacity: 0.6, flex: "0 0 auto" }}>
+              Available for Work
+            </span>
+          </div>
+          <span className={`text-label ${styles.footDeskEnd}`}>(c) 2026</span>
+        </div>
+      </footer>
+
+      <footer className={styles.footMobile}>
+        <ChromeBackdrop edge="bottom" />
+        <div className={styles.footMobileRow}>
+          <span>Senior Designer</span>
+          <div className={styles.footMobileRule} />
+          <span>Available for Work</span>
+          <div className={styles.footMobileRule} />
+          <span>© 2026</span>
+        </div>
+      </footer>
+    </>
+  );
+}

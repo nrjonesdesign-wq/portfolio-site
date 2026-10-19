@@ -4,7 +4,7 @@
 /* eslint-disable @next/next/no-html-link-for-pages */
 import type { Metadata } from "next";
 import styles from "./approach.module.css";
-import { ApproachMobileNav, ApproachTint, CopyEmail, NavPlanet } from "./ApproachChrome";
+import { ApproachFooter, ApproachMobileNav, ApproachTint, CopyEmail, NavPlanet } from "./ApproachChrome";
 import { DisciplineMarquee } from "@/components/sections/work/WorkSection";
 
 export const metadata: Metadata = {
@@ -282,14 +282,7 @@ export default function ApproachPage() {
         </div>
       </section>
 
-      <footer className={`${styles.footer} ${styles.dark}`} data-scheme="dark">
-        <div className={`${styles.wrap} ${styles.footRow}`}>
-          <span>Senior Visual Designer</span>
-          <span className={styles.footRule} aria-hidden="true" />
-          <span>Available for Work</span>
-          <span className={styles.footEnd}>(c) 2026</span>
-        </div>
-      </footer>
+      <ApproachFooter />
     </div>
   );
 }
