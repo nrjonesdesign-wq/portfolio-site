@@ -79,7 +79,7 @@
   text-wrap: balance;
   margin: 0;
 }
-.h1 em { font-style: normal; color: var(--muted); }
+.h1 em { font-style: normal; color: inherit; } /* one colour for the whole headline */
 /* Section header — same as "Select Work" / "Select Engagements". */
 .h2 { font-family: var(--font-geist), sans-serif; font-weight: 700; font-size: 1.875rem; letter-spacing: -0.01em; line-height: 1.15; margin: 0; text-wrap: balance; }
 /* Item name — same as the Work project rows. */
