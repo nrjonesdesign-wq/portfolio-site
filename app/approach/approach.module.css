@@ -175,7 +175,9 @@
 .cta { padding-block: clamp(64px, 10vw, 128px); }
 .ctaTitle { font-family: var(--font-manrope), sans-serif; font-weight: 800; font-size: clamp(48px, 7vw, 88px); letter-spacing: -0.04em; line-height: 0.9; margin-top: clamp(24px, 3vw, 40px); } /* Contact hero; gap below the [ Contact ] label scales with the headline */
 .cta .label, .hero > .wrap > .label { display: block; }
-.ctaNote { margin-top: clamp(40px, 5vw, 64px); } /* headline → copy gap; scales with the headline */
+/* headline → copy gap, scales with the headline. Selector needs .page p
+   specificity (0,2,1) to beat the `.page p { margin: 0 }` reset. */
+.page p.ctaNote { margin-top: clamp(40px, 5vw, 64px); }
 .ctaRow { margin-top: 32px; display: flex; flex-wrap: wrap; gap: 16px 32px; align-items: center; }
 /* Email pill — same as the Contact panel's mailto button (fg bg, bg text). */
 .email, .copy { display: inline-block; font-family: var(--font-geist-mono), monospace; font-size: var(--fs-label); font-weight: 500; letter-spacing: 0.04em; line-height: 1.2; border: 0; border-radius: 0; padding: 0.35rem 0.6rem; text-decoration: none; overflow-wrap: anywhere; }
