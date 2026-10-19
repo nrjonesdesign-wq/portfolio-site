@@ -5,6 +5,7 @@
 import type { Metadata } from "next";
 import styles from "./approach.module.css";
 import { ApproachTint, CopyEmail } from "./ApproachChrome";
+import { DisciplineMarquee } from "@/components/sections/work/WorkSection";
 
 export const metadata: Metadata = {
   title: "Approach — Nathaniel Robert Jones",
@@ -64,7 +65,10 @@ const PROJECTS: {
   },
 ];
 
-const MARQUEE = ["Research", "Collaboration", "Iteration", "Craft", "Clarity", "Curiosity", "Brand Systems", "UX / UI", "Typography", "Motion"];
+/** Same comma-list format as a project's `disciplines`, rendered by the
+ *  home page's DisciplineMarquee so the type, ★ separators and scroll
+ *  speed match the Work rows exactly. */
+const MARQUEE = "Research, Collaboration, Iteration, Craft, Clarity, Curiosity, Brand Systems, UX / UI, Typography, Motion";
 
 export default function ApproachPage() {
   return (
@@ -238,11 +242,7 @@ export default function ApproachPage() {
       </section>
 
       <div className={styles.marquee} aria-hidden="true">
-        <div className={styles.track}>
-          {[...MARQUEE, ...MARQUEE].map((w, i) => (
-            <span key={i}>★ {w}</span>
-          ))}
-        </div>
+        <DisciplineMarquee text={MARQUEE} />
       </div>
 
       <section className={`${styles.band} ${styles.bandDeep}`}>

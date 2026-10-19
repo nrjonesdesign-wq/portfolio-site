@@ -593,7 +593,7 @@ function renderMarqueeSegment(tags: string[], copyIdx: number) {
   return out;
 }
 
-function DisciplineMarquee({ text }: { text: string }) {
+export function DisciplineMarquee({ text }: { text: string }) {
   const tags = text
     .split(",")
     .map((s) => s.trim())

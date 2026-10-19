@@ -98,10 +98,10 @@
 .toolbox { margin-top: 36px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 .chip { font-family: var(--font-geist-mono), monospace; font-size: 13px; border: 1px solid var(--ink); border-radius: 999px; padding: 6px 12px; }
 
-/* marquee */
-.marquee { background: var(--l-night); color: var(--l-hero); overflow: hidden; padding-block: 16px; font-family: var(--font-manrope), sans-serif; font-weight: 800; font-size: 22px; white-space: nowrap; }
-.track { display: inline-flex; gap: 28px; padding-left: 28px; animation: approachSlide 40s linear infinite; }
-@keyframes approachSlide { to { transform: translateX(-50%); } }
+/* marquee — typography + motion come from the home page's
+   DisciplineMarquee (Geist Mono 13 uppercase, ★ separators, 56px/s);
+   this band only sets the colour field and height. */
+.marquee { background: var(--l-night); color: var(--l-hero); height: 3rem; border-block: 1px solid var(--l-night); }
 
 /* projects */
 .projects { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
@@ -139,7 +139,4 @@
 }
 @media (max-width: 560px) {
   .steps { grid-template-columns: 1fr; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .track { animation: none; }
 }
