@@ -283,8 +283,10 @@ export default function ApproachPage() {
 
       <footer className={styles.footer}>
         <div className={`${styles.wrap} ${styles.footRow}`}>
-          <span>Senior Visual Designer · Available for work</span>
-          <span>© 2026</span>
+          <span>Senior Visual Designer</span>
+          <span className={styles.footRule} aria-hidden="true" />
+          <span>Available for Work</span>
+          <span className={styles.footEnd}>(c) 2026</span>
         </div>
       </footer>
     </div>
