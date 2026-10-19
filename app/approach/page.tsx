@@ -131,7 +131,7 @@ export default function ApproachPage() {
                 <li>I teach myself new tools, techniques, and technologies as they emerge</li>
                 <li>I identify with the audience and use what I learn to tune their experience</li>
               </ul>
-              <blockquote className={styles.quote}>&ldquo;Meaning, memorability, clarity.&rdquo;<cite>— Susan Kare</cite></blockquote>
+              <blockquote className={styles.quote}>&ldquo;Meaning, memorability, clarity&rdquo;<cite>— Susan Kare</cite></blockquote>
             </div>
           </div>
         </div>
@@ -145,23 +145,23 @@ export default function ApproachPage() {
           </div>
           <ul className={styles.tenets}>
             <li>
-              <h3 className={styles.h3}>Taste, applied with judgment.</h3>
+              <h3 className={styles.h3}>Taste, applied with judgment</h3>
               <p>My taste is a big part of what clients hire me for. I apply it deliberately, tuned by what I learn about the audience, so every aesthetic choice earns its place and resonates with the people it&apos;s for.</p>
             </li>
             <li>
-              <h3 className={styles.h3}>Serve the user, and the business follows.</h3>
+              <h3 className={styles.h3}>Serve the user, and the business follows</h3>
               <p>I advocate for the user. That means knowing best practices well, championing them, and staying curious and empathetic about who I&apos;m designing for.</p>
             </li>
             <li>
-              <h3 className={styles.h3}>Nobody does their best work in a silo.</h3>
+              <h3 className={styles.h3}>Nobody does their best work in a silo</h3>
               <p>The smartest solutions come from different minds working toward a shared goal. I earn stakeholder buy-in by collaborating closely from the start, agreeing on goals and limits, and presenting work clearly. With senior stakeholders, the real skill is reading the context and listening closely, including to what goes unsaid.</p>
             </li>
             <li>
-              <h3 className={styles.h3}>Stay humble.</h3>
+              <h3 className={styles.h3}>Stay humble</h3>
               <p>I welcome feedback and treat every round as a chance to sharpen the work. Experimentation and iteration are how good work moves forward.</p>
             </li>
             <li>
-              <h3 className={styles.h3}>Stay curious.</h3>
+              <h3 className={styles.h3}>Stay curious</h3>
               <p>I absorb the visual culture around me constantly. Books, records, museums, openings, concerts, nightlife, travel, and time in nature all refill the well, and they feed a growing archive of reference I draw on every day.</p>
             </li>
           </ul>
@@ -235,7 +235,7 @@ export default function ApproachPage() {
               <span className={styles.label}>Medium &amp; limits</span>
               <h3 className={styles.h3}>The material sets the terms</h3>
               <p>Engaging directly with a project&apos;s medium shapes everything it produces. The tools often show me the best solution when I lean into what they do well. That rigor in approach, if not always in aesthetic, grounds my decisions.</p>
-              <blockquote className={styles.quote}>&ldquo;The medium is the message.&rdquo;<cite>— Marshall McLuhan</cite></blockquote>
+              <blockquote className={styles.quote}>&ldquo;The medium is the message&rdquo;<cite>— Marshall McLuhan</cite></blockquote>
             </div>
           </div>
         </div>
