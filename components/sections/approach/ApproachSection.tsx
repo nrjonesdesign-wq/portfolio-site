@@ -44,16 +44,16 @@ export default function ApproachSection() {
         <StarField className="w-full h-full" />
       </div>
 
-      {/* Hero left, teaser right. Bottoms align (align-items: end) the
-          same way Contact's headline and CTA share a bottom edge. */}
+      {/* Hero — same placement as Contact's "Let's make things happen!":
+          top 42%, cols 3–20, Manrope 800 88px / 0.9, two cascade lines
+          (headline height = 2 × 88 × 0.9 ≈ 158px). */}
       <div
         className="content-grid"
         style={{
           position: "absolute",
           left: 0,
           right: 0,
-          top: "30%",
-          alignItems: "end",
+          top: "42%",
         }}
       >
         <div
@@ -70,7 +70,20 @@ export default function ApproachSection() {
           <LetterCascade text="How I" as="div" animate delay={0.2} />
           <LetterCascade text="work." as="div" animate delay={0.55} />
         </div>
+      </div>
 
+      {/* Teaser — body column, bottom-aligned to the headline's bottom
+          (42% + 158px), the same way Contact's CTA shares its headline's
+          bottom edge. The taller teaser grows upward from that line. */}
+      <div
+        className="content-grid"
+        style={{
+          position: "absolute",
+          left: 0,
+          right: 0,
+          bottom: "calc(58% - 158px)",
+        }}
+      >
         <motion.div
           style={{ gridColumn: COL_BODY }}
           initial={{ opacity: 0, y: 20 }}
