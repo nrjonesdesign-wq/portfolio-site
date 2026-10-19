@@ -91,7 +91,7 @@ export default function ApproachPage() {
       <header className={`${styles.hero} ${styles.light}`} data-scheme="light">
         <div className={styles.wrap}>
           <span className={styles.label}>[ Approach ]</span>
-          <h1 className={styles.h1}>How I<br /><em>work.</em></h1>
+          <h1 className={styles.h1}>How I work.</h1>
           <div className={styles.lede}>
             <span className={styles.label}>Process · Philosophy · Influences</span>
             <p>I&apos;m a designer, which means I&apos;m a problem solver first, and my taste is one of the best tools I bring to the problem. I apply it with intent, in service of the goal and the audience. Painting and music keep that eye sharp. Here is what shapes the work I do for clients.</p>
