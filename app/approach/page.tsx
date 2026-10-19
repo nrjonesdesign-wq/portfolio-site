@@ -94,7 +94,7 @@ export default function ApproachPage() {
           <h1 className={styles.h1}>How I<br /><em>work.</em></h1>
           <div className={styles.lede}>
             <span className={styles.label}>Process · Philosophy · Influences</span>
-            <p>I&apos;m a designer, which means I&apos;m a problem solver first. Style is a tool I use for a specific goal. My own expression lives in my painting and music. Here is what shapes the work I do for clients.</p>
+            <p>I&apos;m a designer, which means I&apos;m a problem solver first, and my taste is one of the best tools I bring to the problem. I apply it with intent, in service of the goal and the audience. Painting and music keep that eye sharp. Here is what shapes the work I do for clients.</p>
           </div>
         </div>
       </header>
@@ -146,8 +146,8 @@ export default function ApproachPage() {
           </div>
           <ul className={styles.tenets}>
             <li>
-              <h3 className={styles.h3}>No ego.</h3>
-              <p>Aesthetic choices come from understanding the audience and giving them an experience that resonates. They don&apos;t come from my personal taste.</p>
+              <h3 className={styles.h3}>Taste, applied with judgment.</h3>
+              <p>My taste is a big part of what clients hire me for. I apply it deliberately, tuned by what I learn about the audience, so every aesthetic choice earns its place and resonates with the people it&apos;s for.</p>
             </li>
             <li>
               <h3 className={styles.h3}>Serve the user, and the business follows.</h3>
@@ -212,7 +212,7 @@ export default function ApproachPage() {
           <div className={`${styles.cols3} ${styles.infl}`}>
             <div className={styles.col}>
               <span className={styles.label}>Personal art practice</span>
-              <h3 className={styles.h3}>An outlet for my own expression</h3>
+              <h3 className={styles.h3}>Where I sharpen my eye</h3>
               <ul>
                 <li>Playing and recording music</li>
                 <li>Sketchbooks, drawing, mixed media, and collage</li>

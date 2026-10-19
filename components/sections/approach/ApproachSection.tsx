@@ -10,7 +10,7 @@ import { DUR, EASE, STAGGER } from "@/lib/motion";
 /** Teaser for the full /approach page: the four process steps, one line
  *  each. Keep in step with the Process section of app/approach/page.tsx. */
 export const APPROACH_INTRO =
-  "A problem solver first. Style serves the goal, research leads the way, and the best work comes from close collaboration.";
+  "A problem solver with a strong eye. I apply my taste with judgment, let research lead, and do my best work in close collaboration.";
 
 export const APPROACH_STEPS = [
   { title: "Define the problem", body: "Listen, take notes, and align stakeholders on goals and limits." },
