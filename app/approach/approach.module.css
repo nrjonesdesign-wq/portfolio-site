@@ -94,7 +94,7 @@
 
 /* process */
 .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; counter-reset: step; }
-.steps li { counter-increment: step; background: transparent; /* same as the band behind it */ border-radius: 4px; padding: 22px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.steps li { counter-increment: step; background: transparent; /* same as the band behind it */ border: 1px solid var(--ink); /* matches the Work-row rules */ border-radius: 0; padding: 22px; display: grid; gap: 10px; align-content: start; min-width: 0; }
 .steps li::before { content: "[ 0" counter(step) " ]"; font-family: var(--font-geist-mono), monospace; font-size: 13px; color: var(--muted); letter-spacing: 0.06em; }
 .aside { font-size: 15px; color: var(--muted); font-style: italic; }
 .toolbox { margin-top: 36px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
@@ -107,7 +107,7 @@
 
 /* projects */
 .projects { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-.proj { background: transparent; /* same as the band behind it */ border-radius: 4px; padding: 26px; display: grid; gap: 12px; align-content: start; min-width: 0; }
+.proj { background: transparent; /* same as the band behind it */ border: 1px solid var(--ink); /* matches the Work-row rules */ border-radius: 0; padding: 26px; display: grid; gap: 12px; align-content: start; min-width: 0; }
 .wide { grid-column: 1 / -1; }
 .meta { font-family: var(--font-geist-mono), monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 .more { justify-self: start; margin-top: 4px; font-family: var(--font-geist-mono), monospace; font-size: 13px; letter-spacing: 0.06em; text-decoration: none; border-bottom: 2px solid var(--ink); padding-bottom: 2px; }
