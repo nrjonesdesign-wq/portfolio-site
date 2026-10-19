@@ -35,7 +35,7 @@ const PROJECTS: {
   {
     meta: "Liquid × Avasta",
     title: "The Challenger Index",
-    body: "A flagship digital white paper whose visual language merged two brands, one of them mid-transition. Typography, color, and voice did the work of synthesis, and the system evolved once the new brand landed. AI image generation supported the illustration.",
+    body: "A flagship digital white paper whose visual language merged two brands, one of them mid-transition. Typography, color, and voice did the work of synthesis, and the system evolved once the new brand landed. I designed custom infographics to make its dense consumer-behavior data clear at a glance. AI image generation supported the illustration.",
     link: { href: "/#liquid-challenger-index", label: "[ View case study ]" },
   },
   {
