@@ -71,16 +71,20 @@ export default function ApproachSection() {
             color: "var(--fg)",
           }}
         >
-          <LetterCascade text="How I" as="div" animate delay={0.2} />
-          <LetterCascade text="work." as="div" animate delay={0.55} />
+          {/* Cascades on scroll-in (whileInView), like "Hello" — not on
+              page load, which would finish long before the panel is seen. */}
+          <LetterCascade text="How I" as="div" animate={false} delay={0.1} />
+          <LetterCascade text="work." as="div" animate={false} delay={0.4} />
         </div>
 
         <motion.div
           style={{ gridColumn: COL_BODY, alignSelf: "end" }}
+          // RiseOn pattern (Select Engagements / Work [Intro]): rises in
+          // as the headline's second line lands.
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.6, duration: DUR.base, ease: EASE }}
+          viewport={{ once: true, margin: "-8%" }}
+          transition={{ delay: 0.7, duration: DUR.base, ease: EASE }}
         >
           <span
             className="text-label"
@@ -139,10 +143,12 @@ export default function ApproachSection() {
           {APPROACH_STEPS.map((step, i) => (
             <motion.li
               key={step.title}
+              // Work-row pattern (opacity + 10px rise, item stagger),
+              // following the teaser.
               initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: 0.8 + i * STAGGER.item, duration: DUR.base, ease: EASE }}
+              transition={{ delay: 1.0 + i * STAGGER.item, duration: DUR.base, ease: EASE }}
               style={{
                 // Same card as the /approach page: no fill, 1px full-
                 // opacity --fg stroke (the Work-row rule), square corners.

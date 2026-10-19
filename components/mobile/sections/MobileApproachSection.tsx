@@ -59,8 +59,9 @@ export default function MobileApproachSection() {
 
         <div className="m-content-grid" style={{ rowGap: "2rem" }}>
           <div style={{ gridColumn: "1 / 9" }}>
-            <LetterCascade text="How I" as="div" animate delay={0.1} className="text-hero" style={heroStyle} />
-            <LetterCascade text="work." as="div" animate delay={0.45} className="text-hero" style={heroStyle} />
+            {/* Cascades on scroll-in, like the mobile "Hello". */}
+            <LetterCascade text="How I" as="div" animate={false} delay={0.1} className="text-hero" style={heroStyle} />
+            <LetterCascade text="work." as="div" animate={false} delay={0.4} className="text-hero" style={heroStyle} />
           </div>
 
           <motion.div
