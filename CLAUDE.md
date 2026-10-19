@@ -156,7 +156,7 @@ All sections are full-viewport `.snap` panels. `html.snapping { scroll-snap-type
 2. **Hello** (`#who`) — ink+sage. "Hello" headline, intro paragraph lower-right.
 3. **Name** (`#who-bio`) — ink+sage. Nathaniel/Robert/Jones stack, [INTRO] + bio top-aligned right, Select Engagements lower-right.
 4. **Work** (`#work`) — sky+ink (inverted). Select Work + HIRED/INSPIRED list left, [INTRO] + bio right.
-5. **Approach** (`#approach`) — lavender+ink. "How I / work." cascade (cols 3–20, top 42% — same landing spot as Contact's headline) + [ Approach ] teaser in the body column (21–28): intro line, the 4 process steps, and a "Read the full approach" pill linking to `/approach`; bottom-aligned to the headline bottom (`bottom: calc(58% - 158px)`), mirroring Contact's CTA. `components/sections/approach/ApproachSection.tsx` (desktop) and `components/mobile/sections/MobileApproachSection.tsx` share copy constants.
+5. **Approach** (`#approach`) — lavender+ink. Desktop: one `.content-grid` at top 42% (Contact's headline landing spot). Row 1 = "How I / work." cascade (cols 3–20) + [ Approach ] teaser in the body column (21–28: intro line + "Read the full approach" pill to `/approach`), teaser `alignSelf: end` like Contact's CTA. Row 2 = the 4 process steps as a horizontal row of outlined cards (cols 3–28; `[ 0N ]` label nowrap, Geist 700 19px title, body). Mobile (`MobileApproachSection.tsx`) keeps its stacked list. Both share copy constants from `ApproachSection.tsx`.
 6. **Contact** (`#contact`) — placeholder, not yet built.
 
 **Active section detection**: `useSectionEntry(ref, () => setActiveSection(...), 0.5)` in `page.tsx`. Threshold 0.5. Re-fires on every entry (not one-shot) so scrolling back up restores schemes correctly.

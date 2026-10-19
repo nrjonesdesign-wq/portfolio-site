@@ -44,9 +44,12 @@ export default function ApproachSection() {
         <StarField className="w-full h-full" />
       </div>
 
-      {/* Hero — same placement as Contact's "Let's make things happen!":
-          top 42%, cols 3–20, Manrope 800 88px / 0.9, two cascade lines
-          (headline height = 2 × 88 × 0.9 ≈ 158px). */}
+      {/* One grid anchored at top 42% — the same landing spot as Contact's
+          "Let's make things happen!".
+            row 1: hero (cols 3–20) + teaser (cols 21–28), teaser
+                   bottom-aligned to the hero like Contact's CTA
+            row 2: the four process steps as a row of outlined cards
+                   spanning cols 3–28 */}
       <div
         className="content-grid"
         style={{
@@ -54,6 +57,7 @@ export default function ApproachSection() {
           left: 0,
           right: 0,
           top: "42%",
+          rowGap: "clamp(1.75rem, 5vh, 3rem)",
         }}
       >
         <div
@@ -70,22 +74,9 @@ export default function ApproachSection() {
           <LetterCascade text="How I" as="div" animate delay={0.2} />
           <LetterCascade text="work." as="div" animate delay={0.55} />
         </div>
-      </div>
 
-      {/* Teaser — body column, bottom-aligned to the headline's bottom
-          (42% + 158px), the same way Contact's CTA shares its headline's
-          bottom edge. The taller teaser grows upward from that line. */}
-      <div
-        className="content-grid"
-        style={{
-          position: "absolute",
-          left: 0,
-          right: 0,
-          bottom: "calc(58% - 158px)",
-        }}
-      >
         <motion.div
-          style={{ gridColumn: COL_BODY }}
+          style={{ gridColumn: COL_BODY, alignSelf: "end" }}
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -104,38 +95,10 @@ export default function ApproachSection() {
           </span>
           <p
             className="text-body"
-            style={{ color: "var(--fg)", marginBottom: "1.5rem", lineHeight: 1.5 }}
+            style={{ color: "var(--fg)", marginBottom: "1.25rem", lineHeight: 1.5 }}
           >
             {APPROACH_INTRO}
           </p>
-
-          <ol style={{ listStyle: "none", margin: 0, padding: 0, borderTop: "1px solid var(--fg)" }}>
-            {APPROACH_STEPS.map((step, i) => (
-              <motion.li
-                key={step.title}
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.8 + i * STAGGER.item, duration: DUR.base, ease: EASE }}
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "2.75rem 1fr",
-                  gap: "0.75rem",
-                  padding: "0.65rem 0",
-                  borderBottom: "1px solid var(--fg)",
-                }}
-              >
-                <span className="text-label" style={{ color: "var(--fg)" }}>
-                  [ 0{i + 1} ]
-                </span>
-                <span className="text-body" style={{ color: "var(--fg)", lineHeight: 1.45 }}>
-                  <strong style={{ fontWeight: 500 }}>{step.title}.</strong>{" "}
-                  {step.body}
-                </span>
-              </motion.li>
-            ))}
-          </ol>
-
           <motion.a
             href={APPROACH_HREF}
             data-cursor="view"
@@ -145,7 +108,6 @@ export default function ApproachSection() {
             transition={{ type: "spring", stiffness: 400, damping: 22 }}
             style={{
               display: "inline-block",
-              marginTop: "1.5rem",
               backgroundColor: "var(--fg)",
               color: "var(--bg)",
               padding: "0.35rem 0.6rem",
@@ -162,6 +124,57 @@ export default function ApproachSection() {
             Read the full approach
           </motion.a>
         </motion.div>
+
+        <ol
+          style={{
+            gridColumn: "3 / 29",
+            listStyle: "none",
+            margin: 0,
+            padding: 0,
+            display: "grid",
+            gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+            columnGap: "1.5rem", // = .content-grid column-gap
+          }}
+        >
+          {APPROACH_STEPS.map((step, i) => (
+            <motion.li
+              key={step.title}
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.8 + i * STAGGER.item, duration: DUR.base, ease: EASE }}
+              style={{
+                // Same card as the /approach page: no fill, 1px full-
+                // opacity --fg stroke (the Work-row rule), square corners.
+                border: "1px solid var(--fg)",
+                padding: "1rem 1.1rem 1.15rem",
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.5rem",
+                minWidth: 0,
+              }}
+            >
+              <span className="text-label" style={{ color: "var(--fg)", whiteSpace: "nowrap" }}>
+                [ 0{i + 1} ]
+              </span>
+              <span
+                style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: "1.1875rem", // project-row name: Geist 700 19px
+                  fontWeight: 700,
+                  letterSpacing: "0.01em",
+                  lineHeight: 1.2,
+                  color: "var(--fg)",
+                }}
+              >
+                {step.title}
+              </span>
+              <span className="text-body" style={{ color: "var(--fg)", lineHeight: 1.45 }}>
+                {step.body}
+              </span>
+            </motion.li>
+          ))}
+        </ol>
       </div>
     </section>
   );
