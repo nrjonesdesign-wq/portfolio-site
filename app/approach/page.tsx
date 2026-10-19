@@ -4,8 +4,7 @@
 /* eslint-disable @next/next/no-html-link-for-pages */
 import type { Metadata } from "next";
 import styles from "./approach.module.css";
-import { ApproachFooter, ApproachMobileNav, ApproachTint, CopyEmail, NavPlanet } from "./ApproachChrome";
-import { DisciplineMarquee } from "@/components/sections/work/WorkSection";
+import { ApproachFooter, ApproachMobileNav, ApproachTint, CopyEmail, NavPlanet, ScrubMarquee } from "./ApproachChrome";
 
 export const metadata: Metadata = {
   title: "Approach — Nathaniel Robert Jones",
@@ -65,9 +64,9 @@ const PROJECTS: {
   },
 ];
 
-/** Same comma-list format as a project's `disciplines`, rendered by the
- *  home page's DisciplineMarquee so the type, ★ separators and scroll
- *  speed match the Work rows exactly. */
+/** Same comma-list format as a project's `disciplines`. Rendered by
+ *  ScrubMarquee: the Work rows' type + ★ separators, with the site's
+ *  drift / hover-pause / scrub / flick behaviour. */
 const MARQUEE = "Research, Collaboration, Iteration, Craft, Clarity, Curiosity, Brand Systems, UX / UI, Typography, Motion";
 
 export default function ApproachPage() {
@@ -243,7 +242,7 @@ export default function ApproachPage() {
       </section>
 
       <div className={`${styles.marquee} ${styles.dark}`} data-scheme="dark" aria-hidden="true">
-        <DisciplineMarquee text={MARQUEE} />
+        <ScrubMarquee text={MARQUEE} />
       </div>
 
       <section className={`${styles.band} ${styles.light}`} data-scheme="light">

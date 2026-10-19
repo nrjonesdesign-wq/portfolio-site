@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import NRJPlanet from "@/components/nav/NRJPlanet";
+import { renderMarqueeSegment } from "@/components/sections/work/WorkSection";
 import { ChromeBackdrop, PlanetMark } from "@/components/mobile/MobileChrome";
 import MobileMenuOverlay, { type ChromeSection } from "@/components/mobile/MobileMenuOverlay";
 import styles from "./approach.module.css";
@@ -235,5 +236,164 @@ export function ApproachFooter() {
         </div>
       </footer>
     </>
+  );
+}
+
+/**
+ * Scrubbable marquee — same type and ★ separators as the homepage Work
+ * rows (renderMarqueeSegment), driven by the same rAF pattern as the
+ * site's other scrubbable strips:
+ *  - drifts left at a constant 56px/s (desktop DisciplineMarquee speed);
+ *  - pauses while hovered, like the desktop case-study reels;
+ *  - horizontal wheel / trackpad swipe scrubs it, like the reels' wheel
+ *    scrub (vertical wheel is left to the page so scrolling past the
+ *    band never gets stuck);
+ *  - touch-drag scrubs with flick inertia, like the mobile Work marquee
+ *    (DRAG_GAIN 1.4, 8px tap threshold, exp(-2.6·t) decay).
+ */
+export function ScrubMarquee({ text }: { text: string }) {
+  const tags = text
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const SPEED_PX_PER_SEC = 56;
+
+  const hostRef = useRef<HTMLDivElement>(null);
+  const innerRef = useRef<HTMLDivElement>(null);
+  const offsetRef = useRef(0);
+  const hoveredRef = useRef(false);
+  const interactingRef = useRef(false);
+  const velocityRef = useRef(0);
+
+  // Drift + inertia loop.
+  useEffect(() => {
+    let raf = 0;
+    let lastT = performance.now();
+    const tick = (t: number) => {
+      const dt = Math.max(0, Math.min(0.1, (t - lastT) / 1000));
+      lastT = t;
+      const inner = innerRef.current;
+      if (inner) {
+        const halfStack = inner.scrollWidth / 2;
+        if (halfStack > 0) {
+          if (!interactingRef.current) {
+            if (Math.abs(velocityRef.current) > 8) {
+              offsetRef.current += velocityRef.current * dt;
+              velocityRef.current *= Math.exp(-2.6 * dt);
+              if (Math.abs(velocityRef.current) <= 8) velocityRef.current = 0;
+            } else if (!hoveredRef.current) {
+              offsetRef.current -= SPEED_PX_PER_SEC * dt;
+            }
+          }
+          // Wrap so the doubled segment loops seamlessly in both directions.
+          if (offsetRef.current <= -halfStack) offsetRef.current += halfStack;
+          else if (offsetRef.current > 0) offsetRef.current -= halfStack;
+          inner.style.transform = `translate3d(${offsetRef.current}px, 0, 0)`;
+        }
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  // Wheel scrub (horizontal intent only) + touch scrub with inertia.
+  useEffect(() => {
+    const el = hostRef.current;
+    if (!el) return;
+
+    const onWheel = (e: WheelEvent) => {
+      if (e.ctrlKey) return; // pinch-zoom
+      const horizontal = Math.abs(e.deltaX) > Math.abs(e.deltaY) || e.shiftKey;
+      if (!horizontal) return;
+      e.preventDefault();
+      offsetRef.current -= e.shiftKey && e.deltaX === 0 ? e.deltaY : e.deltaX;
+      velocityRef.current = 0;
+    };
+
+    let lastX = 0;
+    let lastT = 0;
+    let totalAbsDx = 0;
+    let active = false;
+    const DRAG_GAIN = 1.4;
+    const TAP_VS_DRAG_PX = 8;
+    const start = (e: TouchEvent) => {
+      lastX = e.touches[0]?.clientX ?? 0;
+      lastT = performance.now();
+      totalAbsDx = 0;
+      active = true;
+      interactingRef.current = true;
+      velocityRef.current = 0;
+    };
+    const move = (e: TouchEvent) => {
+      if (!active) return;
+      const x = e.touches[0]?.clientX ?? 0;
+      const now = performance.now();
+      const rawDx = x - lastX;
+      totalAbsDx += Math.abs(rawDx);
+      if (totalAbsDx > TAP_VS_DRAG_PX) {
+        e.preventDefault();
+        const dx = rawDx * DRAG_GAIN;
+        const dt = Math.max(1, now - lastT) / 1000;
+        velocityRef.current = velocityRef.current * 0.4 + (dx / dt) * 0.6;
+        offsetRef.current += dx;
+      }
+      lastX = x;
+      lastT = now;
+    };
+    const end = () => {
+      active = false;
+      interactingRef.current = false;
+      if (totalAbsDx <= TAP_VS_DRAG_PX) velocityRef.current = 0;
+    };
+
+    el.addEventListener("wheel", onWheel, { passive: false });
+    el.addEventListener("touchstart", start, { passive: true });
+    el.addEventListener("touchmove", move, { passive: false });
+    el.addEventListener("touchend", end);
+    el.addEventListener("touchcancel", end);
+    return () => {
+      el.removeEventListener("wheel", onWheel);
+      el.removeEventListener("touchstart", start);
+      el.removeEventListener("touchmove", move);
+      el.removeEventListener("touchend", end);
+      el.removeEventListener("touchcancel", end);
+    };
+  }, []);
+
+  return (
+    <div
+      ref={hostRef}
+      onMouseEnter={() => { hoveredRef.current = true; }}
+      onMouseLeave={() => { hoveredRef.current = false; }}
+      style={{
+        position: "relative",
+        overflow: "hidden",
+        height: "100%",
+        // Vertical swipes still scroll the page; horizontal ones scrub.
+        touchAction: "pan-y",
+      }}
+    >
+      <div
+        ref={innerRef}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          height: "100%",
+          width: "max-content",
+          whiteSpace: "nowrap",
+          fontFamily: "var(--font-mono)",
+          fontSize: "0.8125rem", // 13px
+          fontWeight: 400,
+          textTransform: "uppercase",
+          letterSpacing: "0.04em",
+          color: "inherit",
+          willChange: "transform",
+        }}
+      >
+        <span>{renderMarqueeSegment(tags, 0)}</span>
+        <span>{renderMarqueeSegment(tags, 1)}</span>
+      </div>
+    </div>
   );
 }

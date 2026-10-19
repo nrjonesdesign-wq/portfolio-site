@@ -579,7 +579,7 @@ function StarSep() {
   );
 }
 
-function renderMarqueeSegment(tags: string[], copyIdx: number) {
+export function renderMarqueeSegment(tags: string[], copyIdx: number) {
   const out: ReactNode[] = [
     <StarSep key={`${copyIdx}-lead`} />,
   ];
