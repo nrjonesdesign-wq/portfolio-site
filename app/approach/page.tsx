@@ -159,7 +159,7 @@ export default function ApproachPage() {
             </li>
             <li>
               <h3 className={styles.h3}>Stay humble.</h3>
-              <p>I welcome feedback, learn from mistakes, and keep iterating. Experimentation is how good work moves forward.</p>
+              <p>I welcome feedback and treat every round as a chance to sharpen the work. Experimentation and iteration are how good work moves forward.</p>
             </li>
             <li>
               <h3 className={styles.h3}>Stay curious.</h3>
