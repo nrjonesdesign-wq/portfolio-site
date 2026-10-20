@@ -431,15 +431,11 @@ function edgePlate(edge: "top" | "bottom"): React.CSSProperties {
     left: 0,
     right: 0,
     [edge]: 0,
-    // Cover the whole chrome zone (safe area + nav / footer), not just
-    // the safe-area sliver: /tint-test showed Safari only reads solid
-    // fixed strips of real size at the screen edges — the thin inset
-    // strips (≈1px at the bottom under the floating toolbar) were
-    // ignored. The nav / footer (z 60) sit on top of these.
-    height:
-      edge === "top"
-        ? "calc(env(safe-area-inset-top, 0px) + var(--m-nav-h))"
-        : "calc(env(safe-area-inset-bottom, 0px) + var(--m-foot-h))",
+    // 80px exactly, as in /tint-test option C (the one that worked on
+    // device). Taller edge strips (140px in options D/F, ~131px in the
+    // previous plates) were ignored by Safari. The solid-colour nav /
+    // footer continue the band past the plate.
+    height: 80,
     backgroundColor: "var(--bg)",
     transition: "none",
     pointerEvents: "none",

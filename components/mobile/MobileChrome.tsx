@@ -65,6 +65,9 @@ export default function MobileChrome({
           left: 0,
           right: 0,
           height: NAV_H,
+          // Solid section colour (no transition) — continues MobileHome's
+          // 80px edge plate into a solid band behind the chrome.
+          backgroundColor: "var(--bg)",
           zIndex: 60,
           pointerEvents: visible ? "auto" : "none",
         }}
@@ -165,6 +168,9 @@ export default function MobileChrome({
           left: 0,
           right: 0,
           height: FOOT_H,
+          // Solid section colour (no transition) — continues MobileHome's
+          // 80px edge plate into a solid band behind the chrome.
+          backgroundColor: "var(--bg)",
           zIndex: 60,
           pointerEvents: "none",
         }}
