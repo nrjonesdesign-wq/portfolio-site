@@ -39,6 +39,36 @@ export default function MobileHome() {
     "loading",
   );
   const [menuOpen, setMenuOpen] = useState(false);
+  // Snap anchors. Each panel is 100dvh tall, but the snapport is
+  // 100dvh minus the nav (scroll-padding-top), so a panel "covers" the
+  // snapport and the browser accepts any stop within a 72px band —
+  // swipes settled inconsistently (sometimes tucked under the nav).
+  // Instead, panels don't snap themselves; an invisible anchor per panel,
+  // exactly snapport-tall, gives one deterministic stop: panel top just
+  // below the nav (where menu jumps / deep links land too).
+  const [anchorTops, setAnchorTops] = useState<number[]>([]);
+  useEffect(() => {
+    const main = document.querySelector("main");
+    if (!main) return;
+    const panels = Array.from(main.querySelectorAll<HTMLElement>(":scope > section, :scope > * > section")).filter((el) => el.classList.contains("snap"));
+    const prev = panels.map((el) => el.style.scrollSnapAlign);
+    panels.forEach((el) => { el.style.scrollSnapAlign = "none"; });
+    const measure = () => {
+      const mainTop = main.getBoundingClientRect().top;
+      setAnchorTops(panels.map((el) => Math.round(el.getBoundingClientRect().top - mainTop)));
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(main);
+    return () => {
+      ro.disconnect();
+      panels.forEach((el, i) => { el.style.scrollSnapAlign = prev[i]; });
+    };
+  }, []);
+
+  // Scroll lock while the menu is open lives on the overlay itself
+  // (touch-action: none + overscroll-behavior: contain) — no overflow
+  // toggling on <html>, which can make iOS Safari jump the page.
   // Which accent the Work section is wearing. Defaults to sky (HIRED
   // group). Flips to mint when an INSPIRED row is open, so the bg/fg
   // tokens repaint mint-on-ink across nav + footer too.
@@ -327,6 +357,7 @@ export default function MobileHome() {
           // section colours. Snap comes from the mobile @media rule on
           // <html> (scroll-snap-type: y mandatory + scroll-padding-top).
           minHeight: "100dvh",
+          position: "relative",
         } as React.CSSProperties
       }
     >
@@ -340,6 +371,22 @@ export default function MobileHome() {
       {/* Keyed on the scheme so each colour change mounts fresh fixed
           elements — Safari re-detects new fixed edges, whereas a colour
           change on an existing one wasn't picked up until a user scroll. */}
+      {anchorTops.map((top, i) => (
+        <div
+          key={`snap-${i}`}
+          aria-hidden
+          style={{
+            position: "absolute",
+            top,
+            left: 0,
+            width: 1,
+            height: "calc(100dvh - var(--m-nav-h))",
+            scrollSnapAlign: "start",
+            scrollSnapStop: "always",
+            pointerEvents: "none",
+          }}
+        />
+      ))}
       <div key={`top-${colorScheme}`} aria-hidden style={edgePlate("top")} />
       <div key={`bottom-${colorScheme}`} aria-hidden style={edgePlate("bottom")} />
       <MobileChrome

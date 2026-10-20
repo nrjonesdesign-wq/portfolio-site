@@ -116,6 +116,9 @@ export default function MobileMenuOverlay({
               position: "fixed",
               inset: 0,
               zIndex: 80,
+              // Swipes on the overlay never reach the page beneath.
+              touchAction: "none",
+              overscrollBehavior: "contain",
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
