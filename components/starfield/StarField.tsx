@@ -67,15 +67,22 @@ type Props = {
   color?: string;
   className?: string;
   style?: React.CSSProperties;
+  /** Scales the invisible gap between a star's cycles (1 = default).
+   *  Lower = stars re-appear more often (a faster twinkle rate). */
+  gapScale?: number;
+  /** CSS selector for elements stars should not be placed under (e.g.
+   *  opaque cards). Matched within the field's parent section; each
+   *  placement retries a few times to land outside those boxes. */
+  avoid?: string;
 };
 
 function rand(min: number, max: number) {
   return min + Math.random() * (max - min);
 }
 
-function frameDuration(frame: Frame) {
+function frameDuration(frame: Frame, gapScale = 1) {
   const [lo, hi] = FRAME_MS[frame];
-  return rand(lo, hi);
+  return rand(lo, hi) * (frame === "invisible" ? gapScale : 1);
 }
 
 export default function StarField({
@@ -84,6 +91,8 @@ export default function StarField({
   color = "currentColor",
   className,
   style,
+  gapScale = 1,
+  avoid,
 }: Props) {
   const useRefs = useRef<(SVGUseElement | null)[]>([]);
   const starsRef = useRef<Star[]>([]);
@@ -104,6 +113,39 @@ export default function StarField({
     // Generate randomized initial state inside the effect (Math.random isn't
     // allowed during render under React 19's purity rules).
     const now = performance.now();
+
+    // Random position (as % strings), retried to fall outside any
+    // `avoid` element's box. Boxes are read at placement time only, so
+    // layout changes (resize, reveal animations) are picked up for free.
+    const host = containerRef.current;
+    const place = (el: SVGUseElement | null) => {
+      if (!el) return;
+      let x = Math.random() * 100;
+      let y = Math.random() * 100;
+      if (avoid && host) {
+        const hr = host.getBoundingClientRect();
+        const scope = host.closest("section") ?? document;
+        const boxes = Array.from(scope.querySelectorAll(avoid)).map((n) =>
+          n.getBoundingClientRect()
+        );
+        const pad = size / 2;
+        for (let tries = 0; tries < 12; tries++) {
+          const px = hr.left + (x / 100) * hr.width;
+          const py = hr.top + (y / 100) * hr.height;
+          const hit = boxes.some(
+            (b) =>
+              px > b.left - pad && px < b.right + pad &&
+              py > b.top - pad && py < b.bottom + pad
+          );
+          if (!hit) break;
+          x = Math.random() * 100;
+          y = Math.random() * 100;
+        }
+      }
+      el.setAttribute("x", `${x}%`);
+      el.setAttribute("y", `${y}%`);
+    };
+
     starsRef.current = Array.from({ length: count }, () => ({
       step: Math.floor(Math.random() * CYCLE.length),
       nextAt: now + rand(0, 800),
@@ -112,10 +154,7 @@ export default function StarField({
     // Set initial position + frame on each <use>
     for (let i = 0; i < starsRef.current.length; i++) {
       const el = useRefs.current[i];
-      if (el) {
-        el.setAttribute("x", `${Math.random() * 100}%`);
-        el.setAttribute("y", `${Math.random() * 100}%`);
-      }
+      place(el);
       applyFrame(el, CYCLE[starsRef.current[i].step], uid);
     }
 
@@ -148,15 +187,11 @@ export default function StarField({
 
         // Re-randomize position when we wrap back to the start of a cycle.
         if (s.step === 0) {
-          const useEl = useRefs.current[i];
-          if (useEl) {
-            useEl.setAttribute("x", `${Math.random() * 100}%`);
-            useEl.setAttribute("y", `${Math.random() * 100}%`);
-          }
+          place(useRefs.current[i]);
         }
 
         applyFrame(useRefs.current[i], frame, uid);
-        s.nextAt = t + frameDuration(frame);
+        s.nextAt = t + frameDuration(frame, gapScale);
       }
 
       // Shooting stars. Each shooter is either idle (counting down to
@@ -238,7 +273,7 @@ export default function StarField({
 
     rafRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [count, uid]);
+  }, [count, uid, gapScale, avoid, size]);
 
   return (
     <div

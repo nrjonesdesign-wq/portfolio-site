@@ -257,7 +257,7 @@ export default function ApproachPage() {
         {/* Star field — same low-opacity overlay as the homepage panels;
             the charcoal cards sit above it. */}
         <div className={styles.stars} aria-hidden>
-          <StarField className="w-full h-full" count={22} />
+          <StarField className="w-full h-full" count={48} gapScale={0.4} avoid="article" />
         </div>
         <div className={styles.wrap}>
           <Reveal className={styles.head}>
