@@ -74,7 +74,7 @@ const PROJECTS: {
 /** Same comma-list format as a project's `disciplines`. Rendered by
  *  ScrubMarquee: the Work rows' type + ★ separators, with the site's
  *  drift / hover-pause / scrub / flick behaviour. */
-const MARQUEE = "Research, Collaboration, Iteration, Craft, Clarity, Curiosity, Brand Systems, UX / UI, Typography, Motion";
+const MARQUEE = "Problem Solving, Research, Strategy, Collaboration, Iteration, Craft, Rigor, Clarity, Curiosity, Empathy, Storytelling, Systems Thinking, Art Direction, Brand Systems, Editorial Design, Information Design, UX / UI, Typography, Illustration, Motion";
 
 export default function ApproachPage() {
   return (
