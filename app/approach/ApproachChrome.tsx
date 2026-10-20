@@ -474,12 +474,15 @@ export function Reveal({
   kind = "rise",
   delay = 0,
   className,
+  cursorColor,
   children,
 }: {
   as?: RevealTag;
   kind?: "rise" | "fade";
   delay?: number;
   className?: string;
+  /** Passed through as data-cursor-color (MagneticCursor token). */
+  cursorColor?: string;
   children: React.ReactNode;
 }) {
   const reduce = useReducedMotion();
@@ -518,6 +521,7 @@ export function Reveal({
     <M
       ref={ref as React.Ref<HTMLDivElement>}
       className={className}
+      data-cursor-color={cursorColor}
       initial={rise ? { opacity: 0, y: 20 } : { opacity: 0 }}
       animate={controls}
     >

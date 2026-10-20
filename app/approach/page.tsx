@@ -260,7 +260,7 @@ export default function ApproachPage() {
           </Reveal>
           <div className={styles.projects}>
             {PROJECTS.map((p, i) => (
-              <Reveal as="article" key={p.title} className={`${styles.proj} ${p.wide ? styles.wide : ""}`} kind="fade" delay={0.15 + i * STAGGER.item}>
+              <Reveal as="article" key={p.title} className={`${styles.proj} ${p.wide ? styles.wide : ""}`} kind="fade" delay={0.15 + i * STAGGER.item} cursorColor="bg">
                 <span className={styles.meta}>{p.meta}</span>
                 <h3 className={styles.h3}>{p.title}</h3>
                 <p>{p.body}</p>
