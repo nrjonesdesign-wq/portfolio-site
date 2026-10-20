@@ -369,6 +369,18 @@ export default function MobileHome() {
           }}
         />
       ))}
+      {/* iOS Safari bar tint. Safari 26 ignores theme-color and takes its
+          status-bar / toolbar colour from a solid fixed strip of modest
+          height at the screen edge — verified on device: 80px worked,
+          taller (130–140px) and safe-area-only strips didn't. A bare 80px
+          strip read as a hard band under the frosted chrome, so each one
+          is feathered: a gradient (section bg → transparent) continues
+          past it, and the ChromeBackdrop glass sits on top. Keyed on the
+          scheme so Safari sees fresh fixed edges on every change. */}
+      <div key={`plate-top-${colorScheme}`} aria-hidden style={edgePlate("top")} />
+      <div key={`plate-bot-${colorScheme}`} aria-hidden style={edgePlate("bottom")} />
+      <div aria-hidden style={edgeFeather("top")} />
+      <div aria-hidden style={edgeFeather("bottom")} />
       <MobileChrome
         activeSection={chromeSection}
         visible={chromeVisible}
@@ -412,6 +424,41 @@ export default function MobileHome() {
       </AnimatePresence>
     </main>
   );
+}
+
+const PLATE_PX = 80;
+
+function edgePlate(edge: "top" | "bottom"): React.CSSProperties {
+  return {
+    position: "fixed",
+    left: 0,
+    right: 0,
+    [edge]: 0,
+    height: PLATE_PX,
+    backgroundColor: "var(--bg)",
+    transition: "none",
+    pointerEvents: "none",
+    zIndex: 55,
+  };
+}
+
+function edgeFeather(edge: "top" | "bottom"): React.CSSProperties {
+  return {
+    position: "fixed",
+    left: 0,
+    right: 0,
+    [edge]: PLATE_PX,
+    // Fade from the plate's edge to the inner edge of the nav / footer,
+    // so it never dims panel content below the chrome.
+    height:
+      edge === "top"
+        ? `max(0px, calc(env(safe-area-inset-top, 0px) + var(--m-nav-h) - ${PLATE_PX}px))`
+        : `max(0px, calc(env(safe-area-inset-bottom, 0px) + var(--m-foot-h) - ${PLATE_PX}px))`,
+    background: `linear-gradient(to ${edge === "top" ? "bottom" : "top"}, var(--bg), color-mix(in srgb, var(--bg) 0%, transparent))`,
+    transition: "none",
+    pointerEvents: "none",
+    zIndex: 55,
+  };
 }
 
 /**
