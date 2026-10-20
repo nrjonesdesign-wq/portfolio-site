@@ -42,11 +42,18 @@ export default function MagneticCursor() {
       // element. Use this for surfaces where the section's --fg matches
       // the local backdrop colour and the cursor would otherwise be
       // invisible (project preview area, inverted tab boxes, etc).
-      const colorAttr = el
-        .closest("[data-cursor-color]")
-        ?.getAttribute("data-cursor-color");
+      const colorEl = el.closest<HTMLElement>("[data-cursor-color]");
+      const colorAttr = colorEl?.getAttribute("data-cursor-color");
       const root = document.documentElement;
-      if (colorAttr) {
+      if (colorAttr === "local" && colorEl) {
+        // "local": use the element's own --fg (resolved where it's
+        // defined, e.g. a CSS-module band or a hover-inverted card), so
+        // the cursor contrasts with whatever is actually under it rather
+        // than with the page-level scheme.
+        const local = getComputedStyle(colorEl).getPropertyValue("--fg").trim();
+        if (local) root.style.setProperty("--cursor-fg", local);
+        else root.style.removeProperty("--cursor-fg");
+      } else if (colorAttr) {
         root.style.setProperty("--cursor-fg", `var(--${colorAttr})`);
       } else {
         root.style.removeProperty("--cursor-fg");

@@ -83,7 +83,7 @@ export default function ApproachPage() {
       <ApproachTint />
       <ApproachMobileNav />
 
-      <nav className={`${styles.nav} ${styles.light}`} data-scheme="light" aria-label="Site">
+      <nav className={`${styles.nav} ${styles.light}`} data-scheme="light" data-cursor-color="local" aria-label="Site">
         <div className={`${styles.wrap} ${styles.navRow}`}>
           <NavPlanet />
           <ul className={styles.navList}>
@@ -95,7 +95,7 @@ export default function ApproachPage() {
         </div>
       </nav>
 
-      <header className={`${styles.hero} ${styles.light}`} data-scheme="light">
+      <header className={`${styles.hero} ${styles.light}`} data-scheme="light" data-cursor-color="local">
         <div className={styles.wrap}>
           <Reveal as="span" className={styles.label}>[ Approach ]</Reveal>
           <LetterCascade as="h1" text="How I work." by="word" animate={false} delay={0.15} className={styles.h1} />
@@ -106,14 +106,14 @@ export default function ApproachPage() {
         </div>
       </header>
 
-      <section className={`${styles.band} ${styles.dark}`} data-scheme="dark">
+      <section className={`${styles.band} ${styles.dark}`} data-scheme="dark" data-cursor-color="local">
         <div className={styles.wrap}>
           <Reveal className={styles.head}>
             <span className={styles.label}>[ Foundation ]</span>
             <h2 className={styles.h2}>Where it starts</h2>
           </Reveal>
           <div className={styles.cols3}>
-            <Reveal className={styles.col} cursorColor="bg" kind="fade" delay={0.15}>
+            <Reveal className={styles.col} cursorColor="local" kind="fade" delay={0.15}>
               <span className={styles.label}>Education</span>
               <h3 className={styles.h3}>BFA, Communication Design, Washington University in St. Louis</h3>
               <ul>
@@ -123,7 +123,7 @@ export default function ApproachPage() {
                 <li>An illustration emphasis: visual storytelling, durable metaphors, distilling an idea to its core</li>
               </ul>
             </Reveal>
-            <Reveal className={styles.col} cursorColor="bg" kind="fade" delay={0.15 + 1 * STAGGER.item}>
+            <Reveal className={styles.col} cursorColor="local" kind="fade" delay={0.15 + 1 * STAGGER.item}>
               <span className={styles.label}>Experience</span>
               <h3 className={styles.h3}>Nearly 20 years across enterprise, startups, agency, and freelance</h3>
               <ul>
@@ -132,7 +132,7 @@ export default function ApproachPage() {
                 <li>Worked inside cross-functional teams with marketing, engineering, product, UX research, subject experts, and the C-suite</li>
               </ul>
             </Reveal>
-            <Reveal className={styles.col} cursorColor="bg" kind="fade" delay={0.15 + 2 * STAGGER.item}>
+            <Reveal className={styles.col} cursorColor="local" kind="fade" delay={0.15 + 2 * STAGGER.item}>
               <span className={styles.label}>Craft</span>
               <h3 className={styles.h3}>Careful, precise, finished</h3>
               <ul>
@@ -145,30 +145,30 @@ export default function ApproachPage() {
         </div>
       </section>
 
-      <section className={`${styles.band} ${styles.light}`} data-scheme="light">
+      <section className={`${styles.band} ${styles.light}`} data-scheme="light" data-cursor-color="local">
         <div className={styles.wrap}>
           <Reveal className={styles.head}>
             <span className={styles.label}>[ Philosophy ]</span>
             <h2 className={styles.h2}>What I believe about the work</h2>
           </Reveal>
           <ul className={styles.tenets}>
-            <Reveal as="li" cursorColor="bg" kind="fade" delay={0.15}>
+            <Reveal as="li" cursorColor="local" kind="fade" delay={0.15}>
               <h3 className={styles.h3}>Taste, applied with judgment</h3>
               <p>My taste is a big part of what clients hire me for. I apply it deliberately, tuned by what I learn about the audience, so every aesthetic choice earns its place and fits the people it&apos;s for.</p>
             </Reveal>
-            <Reveal as="li" cursorColor="bg" kind="fade" delay={0.15 + 1 * STAGGER.item}>
+            <Reveal as="li" cursorColor="local" kind="fade" delay={0.15 + 1 * STAGGER.item}>
               <h3 className={styles.h3}>Serve the user, and the business follows</h3>
               <p>I advocate for the user. I know the conventions and when to push on them, and I stay curious and empathetic about who I&apos;m designing for.</p>
             </Reveal>
-            <Reveal as="li" cursorColor="bg" kind="fade" delay={0.15 + 2 * STAGGER.item}>
+            <Reveal as="li" cursorColor="local" kind="fade" delay={0.15 + 2 * STAGGER.item}>
               <h3 className={styles.h3}>Nobody does their best work in a silo</h3>
               <p>I earn stakeholder buy-in by collaborating closely from the start, agreeing on goals and limits, and presenting work clearly. With senior stakeholders, the real skill is reading the context and listening closely, including to what goes unsaid.</p>
             </Reveal>
-            <Reveal as="li" cursorColor="bg" kind="fade" delay={0.15 + 3 * STAGGER.item}>
+            <Reveal as="li" cursorColor="local" kind="fade" delay={0.15 + 3 * STAGGER.item}>
               <h3 className={styles.h3}>Feedback makes the work better</h3>
               <p>I welcome feedback and treat every round as a chance to sharpen the work. Experimentation and iteration are how good work moves forward.</p>
             </Reveal>
-            <Reveal as="li" cursorColor="bg" kind="fade" delay={0.15 + 4 * STAGGER.item}>
+            <Reveal as="li" cursorColor="local" kind="fade" delay={0.15 + 4 * STAGGER.item}>
               <h3 className={styles.h3}>Curiosity is the job</h3>
               <p>I absorb the visual culture around me constantly. Books, records, museums, openings, concerts, nightlife, travel, and time in nature keep my references fresh. They also feed a growing archive I draw on every day.</p>
             </Reveal>
@@ -176,27 +176,27 @@ export default function ApproachPage() {
         </div>
       </section>
 
-      <section className={`${styles.band} ${styles.dark}`} data-scheme="dark">
+      <section className={`${styles.band} ${styles.dark}`} data-scheme="dark" data-cursor-color="local">
         <div className={styles.wrap}>
           <Reveal className={styles.head}>
             <span className={styles.label}>[ Process ]</span>
             <h2 className={styles.h2}>From brief to build</h2>
           </Reveal>
           <ol className={styles.steps}>
-            <Reveal as="li" cursorColor="bg" kind="fade" delay={0.15}>
+            <Reveal as="li" cursorColor="local" kind="fade" delay={0.15}>
               <h3 className={styles.h3}>Define the problem</h3>
               <p>I listen actively, take careful notes, and confirm stakeholders agree on the goals, challenges, and limits before any design begins.</p>
             </Reveal>
-            <Reveal as="li" cursorColor="bg" kind="fade" delay={0.15 + 1 * STAGGER.item}>
+            <Reveal as="li" cursorColor="local" kind="fade" delay={0.15 + 1 * STAGGER.item}>
               <h3 className={styles.h3}>Research</h3>
               <p>I gather everything I can about the subject. The deeper I know the material, the better my recommendations. Front-loading the study is how I make better decisions.</p>
               <p className={styles.aside}>One of my favorite parts of this career.</p>
             </Reveal>
-            <Reveal as="li" cursorColor="bg" kind="fade" delay={0.15 + 2 * STAGGER.item}>
+            <Reveal as="li" cursorColor="local" kind="fade" delay={0.15 + 2 * STAGGER.item}>
               <h3 className={styles.h3}>Sketch and share</h3>
               <p>Mind maps, sketches, whiteboards, and wireframes. I think visually, so getting ideas on paper is how I find connections. Sharing early keeps my read of the brief aligned and lets us vet directions before they get expensive.</p>
             </Reveal>
-            <Reveal as="li" cursorColor="bg" kind="fade" delay={0.15 + 3 * STAGGER.item}>
+            <Reveal as="li" cursorColor="local" kind="fade" delay={0.15 + 3 * STAGGER.item}>
               <h3 className={styles.h3}>Experiment and refine</h3>
               <p>Once I know the material, I explore, prototype, and iterate, then refine the strongest direction through rounds of feedback.</p>
             </Reveal>
@@ -210,14 +210,14 @@ export default function ApproachPage() {
         </div>
       </section>
 
-      <section className={`${styles.band} ${styles.light}`} data-scheme="light">
+      <section className={`${styles.band} ${styles.light}`} data-scheme="light" data-cursor-color="local">
         <div className={styles.wrap}>
           <Reveal className={styles.head}>
             <span className={styles.label}>[ Influences ]</span>
             <h2 className={styles.h2}>What shapes my visual style</h2>
           </Reveal>
           <div className={`${styles.cols3} ${styles.infl}`}>
-            <Reveal className={styles.col} cursorColor="bg" kind="fade" delay={0.15}>
+            <Reveal className={styles.col} cursorColor="local" kind="fade" delay={0.15}>
               <span className={styles.label}>Personal art practice</span>
               <h3 className={styles.h3}>Where I sharpen my eye</h3>
               <ul>
@@ -227,7 +227,7 @@ export default function ApproachPage() {
                 <li>DJing as part of Sensitive Boys</li>
               </ul>
             </Reveal>
-            <Reveal className={styles.col} cursorColor="bg" kind="fade" delay={0.15 + 1 * STAGGER.item}>
+            <Reveal className={styles.col} cursorColor="local" kind="fade" delay={0.15 + 1 * STAGGER.item}>
               <span className={styles.label}>Curiosity</span>
               <h3 className={styles.h3}>Intellectual and aesthetic appetite</h3>
               <ul>
@@ -239,7 +239,7 @@ export default function ApproachPage() {
                 <li>An anthropologist&apos;s interest in people, what they do, and why</li>
               </ul>
             </Reveal>
-            <Reveal className={styles.col} cursorColor="bg" kind="fade" delay={0.15 + 2 * STAGGER.item}>
+            <Reveal className={styles.col} cursorColor="local" kind="fade" delay={0.15 + 2 * STAGGER.item}>
               <span className={styles.label}>Medium &amp; limits</span>
               <h3 className={styles.h3}>The material sets the terms</h3>
               <p>Engaging directly with a project&apos;s medium shapes everything it produces. The tools often show me the best solution when I lean into what they do well. That rigor in approach, if not always in aesthetic, grounds my decisions.</p>
@@ -249,11 +249,11 @@ export default function ApproachPage() {
         </div>
       </section>
 
-      <div className={`${styles.marquee} ${styles.dark}`} data-scheme="dark" aria-hidden="true">
+      <div className={`${styles.marquee} ${styles.dark}`} data-scheme="dark" data-cursor-color="local" aria-hidden="true">
         <ScrubMarquee text={MARQUEE} />
       </div>
 
-      <section className={`${styles.band} ${styles.light} ${styles.starBand}`} data-scheme="light">
+      <section className={`${styles.band} ${styles.light} ${styles.starBand}`} data-scheme="light" data-cursor-color="local">
         {/* Star field — same low-opacity overlay as the homepage panels;
             the charcoal cards sit above it. */}
         <div className={styles.stars} aria-hidden>
@@ -266,7 +266,7 @@ export default function ApproachPage() {
           </Reveal>
           <div className={styles.projects}>
             {PROJECTS.map((p, i) => (
-              <Reveal as="article" key={p.title} className={`${styles.proj} ${p.wide ? styles.wide : ""}`} kind="fade" delay={0.15 + i * STAGGER.item}>
+              <Reveal as="article" key={p.title} className={`${styles.proj} ${p.wide ? styles.wide : ""}`} kind="fade" delay={0.15 + i * STAGGER.item} cursorColor="local">
                 <span className={styles.meta}>{p.meta}</span>
                 <h3 className={styles.h3}>{p.title}</h3>
                 <p>{p.body}</p>
@@ -283,7 +283,7 @@ export default function ApproachPage() {
         </div>
       </section>
 
-      <section className={`${styles.cta} ${styles.dark}`} data-scheme="dark" id="contact">
+      <section className={`${styles.cta} ${styles.dark}`} data-scheme="dark" data-cursor-color="local" id="contact">
         <div className={styles.wrap}>
           <Reveal as="span" className={styles.label}>[ Contact ]</Reveal>
           <LetterCascade as="h2" text="Let's make things happen!" by="word" animate={false} delay={0.15} className={`${styles.h2} ${styles.ctaTitle}`} />
