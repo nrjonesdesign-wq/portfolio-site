@@ -22,6 +22,9 @@ import {
   slugForItemNumber,
 } from "@/content/projects";
 
+/** Homepage panel ids that work as inbound `/#<id>` deep links. */
+const SECTION_HASHES = ["who", "who-bio", "work", "approach", "contact"] as const;
+
 /**
  * Mobile entry. Stacks the snap panels vertically with native scroll —
  * no fancy wheel locking; touch devices want to feel like normal pages.
@@ -50,6 +53,14 @@ export default function MobileHome() {
     if (typeof window === "undefined") return null;
     const slug = window.location.hash.replace(/^#/, "");
     return slug ? itemNumberForSlug(slug) : null;
+  });
+  // Section deep-link: `/#who`, `/#who-bio`, `/#work`, `/#approach` or
+  // `/#contact` (e.g. from the /approach page menu) lands on that panel,
+  // skipping the loading intro. Read once before URL sync strips the hash.
+  const [deepLinkSection] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    const id = window.location.hash.replace(/^#/, "");
+    return (SECTION_HASHES as readonly string[]).includes(id) ? id : null;
   });
   // Open case-study item number (e.g. "01"). Null = no tray. Seeded from
   // the deep-link so an inbound hash opens straight into the tray.
@@ -161,6 +172,12 @@ export default function MobileHome() {
   // study, jump straight to Work (bypassing the loading intro). The tray
   // is already open from the seeded caseStudyItemNumber.
   useEffect(() => {
+    if (deepLinkSection) {
+      document
+        .getElementById(deepLinkSection)
+        ?.scrollIntoView({ behavior: "auto", block: "start" });
+      return;
+    }
     if (!deepLinkItemNumber) return;
     document
       .getElementById("work")

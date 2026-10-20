@@ -9,6 +9,9 @@ import WorkSection, {
   INSPIRED_SLUGS,
 } from "@/components/sections/work/WorkSection";
 import { itemNumberForSlug, slugForItemNumber } from "@/content/projects";
+
+/** Homepage panel ids that work as inbound `/#<id>` deep links. */
+const SECTION_HASHES = ["who", "who-bio", "work", "approach", "contact"] as const;
 import ApproachSection from "@/components/sections/approach/ApproachSection";
 import ContactSection from "@/components/sections/contact/ContactSection";
 import Nav, { NAV_PLANET_PX } from "@/components/nav/Nav";
@@ -75,12 +78,23 @@ export default function DesktopHome() {
     return slug ? itemNumberForSlug(slug) : null;
   });
 
+  // Section deep-link: `/#who`, `/#who-bio`, `/#work`, `/#approach` or
+  // `/#contact` (e.g. from the /approach page menu) lands on that panel,
+  // skipping the loading intro. Read once at first render, before the
+  // URL-sync effects strip the hash.
+  const [deepLinkSection] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    const id = window.location.hash.replace(/^#/, "");
+    return (SECTION_HASHES as readonly string[]).includes(id) ? id : null;
+  });
+
   const [planetMorphed, setPlanetMorphed] = useState<boolean>(() => {
     if (typeof window === "undefined") return false;
     // A valid deep-link jumps straight to Work, so dock the planet in the
     // nav immediately rather than flashing it centred over the loader.
     if (window.location.hash.replace(/^#/, "") &&
         itemNumberForSlug(window.location.hash.replace(/^#/, ""))) return true;
+    if ((SECTION_HASHES as readonly string[]).includes(window.location.hash.replace(/^#/, ""))) return true;
     return window.scrollY > window.innerHeight * 0.5;
   });
 
@@ -468,6 +482,11 @@ export default function DesktopHome() {
   // view. Instant scroll; planetMorphed is already true from init so the
   // planet never flashes centred.
   useEffect(() => {
+    if (deepLinkSection) {
+      document.getElementById(deepLinkSection)?.scrollIntoView({ behavior: "auto", block: "start" });
+      window.history.replaceState(null, "", window.location.pathname + window.location.search);
+      return;
+    }
     if (!deepLinkItemNumber) return;
     document.getElementById("work")?.scrollIntoView({ behavior: "auto" });
     // Runs once on mount for the inbound hash only.
