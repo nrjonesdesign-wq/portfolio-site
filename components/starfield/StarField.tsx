@@ -462,6 +462,7 @@ function UfoFlyby() {
         height="24"
         viewBox="0 0 48 24"
         style={{ display: "block", overflow: "visible" }}
+        shapeRendering="crispEdges"
         // Static, trusted markup from uapShapes.ts (no user input).
         dangerouslySetInnerHTML={{ __html: UAP_SHAPES[shape].svg }}
       />

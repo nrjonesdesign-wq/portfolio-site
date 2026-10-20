@@ -1,83 +1,171 @@
 /**
- * UAP silhouettes for the StarField fly-by. Each is inner SVG markup for a
- * 48×24 viewBox, drawn in `currentColor` (so it inverts with the section)
- * plus small white "lights", in the same layered-opacity style as the
- * original saucer. UfoFlyby picks one at random per appearance.
+ * UAP silhouettes for the StarField fly-by, drawn as pixel sprites to
+ * match the star field's square-pixel frames. Each shape is a 24×12 grid
+ * (one character per pixel, rendered as 2×2 squares in a 48×24 viewBox
+ * with crisp edges). Edit the grids directly:
+ *
+ *   .  empty          #  body (currentColor 0.9)
+ *   +  shading (0.55) o  halo (0.25)       f  faint fill (0.15)
+ *   *  light (white)  =  dim light / sheen (white 0.45)
+ *
+ * Colour follows the section via currentColor. UfoFlyby picks one at
+ * random per appearance (never the same twice in a row).
  */
-export type UapShape = { name: string; svg: string };
+type UapGrid = { name: string; grid: string[] };
 
-const LIGHT = 'fill="#ffffff" opacity="0.95"';
-
-export const UAP_SHAPES: UapShape[] = [
+const GRIDS: UapGrid[] = [
   {
-    // The classic: domed disc with belly lights.
     name: "Saucer",
-    svg: `
-      <path d="M 14 14 Q 24 -1 34 14 Z" fill="currentColor" opacity="0.55"/>
-      <ellipse cx="24" cy="14" rx="22" ry="4" fill="currentColor" opacity="0.9"/>
-      <ellipse cx="24" cy="15" rx="14" ry="2.5" fill="currentColor" opacity="0.55"/>
-      <circle cx="12" cy="15.4" r="0.9" ${LIGHT}/>
-      <circle cx="24" cy="16.2" r="0.9" ${LIGHT}/>
-      <circle cx="36" cy="15.4" r="0.9" ${LIGHT}/>`,
+    grid: [
+      "........................",
+      "........................",
+      ".........++++++.........",
+      "........++++++++........",
+      ".......++++++++++.......",
+      "...##################...",
+      ".######################.",
+      "..###*###*####*###*###..",
+      "......++++++++++++......",
+      "........................",
+      "........................",
+      "........................",
+    ],
   },
   {
-    // 2004 Nimitz "Tic Tac": a featureless white-ish capsule.
     name: "Tic Tac",
-    svg: `
-      <rect x="6" y="7" width="36" height="10" rx="5" fill="currentColor" opacity="0.9"/>
-      <rect x="10" y="8.6" width="26" height="2.2" rx="1.1" fill="#ffffff" opacity="0.35"/>
-      <rect x="6" y="7" width="36" height="10" rx="5" fill="none" stroke="currentColor" stroke-opacity="0.35" stroke-width="3"/>`,
+    grid: [
+      "........................",
+      "........................",
+      "......oooooooooooo......",
+      "....oo############oo....",
+      "...o###=========####o...",
+      "..o##################o..",
+      "..o##################o..",
+      "...o################o...",
+      "....oo############oo....",
+      "......oooooooooooo......",
+      "........................",
+      "........................",
+    ],
   },
   {
-    // "Black triangle": flat delta with a light at each corner.
     name: "Triangle",
-    svg: `
-      <path d="M 24 2 L 45 21 L 3 21 Z" fill="currentColor" opacity="0.9"/>
-      <path d="M 24 8 L 37 19 L 11 19 Z" fill="currentColor" opacity="0.55"/>
-      <circle cx="24" cy="4.6" r="1.1" ${LIGHT}/>
-      <circle cx="6.2" cy="19.6" r="1.1" ${LIGHT}/>
-      <circle cx="41.8" cy="19.6" r="1.1" ${LIGHT}/>
-      <circle cx="24" cy="14.5" r="1.4" fill="#ffffff" opacity="0.5"/>`,
+    grid: [
+      "........................",
+      "...........**...........",
+      "..........####..........",
+      ".........######.........",
+      "........########........",
+      ".......###++++###.......",
+      ".....###++++++++###.....",
+      "....###++++==++++###....",
+      "...###++++++++++++###...",
+      "..###++++++++++++++###..",
+      ".*####################*.",
+      "........................",
+    ],
   },
   {
-    // Glowing orb with a soft halo.
     name: "Orb",
-    svg: `
-      <circle cx="24" cy="12" r="11" fill="currentColor" opacity="0.15"/>
-      <circle cx="24" cy="12" r="8" fill="currentColor" opacity="0.35"/>
-      <circle cx="24" cy="12" r="5.5" fill="currentColor" opacity="0.9"/>
-      <circle cx="22" cy="10" r="1.6" fill="#ffffff" opacity="0.7"/>`,
+    grid: [
+      "...........oo...........",
+      ".........oooooo.........",
+      "........o++++++o........",
+      ".......o++####++o.......",
+      ".......o+#==###+o.......",
+      "......oo+#=####+oo......",
+      "......oo+######+oo......",
+      ".......o+######+o.......",
+      ".......o++####++o.......",
+      "........o++++++o........",
+      ".........oooooo.........",
+      "...........oo...........",
+    ],
   },
   {
-    // Cigar / cylinder with a row of portholes.
     name: "Cigar",
-    svg: `
-      <ellipse cx="24" cy="12" rx="23" ry="4.5" fill="currentColor" opacity="0.9"/>
-      <ellipse cx="24" cy="10.6" rx="18" ry="1.6" fill="currentColor" opacity="0.55"/>
-      <circle cx="12" cy="13" r="0.9" ${LIGHT}/>
-      <circle cx="18" cy="13.3" r="0.9" ${LIGHT}/>
-      <circle cx="24" cy="13.4" r="0.9" ${LIGHT}/>
-      <circle cx="30" cy="13.3" r="0.9" ${LIGHT}/>
-      <circle cx="36" cy="13" r="0.9" ${LIGHT}/>`,
+    grid: [
+      "........................",
+      "........................",
+      "........................",
+      "........########........",
+      "..####++++++++++++####..",
+      ".######################.",
+      ".####*###*####*###*####.",
+      "..####################..",
+      "........########........",
+      "........................",
+      "........................",
+      "........................",
+    ],
   },
   {
-    // "Cube in a sphere": dark cube inside a translucent shell.
     name: "Cube-in-sphere",
-    svg: `
-      <circle cx="24" cy="12" r="10.5" fill="currentColor" opacity="0.2"/>
-      <circle cx="24" cy="12" r="10.5" fill="none" stroke="currentColor" stroke-opacity="0.6" stroke-width="1"/>
-      <rect x="19.5" y="7.5" width="9" height="9" fill="currentColor" opacity="0.9" transform="rotate(45 24 12)"/>
-      <circle cx="24" cy="12" r="1" ${LIGHT}/>`,
+    grid: [
+      "...........oo...........",
+      ".........ooffoo.........",
+      "........offffffo........",
+      ".......offf##fffo.......",
+      ".......off####ffo.......",
+      "......off##**##ffo......",
+      "......off##**##ffo......",
+      ".......off####ffo.......",
+      ".......offf##fffo.......",
+      "........offffffo........",
+      ".........ooffoo.........",
+      "...........oo...........",
+    ],
   },
   {
-    // Boomerang / chevron with lights along the leading edge.
     name: "Boomerang",
-    svg: `
-      <path d="M 2 19 L 24 5 L 46 19 L 40 21 L 24 11 L 8 21 Z" fill="currentColor" opacity="0.9"/>
-      <circle cx="6" cy="19.6" r="1" ${LIGHT}/>
-      <circle cx="15" cy="13.8" r="1" ${LIGHT}/>
-      <circle cx="24" cy="8" r="1" ${LIGHT}/>
-      <circle cx="33" cy="13.8" r="1" ${LIGHT}/>
-      <circle cx="42" cy="19.6" r="1" ${LIGHT}/>`,
+    grid: [
+      "........................",
+      "........................",
+      "...........**...........",
+      "..........####..........",
+      "........###..###........",
+      "......*###....###*......",
+      ".....###........###.....",
+      "...###............###...",
+      ".*###..............###*.",
+      "###..................###",
+      "#......................#",
+      "........................",
+    ],
   },
 ];
+
+const STYLE: Record<string, string> = {
+  "#": 'fill="currentColor" opacity="0.9"',
+  "+": 'fill="currentColor" opacity="0.55"',
+  o: 'fill="currentColor" opacity="0.25"',
+  f: 'fill="currentColor" opacity="0.15"',
+  "*": 'fill="#ffffff" opacity="0.95"',
+  "=": 'fill="#ffffff" opacity="0.45"',
+};
+
+/** Grid → SVG markup; runs of the same pixel type merge into one rect. */
+function toSvg(grid: string[]): string {
+  let out = "";
+  grid.forEach((row, y) => {
+    let x = 0;
+    while (x < row.length) {
+      const c = row[x];
+      if (!STYLE[c]) {
+        x++;
+        continue;
+      }
+      const x0 = x;
+      while (x < row.length && row[x] === c) x++;
+      out += `<rect x="${x0 * 2}" y="${y * 2}" width="${(x - x0) * 2}" height="2" ${STYLE[c]}/>`;
+    }
+  });
+  return out;
+}
+
+export type UapShape = { name: string; svg: string };
+
+export const UAP_SHAPES: UapShape[] = GRIDS.map((g) => ({
+  name: g.name,
+  svg: toSvg(g.grid),
+}));
