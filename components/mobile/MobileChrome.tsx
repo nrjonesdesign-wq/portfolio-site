@@ -101,7 +101,7 @@ export default function MobileChrome({
               display: "block",
             }}
           >
-            <PlanetMark />
+            <PlanetMark scrollSource="window" />
           </a>
 
           {/* Hairline rule between planet and bracket label. */}
@@ -262,7 +262,7 @@ export function ChromeBackdrop({ edge }: { edge: "top" | "bottom" }) {
 /* ─── Mini NRJ planet (mobile nav mark) ──────────────────────────────── */
 
 /**
- * SVG planet — orbit ring rotation is wired to <main>'s scrollTop so
+ * SVG planet — orbit ring rotation is wired to the scroll position so
  * the ring spins as the user scrolls through the page. All strokes
  * share the same weight (1.1) so the mark reads as a single
  * consistent linework.

@@ -111,7 +111,7 @@ export default function MobileHome() {
   // No in-Work wheel/touch handlers any more — the WORK section is
   // its own scroll container (overflow-y: auto), so the user scrolls
   // freely within it via native gestures. Reaching the top / bottom
-  // chains back to <main>'s scroll-snap to step into Name / Contact.
+  // chains back to the document's scroll-snap to step into Name / Contact.
   // Project drawers expand on tap; multi-item drawers scroll within
   // the section without any custom JS.
 
@@ -121,8 +121,15 @@ export default function MobileHome() {
   // the .snap class, so adding the class wires the chain up.
   useEffect(() => {
     document.documentElement.classList.add("snapping");
+    // body's global `overflow-x: hidden` makes <body> a scroll container
+    // (overflow-y computes to auto), so the .snap sections would snap to
+    // body — which never scrolls — instead of the document. `clip` hides
+    // horizontal overflow without creating a scroll container.
+    const prevOverflowX = document.body.style.overflowX;
+    document.body.style.overflowX = "clip";
     return () => {
       document.documentElement.classList.remove("snapping");
+      document.body.style.overflowX = prevOverflowX;
     };
   }, []);
 
@@ -215,13 +222,9 @@ export default function MobileHome() {
         : (activeSection as Section));
   useColorScheme(colorScheme);
 
-  // Section detection via IntersectionObserver. Uses `<main>` as the
-  // observation root since it's the scroll container now — without
-  // this, the observer fires against the document viewport and every
-  // section reports as "in view" once.
+  // Section detection via IntersectionObserver against the viewport
+  // (the document is the scroll container).
   useEffect(() => {
-    const root = document.querySelector("main");
-    if (!root) return;
     const ids = [
       "loading",
       "who",
@@ -251,7 +254,7 @@ export default function MobileHome() {
           setActiveSection(sectionForId(best.id));
         }
       },
-      { root, threshold: [0.25, 0.5, 0.75] },
+      { threshold: [0.25, 0.5, 0.75] },
     );
     for (const id of ids) {
       const el = document.getElementById(id);
@@ -297,18 +300,6 @@ export default function MobileHome() {
         document
           .getElementById(id)
           ?.scrollIntoView({ behavior: "auto", block: "start" });
-        // Safari re-samples its bar tint on a scroll of the document
-        // itself, not of <main> (our scroller). Give the root 2px of
-        // range, nudge it 1px and back, then remove the range — invisible
-        // under the fading overlay, but it forces a fresh sample.
-        window.requestAnimationFrame(() => {
-          root.style.minHeight = "calc(100% + 2px)";
-          window.scrollTo(0, 1);
-          window.requestAnimationFrame(() => {
-            window.scrollTo(0, 0);
-            root.style.minHeight = "";
-          });
-        });
         window.setTimeout(() => {
           root.classList.remove("color-jump");
           setJumpScheme(null);
@@ -330,20 +321,12 @@ export default function MobileHome() {
           // var(--fs-body) consumer in the mobile tree and can't be
           // out-specified or stripped.
           ["--fs-body" as string]: "1rem",
-          // Make <main> the dedicated scroll container with explicit
-          // scroll-snap-type. The @media rule on <html> works in real
-          // mobile browsers, but Chrome DevTools' "responsive" mode is
-          // inconsistent about engaging snap-on-html — putting it on a
-          // fixed-height element gives it a single, unambiguous target.
-          height: "100dvh",
-          overflowY: "auto",
-          overflowX: "hidden",
-          // Mandatory snap so the user always lands on a section,
-          // never mid-scroll. Works cleanly because each panel
-          // (Name, Engagements) is locked to 100dvh.
-          scrollSnapType: "y mandatory",
-          scrollPaddingTop: "var(--m-nav-h)",
-          WebkitOverflowScrolling: "touch",
+          // The DOCUMENT is the scroller (not <main>): iOS Safari tints its
+          // status bar / toolbar from the page and re-samples on document
+          // scrolls only, so an inner scroller left the bars on stale
+          // section colours. Snap comes from the mobile @media rule on
+          // <html> (scroll-snap-type: y mandatory + scroll-padding-top).
+          minHeight: "100dvh",
         } as React.CSSProperties
       }
     >
