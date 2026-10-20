@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
+import { DUR, EASE } from "@/lib/motion";
 import NRJPlanet from "@/components/nav/NRJPlanet";
 import { renderMarqueeSegment } from "@/components/sections/work/WorkSection";
 import { ChromeBackdrop, PlanetMark } from "@/components/mobile/MobileChrome";
@@ -395,5 +396,52 @@ export function ScrubMarquee({ text }: { text: string }) {
         <span>{renderMarqueeSegment(tags, 1)}</span>
       </div>
     </div>
+  );
+}
+
+/**
+ * Scroll-in entrance for Approach page elements, using the homepage's two
+ * patterns so the page animates like the rest of the site:
+ *  - kind="rise" (default): RiseOn — opacity 0 → 1 + 20px rise. Used for
+ *    labels, section heads, the hero lede, the toolbox, contact copy.
+ *  - kind="fade": Select Engagements — opacity only. Used for cards, with
+ *    an index-based delay so each group cascades in one after another.
+ * Keeps the element's own tag and className, so layout CSS is unchanged.
+ * Plays once per element (viewport once, -8% margin like RiseOn).
+ */
+type RevealTag = "div" | "li" | "article" | "span" | "p";
+const MOTION_TAGS = {
+  div: motion.div,
+  li: motion.li,
+  article: motion.article,
+  span: motion.span,
+  p: motion.p,
+};
+export function Reveal({
+  as = "div",
+  kind = "rise",
+  delay = 0,
+  className,
+  children,
+}: {
+  as?: RevealTag;
+  kind?: "rise" | "fade";
+  delay?: number;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  const reduce = useReducedMotion();
+  const M = MOTION_TAGS[as] as typeof motion.div;
+  const rise = kind === "rise" && !reduce;
+  return (
+    <M
+      className={className}
+      initial={rise ? { opacity: 0, y: 20 } : { opacity: 0 }}
+      whileInView={rise ? { opacity: 1, y: 0 } : { opacity: 1 }}
+      viewport={{ once: true, margin: "-8%" }}
+      transition={{ delay, duration: DUR.base, ease: EASE }}
+    >
+      {children}
+    </M>
   );
 }
