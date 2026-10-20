@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import LetterCascade from "@/components/primitives/LetterCascade";
 import StarField from "@/components/starfield/StarField";
-import { DUR, EASE, STAGGER } from "@/lib/motion";
+import { DUR, EASE } from "@/lib/motion";
 import {
   APPROACH_HREF,
   APPROACH_INTRO,
@@ -83,14 +83,14 @@ export default function MobileApproachSection() {
 
             <ol style={{ listStyle: "none", margin: 0, padding: 0, width: "100%", borderTop: "1px solid var(--fg)" }}>
               {APPROACH_STEPS.map((step, i) => (
-                // Select Engagements pattern: rows fade in one after
-                // another at STAGGER.item, after the intro paragraph.
+                // Rows fade in and rise one after another (0.12s steps,
+                // 0.8s ease) after the intro paragraph.
                 <motion.li
                   key={step.title}
-                  initial={{ opacity: 0 }}
-                  whileInView={{ opacity: 1 }}
+                  initial={{ opacity: 0, y: 14 }}
+                  whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ delay: 1.1 + i * STAGGER.item, duration: DUR.base, ease: EASE }}
+                  transition={{ delay: 1.1 + i * 0.12, duration: DUR.slow, ease: EASE }}
                   style={{
                     display: "flex",
                     gap: "0.6rem",

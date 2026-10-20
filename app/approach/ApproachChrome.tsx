@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useAnimationControls, useInView, useReducedMotion } from "framer-motion";
 import { DUR, EASE } from "@/lib/motion";
 import NRJPlanet from "@/components/nav/NRJPlanet";
 import { NAV_PLANET_PX } from "@/components/nav/Nav";
@@ -484,14 +484,42 @@ export function Reveal({
 }) {
   const reduce = useReducedMotion();
   const M = MOTION_TAGS[as] as typeof motion.div;
+  const ref = useRef<HTMLElement>(null);
+  const controls = useAnimationControls();
+  const inView = useInView(ref, { once: true, margin: "0px 0px -8% 0px" });
+  const mobileRef = useRef(false);
   const rise = kind === "rise" && !reduce;
+
+  // Phones: every element (cards included) fades in AND rises, over a
+  // longer, softer ease — opacity-only steps read as blunt pop-ins when
+  // the cards are stacked one per row. Desktop keeps the Select
+  // Engagements opacity fade for card groups. Set after mount (the
+  // element is still at opacity 0) so SSR markup stays identical.
+  useEffect(() => {
+    if (reduce) return;
+    mobileRef.current = window.matchMedia("(max-width: 767px)").matches;
+    if (mobileRef.current) controls.set({ y: 24 });
+  }, [controls, reduce]);
+
+  useEffect(() => {
+    if (!inView) return;
+    controls.start({
+      opacity: 1,
+      y: 0,
+      transition: {
+        delay,
+        duration: mobileRef.current ? DUR.slow : DUR.base,
+        ease: EASE,
+      },
+    });
+  }, [inView, controls, delay]);
+
   return (
     <M
+      ref={ref as React.Ref<HTMLDivElement>}
       className={className}
       initial={rise ? { opacity: 0, y: 20 } : { opacity: 0 }}
-      whileInView={rise ? { opacity: 1, y: 0 } : { opacity: 1 }}
-      viewport={{ once: true, margin: "-8%" }}
-      transition={{ delay, duration: DUR.base, ease: EASE }}
+      animate={controls}
     >
       {children}
     </M>
