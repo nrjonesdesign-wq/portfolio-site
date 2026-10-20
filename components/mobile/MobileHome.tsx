@@ -353,15 +353,6 @@ export default function MobileHome() {
         } as React.CSSProperties
       }
     >
-      {/* iOS Safari edge plates. Safari 26 ignores theme-color and tints
-          its status bar / bottom toolbar from a solid fixed element of
-          real size touching the screen edge (confirmed on device via
-          /tint-test, option C). These opaque strips span the safe area +
-          nav (top) and safe area + footer (bottom), switch to the section
-          bg instantly (no transition), and sit under the z-60 chrome. */}
-      {/* Keyed on the scheme so each colour change mounts fresh fixed
-          elements — Safari re-detects new fixed edges, whereas a colour
-          change on an existing one wasn't picked up until a user scroll. */}
       {anchorTops.map((top, i) => (
         <div
           key={`snap-${i}`}
@@ -378,8 +369,6 @@ export default function MobileHome() {
           }}
         />
       ))}
-      <div key={`top-${colorScheme}`} aria-hidden style={edgePlate("top")} />
-      <div key={`bottom-${colorScheme}`} aria-hidden style={edgePlate("bottom")} />
       <MobileChrome
         activeSection={chromeSection}
         visible={chromeVisible}
@@ -423,24 +412,6 @@ export default function MobileHome() {
       </AnimatePresence>
     </main>
   );
-}
-
-function edgePlate(edge: "top" | "bottom"): React.CSSProperties {
-  return {
-    position: "fixed",
-    left: 0,
-    right: 0,
-    [edge]: 0,
-    // 80px exactly, as in /tint-test option C (the one that worked on
-    // device). Taller edge strips (140px in options D/F, ~131px in the
-    // previous plates) were ignored by Safari. The solid-colour nav /
-    // footer continue the band past the plate.
-    height: 80,
-    backgroundColor: "var(--bg)",
-    transition: "none",
-    pointerEvents: "none",
-    zIndex: 55,
-  };
 }
 
 /**
