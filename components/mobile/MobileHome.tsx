@@ -354,12 +354,11 @@ export default function MobileHome() {
       }
     >
       {/* iOS Safari edge plates. Safari 26 ignores theme-color and tints
-          its status bar / bottom toolbar from a solid fixed element
-          touching the screen edge, falling back to sampling whatever is
-          there (our translucent, colour-fading chrome) — which went stale
-          after menu jumps. These opaque strips sit in the safe-area insets
-          and switch to the section bg instantly (no transition), giving
-          Safari a deterministic colour to read. */}
+          its status bar / bottom toolbar from a solid fixed element of
+          real size touching the screen edge (confirmed on device via
+          /tint-test, option C). These opaque strips span the safe area +
+          nav (top) and safe area + footer (bottom), switch to the section
+          bg instantly (no transition), and sit under the z-60 chrome. */}
       {/* Keyed on the scheme so each colour change mounts fresh fixed
           elements — Safari re-detects new fixed edges, whereas a colour
           change on an existing one wasn't picked up until a user scroll. */}
@@ -432,11 +431,19 @@ function edgePlate(edge: "top" | "bottom"): React.CSSProperties {
     left: 0,
     right: 0,
     [edge]: 0,
-    height: `max(env(safe-area-inset-${edge}, 0px), 1px)`,
+    // Cover the whole chrome zone (safe area + nav / footer), not just
+    // the safe-area sliver: /tint-test showed Safari only reads solid
+    // fixed strips of real size at the screen edges — the thin inset
+    // strips (≈1px at the bottom under the floating toolbar) were
+    // ignored. The nav / footer (z 60) sit on top of these.
+    height:
+      edge === "top"
+        ? "calc(env(safe-area-inset-top, 0px) + var(--m-nav-h))"
+        : "calc(env(safe-area-inset-bottom, 0px) + var(--m-foot-h))",
     backgroundColor: "var(--bg)",
     transition: "none",
     pointerEvents: "none",
-    zIndex: 45,
+    zIndex: 55,
   };
 }
 
