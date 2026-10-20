@@ -141,6 +141,41 @@
   min-width: 0;
 }
 
+/* Hover invert: each card swaps its scheme (fill = the band's text
+   colour, type = the band's background). Card tokens are redefined
+   locally so meta, links, bullets and step numbers all follow. */
+.col,
+.tenets li,
+.steps li,
+.proj {
+  transition: background-color 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    color 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (hover: hover) and (pointer: fine) {
+  .light .col:hover,
+  .light .tenets li:hover,
+  .light .steps li:hover {
+    --bg: var(--ink);
+    --fg: var(--lavender);
+    --muted: color-mix(in srgb, var(--lavender) 70%, var(--ink));
+    background: var(--bg);
+    color: var(--fg);
+    border-color: var(--fg); /* keeps the card edge on a same-colour band */
+  }
+  .dark .col:hover,
+  .dark .tenets li:hover,
+  .dark .steps li:hover,
+  .projects .proj:hover {
+    --bg: var(--lavender);
+    --fg: var(--ink);
+    --muted: color-mix(in srgb, var(--ink) 72%, var(--lavender));
+    background: var(--bg);
+    color: var(--fg);
+    border-color: var(--fg); /* keeps the card edge on a same-colour band */
+  }
+}
+
 /* Tailwind's preflight sets list-style: none on every ul, which hides
    ::marker — restore it so the bullets render. */
 .col ul, .proj ul { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; list-style-type: disc; }
