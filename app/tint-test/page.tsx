@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 const COLORS = ["#C4B6F2", "#EC7A55", "#94D9F3", "#D7DAAC"] as const;
 const NAMES = ["lavender", "coral", "sky", "sage"];
 
-type Mode = "body" | "theme" | "plates" | "fixedbar" | "scroll";
+type Mode = "body" | "theme" | "plates" | "fixedbar" | "scroll" | "glass";
 
 export default function TintTest() {
   const [i, setI] = useState(0);
@@ -60,6 +60,16 @@ export default function TintTest() {
           <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, height: 80, background: c, zIndex: 10 }} />
         </>
       )}
+      {(mode === "glass") && (
+        <>
+          {/* C's solid strips PLUS a frosted glass bar just inside the top
+              and bottom safe areas — mimics the old homepage chrome. */}
+          <div style={{ position: "fixed", top: 0, left: 0, right: 0, height: 140, background: c, zIndex: 10 }} />
+          <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, height: 90, background: c, zIndex: 10 }} />
+          <div style={{ position: "fixed", top: "env(safe-area-inset-top)", left: 0, right: 0, height: 72, zIndex: 20, backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)", background: "rgba(0,0,0,0.15)" }} />
+          <div style={{ position: "fixed", bottom: "env(safe-area-inset-bottom)", left: 0, right: 0, height: 48, zIndex: 20, backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)", background: "rgba(0,0,0,0.15)" }} />
+        </>
+      )}
       {(mode === "fixedbar") && (
         <div style={{ position: "fixed", top: 0, left: 0, right: 0, height: 140, background: c, zIndex: 10 }} />
       )}
@@ -70,6 +80,7 @@ export default function TintTest() {
       <button style={btn} onClick={() => apply("plates")}>C · solid strips at top + bottom edges</button>
       <button style={btn} onClick={() => apply("fixedbar")}>D · tall solid bar at the top edge</button>
       <button style={btn} onClick={() => apply("scroll")}>E · page background + tiny scroll</button>
+      <button style={btn} onClick={() => apply("glass")}>F · solid strips + frosted bars on top (old homepage setup)</button>
       <p>Then try scrolling this page a little after each tap and note whether the bars catch up.</p>
     </div>
   );
