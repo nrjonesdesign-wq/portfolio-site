@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { DUR, EASE } from "@/lib/motion";
 import NRJPlanet from "@/components/nav/NRJPlanet";
+import { NAV_PLANET_PX } from "@/components/nav/Nav";
 import { renderMarqueeSegment } from "@/components/sections/work/WorkSection";
 import { ChromeBackdrop, PlanetMark } from "@/components/mobile/MobileChrome";
 import MobileMenuOverlay, { type ChromeSection } from "@/components/mobile/MobileMenuOverlay";
@@ -158,22 +159,34 @@ export function CopyEmail({ email }: { email: string }) {
 }
 
 /**
- * Nav planet mark — the same live NRJPlanet (canvas orbit + wordmark) the
- * home page docks in its nav, at the same 113px box, with the same
- * scroll-linked rotation and hover swell. The box overhangs a 44px slot
- * (the visible circle is 39% of the box) so the comet rings extend past
- * the row without pushing the nav taller. Links back to the home page.
+ * Nav planet mark — rendered exactly the way the homepage docks its
+ * planet (DesktopHome MorphingPlanet): a full loading-size NRJPlanet box
+ * (min(60vw, 60vh, 720px)) scaled down with a CSS transform to the 113px
+ * nav size (NAV_PLANET_PX), clipped to its circle. NRJPlanet derives its
+ * stroke weights and canvas detail from that on-screen scale, so drawing
+ * it natively at 113px gave heavier strokes than the homepage; scaling
+ * the same box down reproduces the homepage mark exactly. Same NRJ
+ * wordmark cascade, scroll-linked rotation and 1.18× hover swell. The
+ * visible circle (39% of the box) sits on a 44px slot. Links home.
  */
 export function NavPlanet() {
   const [rotation, setRotation] = useState(0);
+  const [boxPx, setBoxPx] = useState(540);
   useEffect(() => {
     const onScroll = () => {
       const max = document.documentElement.scrollHeight - window.innerHeight;
       setRotation(max > 0 ? (window.scrollY / max) * 360 : 0);
     };
+    const onResize = () =>
+      setBoxPx(Math.min(window.innerWidth * 0.6, window.innerHeight * 0.6, 720));
     onScroll();
+    onResize();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    window.addEventListener("resize", onResize);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onResize);
+    };
   }, []);
 
   return (
@@ -186,9 +199,18 @@ export function NavPlanet() {
       whileHover={{ scale: 1.18 }}
       transition={{ type: "spring", stiffness: 200, damping: 22, mass: 1 }}
     >
-      <span className={styles.planetBox}>
+      <span
+        className={styles.planetBox}
+        style={{
+          width: boxPx,
+          height: boxPx,
+          marginLeft: -boxPx / 2,
+          marginTop: -boxPx / 2,
+          transform: `scale(${NAV_PLANET_PX / boxPx})`,
+        }}
+      >
         <span style={{ display: "block", width: "100%", height: "100%", transform: `rotate(${rotation}deg)` }}>
-          <NRJPlanet />
+          <NRJPlanet cascadeWordmark wordmarkDelay={0.55} />
         </span>
       </span>
     </motion.a>
