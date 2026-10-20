@@ -167,6 +167,17 @@
 
 /* ─── Projects ──────────────────────────────────────────────────────── */
 .projects { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+/* In Practice cards invert: lavender type on a charcoal card, sitting on
+   the lavender band (the "dark" scheme scoped to the card). Local tokens
+   so the meta, links and bullets inherit the inverted colours. */
+.projects .proj {
+  --bg: var(--ink);
+  --fg: var(--lavender);
+  --muted: color-mix(in srgb, var(--lavender) 70%, var(--ink));
+  background: var(--bg);
+  color: var(--fg);
+  border-color: var(--ink);
+}
 .wide { grid-column: 1 / -1; }
 .meta { font-family: var(--font-geist-mono), monospace; font-size: var(--fs-label); letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
 .more { justify-self: start; margin-top: 4px; font-family: var(--font-geist-mono), monospace; font-size: var(--fs-label); letter-spacing: 0.04em; text-transform: uppercase; text-decoration: none; border-bottom: 1px solid var(--fg); padding-bottom: 2px; }
