@@ -136,6 +136,15 @@ body {
     color            1.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/* Mobile menu jumps (MobileHome.handleMenuSelect): colours cut straight
+   to the destination section so iOS Safari samples final colours for its
+   status bar / toolbar instead of a mid-fade frame. */
+html.color-jump *,
+html.color-jump *::before,
+html.color-jump *::after {
+  transition: none !important;
+}
+
 /* Infinite-loop horizontal marquee — the duplicated child stack slides
    left by 50% so the seam coincides with the start of the second copy,
    then snaps back to 0. Used by the accordion's discipline tag row. */

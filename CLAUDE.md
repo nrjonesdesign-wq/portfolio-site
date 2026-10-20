@@ -170,6 +170,8 @@ Implemented in `page.tsx` global `useEffect`. Inputs:
 
 Section sequence: `loading → who → who-bio → work → approach → contact`. The Name → Work transition has the 650ms color-morph hold (see Color flow above).
 
+**Mobile menu jumps** (`MobileHome.handleMenuSelect`): iOS Safari tints its status bar + bottom toolbar by sampling the fixed chrome at the screen edges and only re-samples on scroll, so a smooth scroll that ended mid colour-fade left the bars on the previous section's colour (sky over lavender). Menu jumps therefore force the destination scheme immediately (`jumpScheme` state), add `html.color-jump` (all CSS transitions off), wait two frames, jump with `behavior: "auto"` (the fading overlay hides the cut), then drop the class + override after 400ms.
+
 ## Cursor (`MagneticCursor`)
 
 - `cursor: none !important` on `*` via `globals.css` (only on `(hover: hover) and (pointer: fine)`).

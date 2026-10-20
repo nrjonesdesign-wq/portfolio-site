@@ -47,6 +47,8 @@ export default function MobileHome() {
   // every time the user navigates away from the WORK section — the
   // user expects to always land on a closed accordion.
   const [workOpenSlug, setWorkOpenSlug] = useState<string | null>(null);
+  // Destination scheme forced during a menu jump (see handleMenuSelect).
+  const [jumpScheme, setJumpScheme] = useState<Section | null>(null);
   // Deep-link entry: resolve the inbound `/#<slug>` hash to a case-study
   // item number once at first render (null for no / unknown hash).
   const [deepLinkItemNumber] = useState<string | null>(() => {
@@ -201,8 +203,8 @@ export default function MobileHome() {
   // Drive the color scheme via the same useColorScheme helper desktop
   // uses. While on Loading: pre-invert flips loading ↔ who. After
   // loading: the section's own scheme drives the page tokens.
-  const colorScheme: Section =
-    activeSection === "loading"
+  const colorScheme: Section = jumpScheme ??
+    (activeSection === "loading"
       ? loadingInverted
         ? "who"
         : "loading"
@@ -210,7 +212,7 @@ export default function MobileHome() {
         ? workAccent === "mint"
           ? "inspired"
           : "hired"
-        : (activeSection as Section);
+        : (activeSection as Section));
   useColorScheme(colorScheme);
 
   // Section detection via IntersectionObserver. Uses `<main>` as the
@@ -270,17 +272,37 @@ export default function MobileHome() {
 
   const handleMenuSelect = (section: ChromeSection) => {
     setMenuOpen(false);
-    // Smooth-scroll into the chosen section once the overlay starts
-    // fading out so the user perceives a single coordinated transition.
     // [WHO] lands on the Name panel (#who-bio) — Hello is a brief
     // splash but Name is the canonical WHO screen with the bio +
     // engagements. Mirrors desktop nav.
     const id = section === "who" ? "who-bio" : section;
-    window.requestAnimationFrame(() => {
-      document
-        .getElementById(id)
-        ?.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
+    // iOS Safari tints its status bar + bottom toolbar by sampling the
+    // fixed chrome at the screen edges, and only re-samples on scroll.
+    // A smooth scroll through Work, with the chrome backdrop still mid
+    // 1.4s colour fade when the scroll ends, left the bars stuck on the
+    // previous section's colour. So a menu jump:
+    //   1. switches to the destination scheme immediately, with CSS
+    //      colour transitions off (html.color-jump),
+    //   2. waits two frames so the final colours are painted,
+    //   3. jumps instantly (the fading overlay hides the cut), so the
+    //      scroll Safari samples on already shows the final colours,
+    //   4. hands control back to the scroll-driven scheme.
+    const target: Section =
+      section === "who" ? "who" : section === "work" ? "hired" : section;
+    const root = document.documentElement;
+    root.classList.add("color-jump");
+    setJumpScheme(target);
+    window.requestAnimationFrame(() =>
+      window.requestAnimationFrame(() => {
+        document
+          .getElementById(id)
+          ?.scrollIntoView({ behavior: "auto", block: "start" });
+        window.setTimeout(() => {
+          root.classList.remove("color-jump");
+          setJumpScheme(null);
+        }, 400);
+      }),
+    );
   };
 
   return (
