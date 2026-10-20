@@ -44,8 +44,8 @@ export default function ApproachSection() {
         <StarField className="w-full h-full" />
       </div>
 
-      {/* One grid anchored at top 42% — the same landing spot as Contact's
-          "Let's make things happen!".
+      {/* One grid, vertically centred in the panel. Nav and footer are
+          both 5rem, so viewport centre = centre of the space between them.
             row 1: hero (cols 3–20) + teaser (cols 21–28), teaser
                    bottom-aligned to the hero like Contact's CTA
             row 2: the four process steps as a row of outlined cards
@@ -56,7 +56,8 @@ export default function ApproachSection() {
           position: "absolute",
           left: 0,
           right: 0,
-          top: "42%",
+          top: "50%",
+          transform: "translateY(-50%)",
           rowGap: "clamp(1.75rem, 5vh, 3rem)",
         }}
       >
