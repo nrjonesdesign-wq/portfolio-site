@@ -231,6 +231,7 @@ invisible → dot → small → large → small → dot → invisible (re-random
 - Color = `currentColor` — parent sets `color: var(--fg)` so stars invert with the section
 - Frame durations randomized within ranges for natural breathing
 - Direct DOM mutation for state changes (no React re-render per frame)
+- **UAP fly-by** (`UfoFlyby`): occasional zoom-in / zip-away (first 30–90s after mount, then every 60–180s). Silhouette is re-rolled per appearance (never repeats back-to-back) from `components/starfield/uapShapes.ts` — Saucer, Tic Tac, Triangle, Orb, Cigar, Cube-in-sphere, Boomerang — each 48×24 inner-SVG markup in `currentColor` with white lights. Add shapes there.
 
 ## Nav
 

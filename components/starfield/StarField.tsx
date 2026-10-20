@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useId, useRef } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { motion, useAnimationControls } from "framer-motion";
+import { UAP_SHAPES } from "./uapShapes";
 
 /**
  * Ambient sprite-cycle star field. Each star runs through:
@@ -374,7 +375,7 @@ export default function StarField({
   );
 }
 
-/* ─── UFO fly-by ────────────────────────────────────────────────────────
+/* ─── UAP fly-by (random silhouette per appearance) ────────────────────────────────────────────────────────
    Occasional saucer that zooms toward the viewer and zips away. Idle
    most of the time — first appearance 30-90s after mount, then 60-180s
    between subsequent fly-bys. The motion is framer-driven so its own
@@ -383,12 +384,20 @@ export default function StarField({
 */
 function UfoFlyby() {
   const controls = useAnimationControls();
+  // Which UAP silhouette this appearance uses — re-rolled before every
+  // fly-by (never the same shape twice in a row). See uapShapes.ts.
+  const [shape, setShape] = useState(0);
   useEffect(() => {
     let cancelled = false;
     let timer: number | undefined;
     const rand = (a: number, b: number) => a + Math.random() * (b - a);
     const fly = async () => {
       if (cancelled) return;
+      setShape((prev) => {
+        const n = UAP_SHAPES.length;
+        const next = Math.floor(Math.random() * (n - 1));
+        return next >= prev ? next + 1 : next;
+      });
       const sx = rand(20, 80);
       const sy = rand(25, 65);
       // Zip-away direction: opposite side of the screen, slightly down.
@@ -453,36 +462,9 @@ function UfoFlyby() {
         height="24"
         viewBox="0 0 48 24"
         style={{ display: "block", overflow: "visible" }}
-      >
-        {/* Dome */}
-        <path
-          d="M 14 14 Q 24 -1 34 14 Z"
-          fill="currentColor"
-          opacity="0.55"
-        />
-        {/* Saucer disk */}
-        <ellipse
-          cx="24"
-          cy="14"
-          rx="22"
-          ry="4"
-          fill="currentColor"
-          opacity="0.9"
-        />
-        {/* Underside taper */}
-        <ellipse
-          cx="24"
-          cy="15"
-          rx="14"
-          ry="2.5"
-          fill="currentColor"
-          opacity="0.55"
-        />
-        {/* Belly lights */}
-        <circle cx="12" cy="15.4" r="0.9" fill="#ffffff" opacity="0.95" />
-        <circle cx="24" cy="16.2" r="0.9" fill="#ffffff" opacity="0.95" />
-        <circle cx="36" cy="15.4" r="0.9" fill="#ffffff" opacity="0.95" />
-      </svg>
+        // Static, trusted markup from uapShapes.ts (no user input).
+        dangerouslySetInnerHTML={{ __html: UAP_SHAPES[shape].svg }}
+      />
     </motion.div>
   );
 }
