@@ -86,10 +86,10 @@ export default function ApproachPage() {
         <div className={`${styles.wrap} ${styles.navRow}`}>
           <NavPlanet />
           <ul className={styles.navList}>
-            <li><a href="/#who">WHO</a></li>
-            <li><a href="/#work">WORK</a></li>
-            <li><a href="/approach" aria-current="page">APPROACH</a></li>
-            <li><a href="#contact">CONTACT</a></li>
+            <li><a href="/#who" data-cursor="view" data-magnetic>WHO</a></li>
+            <li><a href="/#work" data-cursor="view" data-magnetic>WORK</a></li>
+            <li><a href="/approach" aria-current="page" data-cursor="view" data-magnetic>APPROACH</a></li>
+            <li><a href="#contact" data-cursor="view" data-magnetic>CONTACT</a></li>
           </ul>
         </div>
       </nav>
@@ -269,7 +269,7 @@ export default function ApproachPage() {
                     {p.bullets.map((b) => <li key={b}>{b}</li>)}
                   </ul>
                 )}
-                {p.link && <a className={styles.more} href={p.link.href}>{p.link.label}</a>}
+                {p.link && <a className={styles.more} href={p.link.href} data-cursor="view" data-magnetic>{p.link.label}</a>}
                 {p.soon && <span className={`${styles.more} ${styles.soon}`}>[ Case study coming soon ]</span>}
               </Reveal>
             ))}
@@ -283,7 +283,7 @@ export default function ApproachPage() {
           <LetterCascade as="h2" text="Let's make things happen!" by="word" animate={false} delay={0.15} className={`${styles.h2} ${styles.ctaTitle}`} />
           <Reveal as="p" className={styles.ctaNote} delay={0.7}>Taking on brand, web, and ongoing retainer work for small teams, startups, and agencies.</Reveal>
           <Reveal className={styles.ctaRow} delay={0.85}>
-            <a className={styles.email} href={`mailto:${EMAIL}`}>{EMAIL}</a>
+            <a className={styles.email} href={`mailto:${EMAIL}`} data-cursor="view" data-magnetic>{EMAIL}</a>
             <CopyEmail email={EMAIL} />
           </Reveal>
         </div>

@@ -142,6 +142,8 @@ export function CopyEmail({ email }: { email: string }) {
   return (
     <button
       type="button"
+      data-cursor="view"
+      data-magnetic
       className={styles.copy}
       onClick={() => {
         navigator.clipboard
