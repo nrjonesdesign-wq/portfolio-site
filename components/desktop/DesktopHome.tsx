@@ -483,6 +483,10 @@ export default function DesktopHome() {
   // planet never flashes centred.
   useEffect(() => {
     if (deepLinkSection) {
+      // page.tsx paints DesktopHome first and swaps to MobileHome after
+      // mount on phones — leave the hash alone there so MobileHome can
+      // read it (same breakpoint as useIsMobile).
+      if (window.matchMedia("(max-width: 768px)").matches) return;
       document.getElementById(deepLinkSection)?.scrollIntoView({ behavior: "auto", block: "start" });
       window.history.replaceState(null, "", window.location.pathname + window.location.search);
       return;
@@ -501,6 +505,11 @@ export default function DesktopHome() {
     if (typeof window === "undefined") return;
     const base = window.location.pathname + window.location.search;
     const slug = itemNumber ? slugForItemNumber(itemNumber) : null;
+    // On close (or the initial null on mount) only clear the hash when it
+    // is a case-study slug — a section deep link (`/#contact` etc.) must
+    // survive so MobileHome can read it after page.tsx swaps trees.
+    const current = window.location.hash.replace(/^#/, "");
+    if (!slug && (!current || !itemNumberForSlug(current))) return;
     window.history.replaceState(null, "", slug ? `${base}#${slug}` : base);
   }, []);
 
