@@ -71,7 +71,10 @@ export default function MobileChrome({
       >
         {/* Glass tint layer — sits behind the chrome content so the
             section underneath softens through the nav. */}
-        <ChromeBackdrop edge="top" />
+        {/* No frosted ChromeBackdrop here: MobileHome's solid edge plates
+            sit behind the nav, and a translucent backdrop-filter layer
+            near the screen edge stopped iOS Safari reading the plate for
+            its bar tint. (ChromeBackdrop is still used on /approach.) */}
 
         {/* Content row — flex centred so the planet and the bracket
             label sit on the same vertical axis. */}
@@ -166,7 +169,10 @@ export default function MobileChrome({
           pointerEvents: "none",
         }}
       >
-        <ChromeBackdrop edge="bottom" />
+        {/* No frosted ChromeBackdrop here: MobileHome's solid edge plates
+            sit behind the footer, and a translucent backdrop-filter layer
+            near the screen edge stopped iOS Safari reading the plate for
+            its bar tint. (ChromeBackdrop is still used on /approach.) */}
         <div
           style={{
             position: "absolute",
