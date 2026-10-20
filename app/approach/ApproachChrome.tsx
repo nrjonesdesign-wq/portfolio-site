@@ -287,6 +287,27 @@ export function ScrubMarquee({ text }: { text: string }) {
   const hoveredRef = useRef(false);
   const interactingRef = useRef(false);
   const velocityRef = useRef(0);
+  const segRef = useRef<HTMLSpanElement>(null);
+  // Enough copies to fill the band's width plus one spare segment, so
+  // wide screens never see the end of the strip. Recomputed on resize.
+  const [copies, setCopies] = useState(3);
+
+  useEffect(() => {
+    const host = hostRef.current;
+    const seg = segRef.current;
+    if (!host || !seg) return;
+    const measure = () => {
+      const segW = seg.offsetWidth;
+      if (segW <= 0) return;
+      const needed = Math.ceil(host.offsetWidth / segW) + 1;
+      setCopies((c) => (c === Math.max(2, needed) ? c : Math.max(2, needed)));
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(host);
+    ro.observe(seg);
+    return () => ro.disconnect();
+  }, []);
 
   // Drift + inertia loop.
   useEffect(() => {
@@ -296,8 +317,12 @@ export function ScrubMarquee({ text }: { text: string }) {
       const dt = Math.max(0, Math.min(0.1, (t - lastT) / 1000));
       lastT = t;
       const inner = innerRef.current;
-      if (inner) {
-        const halfStack = inner.scrollWidth / 2;
+      const seg = segRef.current;
+      if (inner && seg) {
+        // Wrap by exactly one segment's width. There are always enough
+        // copies to cover the band plus one segment (see `copies`), so
+        // the strip never shows blank space at any offset in [-seg, 0].
+        const halfStack = seg.offsetWidth;
         if (halfStack > 0) {
           if (!interactingRef.current) {
             if (Math.abs(velocityRef.current) > 8) {
@@ -414,8 +439,11 @@ export function ScrubMarquee({ text }: { text: string }) {
           willChange: "transform",
         }}
       >
-        <span>{renderMarqueeSegment(tags, 0)}</span>
-        <span>{renderMarqueeSegment(tags, 1)}</span>
+        {Array.from({ length: copies }, (_, i) => (
+          <span key={i} ref={i === 0 ? segRef : undefined} style={{ display: "inline-flex", flex: "0 0 auto" }}>
+            {renderMarqueeSegment(tags, i)}
+          </span>
+        ))}
       </div>
     </div>
   );
