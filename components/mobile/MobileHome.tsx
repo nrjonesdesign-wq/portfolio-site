@@ -335,6 +335,15 @@ export default function MobileHome() {
         } as React.CSSProperties
       }
     >
+      {/* iOS Safari edge plates. Safari 26 ignores theme-color and tints
+          its status bar / bottom toolbar from a solid fixed element
+          touching the screen edge, falling back to sampling whatever is
+          there (our translucent, colour-fading chrome) — which went stale
+          after menu jumps. These opaque strips sit in the safe-area insets
+          and switch to the section bg instantly (no transition), giving
+          Safari a deterministic colour to read. */}
+      <div aria-hidden style={edgePlate("top")} />
+      <div aria-hidden style={edgePlate("bottom")} />
       <MobileChrome
         activeSection={chromeSection}
         visible={chromeVisible}
@@ -377,4 +386,18 @@ export default function MobileHome() {
       </AnimatePresence>
     </main>
   );
+}
+
+function edgePlate(edge: "top" | "bottom"): React.CSSProperties {
+  return {
+    position: "fixed",
+    left: 0,
+    right: 0,
+    [edge]: 0,
+    height: `max(env(safe-area-inset-${edge}, 0px), 1px)`,
+    backgroundColor: "var(--bg)",
+    transition: "none",
+    pointerEvents: "none",
+    zIndex: 45,
+  };
 }
