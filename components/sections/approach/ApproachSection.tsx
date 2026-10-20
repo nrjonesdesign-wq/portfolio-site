@@ -86,7 +86,7 @@ export default function ApproachSection() {
           // as the headline's second line lands.
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-8%" }}
+          viewport={{ once: true }}
           transition={{ delay: 0.7, duration: DUR.base, ease: EASE }}
         >
           <span

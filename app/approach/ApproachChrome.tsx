@@ -469,6 +469,25 @@ const MOTION_TAGS = {
   span: motion.span,
   p: motion.p,
 };
+/* Entry batching. Card delays are written for a whole group entering
+   together (0.15 + i * STAGGER.item). When a later card scrolls in on its
+   own it shouldn't sit through the stagger of siblings that are already
+   visible, so delays are re-based on the smallest delay among elements
+   that enter within the same ~120ms window: the first one in starts at
+   up to 0.15s, the rest keep their relative cascade. */
+let batchAt = -Infinity;
+let batchBase = 0;
+function batchDelay(delay: number) {
+  const now = performance.now();
+  if (now - batchAt > 120) {
+    batchAt = now;
+    batchBase = delay;
+  } else {
+    batchBase = Math.min(batchBase, delay);
+  }
+  return Math.min(delay, 0.15 + Math.max(0, delay - batchBase));
+}
+
 export function Reveal({
   as = "div",
   kind = "rise",
@@ -489,7 +508,10 @@ export function Reveal({
   const M = MOTION_TAGS[as] as typeof motion.div;
   const ref = useRef<HTMLElement>(null);
   const controls = useAnimationControls();
-  const inView = useInView(ref, { once: true, margin: "0px 0px -8% 0px" });
+  // Fires on the first pixel entering the viewport (amount "some", no
+  // inset). The +24px bottom margin offsets the pre-entrance y shift, so
+  // it triggers when the element's resting top edge reaches the fold.
+  const inView = useInView(ref, { once: true, amount: "some", margin: "0px 0px 24px 0px" });
   const mobileRef = useRef(false);
   const rise = kind === "rise" && !reduce;
 
@@ -510,7 +532,7 @@ export function Reveal({
       opacity: 1,
       y: 0,
       transition: {
-        delay,
+        delay: batchDelay(delay),
         duration: mobileRef.current ? DUR.slow : DUR.base,
         ease: EASE,
       },
