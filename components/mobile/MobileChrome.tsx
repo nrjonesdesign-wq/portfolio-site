@@ -24,6 +24,9 @@ type Props = {
   activeSection: "who" | "work" | "approach" | "contact";
   visible: boolean;
   onOpenMenu?: () => void;
+  /** Planet tap. When set, replaces the native #loading anchor jump so
+   *  the page can suspend snapping around the scroll (see MobileHome). */
+  onHome?: () => void;
   children: ReactNode;
 };
 
@@ -31,6 +34,7 @@ export default function MobileChrome({
   activeSection,
   visible,
   onOpenMenu,
+  onHome,
   children,
 }: Props) {
   const label =
@@ -92,6 +96,11 @@ export default function MobileChrome({
             href="#loading"
             aria-label="Back to top"
             data-no-advance
+            onClick={(e) => {
+              if (!onHome) return;
+              e.preventDefault();
+              onHome();
+            }}
             style={{
               width: "3.75rem",
               height: "3.75rem",

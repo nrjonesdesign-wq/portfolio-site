@@ -179,9 +179,7 @@ export default function MobileHome() {
       html.classList.add("warping");
     }, 600);
     const t2 = window.setTimeout(() => {
-      document
-        .getElementById("who")
-        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      jumpTo("who", true);
     }, 1100);
     const t3 = window.setTimeout(() => {
       html.classList.remove("spin-boost");
@@ -212,15 +210,11 @@ export default function MobileHome() {
   // is already open from the seeded caseStudyItemNumber.
   useEffect(() => {
     if (deepLinkSection) {
-      document
-        .getElementById(deepLinkSection)
-        ?.scrollIntoView({ behavior: "auto", block: "start" });
+      jumpTo(deepLinkSection);
       return;
     }
     if (!deepLinkItemNumber) return;
-    document
-      .getElementById("work")
-      ?.scrollIntoView({ behavior: "auto", block: "start" });
+    jumpTo("work");
     // Runs once on mount for the inbound hash only.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -327,9 +321,7 @@ export default function MobileHome() {
     setJumpScheme(target);
     window.requestAnimationFrame(() =>
       window.requestAnimationFrame(() => {
-        document
-          .getElementById(id)
-          ?.scrollIntoView({ behavior: "auto", block: "start" });
+        jumpTo(id);
         window.setTimeout(() => {
           root.classList.remove("color-jump");
           setJumpScheme(null);
@@ -393,6 +385,7 @@ export default function MobileHome() {
         activeSection={chromeSection}
         visible={chromeVisible}
         onOpenMenu={() => setMenuOpen(true)}
+        onHome={() => jumpTo("loading")}
       >
         <MobileLoadingSection
           inverted={loadingInverted}
@@ -445,4 +438,41 @@ function edgePlate(edge: "top" | "bottom"): React.CSSProperties {
     pointerEvents: "none",
     zIndex: 45,
   };
+}
+
+/**
+ * Programmatic jump to a panel with scroll-snap suspended. With the
+ * document as a mandatory-snap scroller, iOS Safari re-snaps to the panel
+ * it was last snapped to whenever the viewport resizes — and a jump makes
+ * the toolbar expand/collapse — so jumps bounced straight back (planet
+ * tap → loading flashed, then back to Approach; menu → Contact stayed on
+ * Approach). Snap is switched off for the scroll and restored once it has
+ * settled, at which point the page already sits on the new panel's snap
+ * position, so restoring snaps in place.
+ */
+function jumpTo(id: string, smooth = false) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const html = document.documentElement;
+  html.style.scrollSnapType = "none";
+  el.scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "start" });
+  // Restore on a timer rather than scrollend: an instant jump "ends"
+  // immediately, but Safari's toolbar resize (which triggers the re-snap)
+  // animates in over the next ~300ms.
+  window.setTimeout(() => {
+    html.style.scrollSnapType = "";
+    // Safety net: if re-enabling snap still pulled the page back to the
+    // previous panel, jump once more (snap off) and leave it settled.
+    window.setTimeout(() => {
+      const navH = parseFloat(getComputedStyle(html).scrollPaddingTop) || 0;
+      const off = Math.abs(el.getBoundingClientRect().top - navH);
+      if (off > 4 && id !== "loading") {
+        html.style.scrollSnapType = "none";
+        el.scrollIntoView({ behavior: "auto", block: "start" });
+        window.setTimeout(() => {
+          html.style.scrollSnapType = "";
+        }, 600);
+      }
+    }, 250);
+  }, smooth ? 1500 : 600);
 }
