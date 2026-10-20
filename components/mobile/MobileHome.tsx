@@ -297,6 +297,18 @@ export default function MobileHome() {
         document
           .getElementById(id)
           ?.scrollIntoView({ behavior: "auto", block: "start" });
+        // Safari re-samples its bar tint on a scroll of the document
+        // itself, not of <main> (our scroller). Give the root 2px of
+        // range, nudge it 1px and back, then remove the range — invisible
+        // under the fading overlay, but it forces a fresh sample.
+        window.requestAnimationFrame(() => {
+          root.style.minHeight = "calc(100% + 2px)";
+          window.scrollTo(0, 1);
+          window.requestAnimationFrame(() => {
+            window.scrollTo(0, 0);
+            root.style.minHeight = "";
+          });
+        });
         window.setTimeout(() => {
           root.classList.remove("color-jump");
           setJumpScheme(null);
@@ -342,8 +354,11 @@ export default function MobileHome() {
           after menu jumps. These opaque strips sit in the safe-area insets
           and switch to the section bg instantly (no transition), giving
           Safari a deterministic colour to read. */}
-      <div aria-hidden style={edgePlate("top")} />
-      <div aria-hidden style={edgePlate("bottom")} />
+      {/* Keyed on the scheme so each colour change mounts fresh fixed
+          elements — Safari re-detects new fixed edges, whereas a colour
+          change on an existing one wasn't picked up until a user scroll. */}
+      <div key={`top-${colorScheme}`} aria-hidden style={edgePlate("top")} />
+      <div key={`bottom-${colorScheme}`} aria-hidden style={edgePlate("bottom")} />
       <MobileChrome
         activeSection={chromeSection}
         visible={chromeVisible}
