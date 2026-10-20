@@ -5,6 +5,7 @@
 import type { Metadata } from "next";
 import styles from "./approach.module.css";
 import { ApproachFooter, ApproachMobileNav, ApproachTint, CopyEmail, NavPlanet, Reveal, ScrubMarquee } from "./ApproachChrome";
+import StarField from "@/components/starfield/StarField";
 import LetterCascade from "@/components/primitives/LetterCascade";
 import { STAGGER } from "@/lib/motion";
 
@@ -252,7 +253,12 @@ export default function ApproachPage() {
         <ScrubMarquee text={MARQUEE} />
       </div>
 
-      <section className={`${styles.band} ${styles.light}`} data-scheme="light">
+      <section className={`${styles.band} ${styles.light} ${styles.starBand}`} data-scheme="light">
+        {/* Star field — same low-opacity overlay as the homepage panels;
+            the charcoal cards sit above it. */}
+        <div className={styles.stars} aria-hidden>
+          <StarField className="w-full h-full" count={22} />
+        </div>
         <div className={styles.wrap}>
           <Reveal className={styles.head}>
             <span className={styles.label}>[ In Practice ]</span>

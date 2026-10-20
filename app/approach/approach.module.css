@@ -61,6 +61,10 @@
 }
 
 .band { padding-block: clamp(56px, 9vw, 112px); }
+/* Band with a StarField behind its content (In Practice). */
+.starBand { position: relative; overflow: hidden; }
+.starBand > .wrap { position: relative; z-index: 1; }
+.stars { position: absolute; inset: 0; pointer-events: none; color: var(--fg); opacity: 0.4; }
 
 /* ─── Type ──────────────────────────────────────────────────────────── */
 .label {
