@@ -203,7 +203,7 @@ export default function ApproachPage() {
           </ol>
           <Reveal className={styles.toolbox} delay={0.5}>
             <span className={styles.label}>Tools&nbsp;→</span>
-            {["Pen & paper", "Miro", "Figma", "Illustrator", "Photoshop", "InDesign", "Claude Code"].map((t) => (
+            {["Pen & paper", "Miro", "Figma", "Illustrator", "Photoshop", "InDesign", "After Effects", "Claude Code"].map((t) => (
               <span key={t} className={styles.chip}>{t}</span>
             ))}
           </Reveal>
