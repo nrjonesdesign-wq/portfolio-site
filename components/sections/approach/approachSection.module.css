@@ -17,6 +17,13 @@
   gap: 16px;
 }
 
+/* The <li> only carries the entrance fade; the card itself is the link
+   inside it, stretched to the row height so all four stay equal. */
+.item {
+  display: flex;
+  min-width: 0;
+}
+
 /* Same card as /approach: no fill, 1px full-opacity --fg rule, square
    corners, 22px padding, 10px internal rhythm. */
 .step {
@@ -28,7 +35,10 @@
   display: grid;
   gap: 10px;
   align-content: start;
+  flex: 1;
   min-width: 0;
+  text-decoration: none;
+  cursor: inherit;
   transition: background-color 0.3s cubic-bezier(0.22, 1, 0.36, 1),
     color 0.3s cubic-bezier(0.22, 1, 0.36, 1),
     border-color 0.3s cubic-bezier(0.22, 1, 0.36, 1);
@@ -63,7 +73,8 @@
    redefined locally so the number, title, body and the "local" cursor
    colour all follow. */
 @media (hover: hover) and (pointer: fine) {
-  .step:hover {
+  .step:hover,
+  .step:focus-visible {
     --bg: var(--panel-fg);
     --fg: var(--panel-bg);
     --muted: color-mix(in srgb, var(--panel-bg) 70%, var(--panel-fg));

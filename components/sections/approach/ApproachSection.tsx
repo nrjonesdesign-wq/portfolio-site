@@ -141,8 +141,7 @@ export default function ApproachSection() {
           {APPROACH_STEPS.map((step, i) => (
             <motion.li
               key={step.title}
-              className={styles.step}
-              data-cursor-color="local"
+              className={styles.item}
               // Select Engagements pattern: opacity-only fade, one item
               // after another at STAGGER.item, following the teaser.
               initial={{ opacity: 0 }}
@@ -150,9 +149,21 @@ export default function ApproachSection() {
               viewport={{ once: true }}
               transition={{ delay: 1.0 + i * STAGGER.item, duration: DUR.base, ease: EASE }}
             >
-              <span className={styles.num}>[ 0{i + 1} ]</span>
-              <h3 className={styles.title}>{step.title}</h3>
-              <p className={`text-body ${styles.body}`}>{step.body}</p>
+              {/* Whole card links to /approach, same as the teaser pill.
+                  Plain <a> (full load), and anchors are already excluded
+                  from the click-to-advance handler. No data-magnetic —
+                  pulling the cursor toward a card-sized target feels off. */}
+              <a
+                href={APPROACH_HREF}
+                className={styles.step}
+                data-cursor="view"
+                data-cursor-color="local"
+                data-no-advance
+              >
+                <span className={styles.num}>[ 0{i + 1} ]</span>
+                <h3 className={styles.title}>{step.title}</h3>
+                <p className={`text-body ${styles.body}`}>{step.body}</p>
+              </a>
             </motion.li>
           ))}
         </ol>
