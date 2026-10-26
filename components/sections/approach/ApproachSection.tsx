@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import LetterCascade from "@/components/primitives/LetterCascade";
 import StarField from "@/components/starfield/StarField";
 import { DUR, EASE, STAGGER } from "@/lib/motion";
+import styles from "./approachSection.module.css";
 
 /* ─── Copy (shared with the mobile panel) ───────────────────────────────── */
 
@@ -132,55 +133,26 @@ export default function ApproachSection() {
           </motion.a>
         </motion.div>
 
-        <ol
-          style={{
-            gridColumn: "3 / 29",
-            listStyle: "none",
-            margin: 0,
-            padding: 0,
-            display: "grid",
-            gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
-            columnGap: "1.5rem", // = .content-grid column-gap
-          }}
-        >
+        {/* Same cards as the /approach Process section (styles mirror
+            app/approach/approach.module.css): 22px padding, 16px gutters,
+            muted step number, Geist 700 title, hover invert with the
+            cursor taking the card's local --fg. */}
+        <ol className={styles.steps} style={{ gridColumn: "3 / 29" }}>
           {APPROACH_STEPS.map((step, i) => (
             <motion.li
               key={step.title}
+              className={styles.step}
+              data-cursor-color="local"
               // Select Engagements pattern: opacity-only fade, one item
               // after another at STAGGER.item, following the teaser.
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
               transition={{ delay: 1.0 + i * STAGGER.item, duration: DUR.base, ease: EASE }}
-              style={{
-                // Same card as the /approach page: no fill, 1px full-
-                // opacity --fg stroke (the Work-row rule), square corners.
-                border: "1px solid var(--fg)",
-                padding: "1rem 1.1rem 1.15rem",
-                display: "flex",
-                flexDirection: "column",
-                gap: "0.5rem",
-                minWidth: 0,
-              }}
             >
-              <span className="text-label" style={{ color: "var(--fg)", whiteSpace: "nowrap" }}>
-                [ 0{i + 1} ]
-              </span>
-              <span
-                style={{
-                  fontFamily: "var(--font-body)",
-                  fontSize: "1.1875rem", // project-row name: Geist 700 19px
-                  fontWeight: 700,
-                  letterSpacing: "0.01em",
-                  lineHeight: 1.2,
-                  color: "var(--fg)",
-                }}
-              >
-                {step.title}
-              </span>
-              <span className="text-body" style={{ color: "var(--fg)", lineHeight: 1.45 }}>
-                {step.body}
-              </span>
+              <span className={styles.num}>[ 0{i + 1} ]</span>
+              <h3 className={styles.title}>{step.title}</h3>
+              <p className={`text-body ${styles.body}`}>{step.body}</p>
             </motion.li>
           ))}
         </ol>

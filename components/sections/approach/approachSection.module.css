@@ -1,0 +1,74 @@
+/* Homepage Approach panel — process cards.
+   Mirrors the /approach Process cards (app/approach/approach.module.css:
+   .steps / .steps li / hover invert) so the two read as one component.
+   Kept in a module, not globals.css (CLAUDE.md build gotcha #1). */
+
+/* Snapshot the panel's live scheme (root --bg / --fg, set by
+   useColorScheme) so a hovered card can swap them without a var cycle. */
+.steps {
+  --panel-bg: var(--bg);
+  --panel-fg: var(--fg);
+  --muted: color-mix(in srgb, var(--panel-fg) 72%, var(--panel-bg));
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+/* Same card as /approach: no fill, 1px full-opacity --fg rule, square
+   corners, 22px padding, 10px internal rhythm. */
+.step {
+  background: transparent;
+  color: var(--fg);
+  border: 1px solid var(--fg);
+  border-radius: 0;
+  padding: 22px;
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  min-width: 0;
+  transition: background-color 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    color 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.num {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.8125rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--muted);
+}
+
+.title {
+  font-family: var(--font-geist), sans-serif;
+  font-weight: 700;
+  font-size: 1.1875rem;
+  letter-spacing: 0.01em;
+  line-height: 1.25;
+  margin: 0;
+  text-wrap: balance;
+}
+
+.body {
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Hover invert (pointer devices): the card takes the panel's text colour
+   as its fill and the panel's background as its type. Tokens are
+   redefined locally so the number, title, body and the "local" cursor
+   colour all follow. */
+@media (hover: hover) and (pointer: fine) {
+  .step:hover {
+    --bg: var(--panel-fg);
+    --fg: var(--panel-bg);
+    --muted: color-mix(in srgb, var(--panel-bg) 70%, var(--panel-fg));
+    background: var(--bg);
+    color: var(--fg);
+    border-color: var(--fg);
+  }
+}
