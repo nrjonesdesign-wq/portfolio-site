@@ -1319,20 +1319,42 @@ function MobileReelTile({
           )}
         </>
       ) : item.kind === "image" ? (
-        <img
-          src={item.src}
-          alt={item.alt}
-          onClick={() =>
-            onZoomImage?.({ src: item.src, alt: item.alt })
-          }
-          style={{
-            width: "100%",
-            height: isContain ? "auto" : "100%",
-            objectFit: isContain ? "contain" : fit,
-            display: "block",
-            cursor: onZoomImage ? "zoom-in" : "default",
-          }}
-        />
+        <>
+          <img
+            src={item.src}
+            alt={item.alt}
+            onClick={() =>
+              onZoomImage?.({ src: item.src, alt: item.alt })
+            }
+            style={{
+              width: "100%",
+              height: isContain ? "auto" : "100%",
+              objectFit: isContain ? "contain" : fit,
+              display: "block",
+              cursor: onZoomImage ? "zoom-in" : "default",
+            }}
+          />
+          {item.label && (
+            <span
+              aria-hidden
+              style={{
+                // Same treatment as the audio hint above.
+                position: "absolute",
+                left: "1rem",
+                bottom: "1rem",
+                color: "#ffffff",
+                mixBlendMode: "difference",
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--fs-sm)",
+                textTransform: "uppercase",
+                letterSpacing: "0.04em",
+                pointerEvents: "none",
+              }}
+            >
+              [ {item.label} ]
+            </span>
+          )}
+        </>
       ) : (
         // YouTube: only mount the iframe when the tile is visible, so
         // we don't burn bandwidth pre-loading every embed on mount.

@@ -297,6 +297,8 @@ The `View Work` link uses `data-no-advance` so the global click-advance handler 
 
 Project group labels (HIRED / INSPIRED) and inter-row strokes are full opacity (`var(--fg)` directly, no `color-mix` transparency).
 
+**Reel labels**: image `ReelItem`s take an optional `label`, rendered bottom-left on the case-study reel tile (desktop `ReelTileContent`, mobile `MobileCaseStudyPanel`) as `[ LABEL ]` in the audio hint's style: Geist Mono, uppercase, white with `mix-blend-mode: difference`, `pointer-events: none` so the lightbox click still lands. Only Velvet Isles uses it so far.
+
 ## Approach page (`/approach`)
 
 Standalone route (`app/approach/`), not a snap panel. Plain scrolling page built with a CSS module (`approach.module.css`) so its `@media` rules stay out of globals.css (see Build Gotcha #1).

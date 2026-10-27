@@ -2130,6 +2130,23 @@ type ReelTile = {
  *  click unmutes + restarts from t=0 + tells the parent reel to pause
  *  auto-scroll via `onAudioActiveChange`. A second click re-mutes and
  *  resumes scrolling. */
+/** Caption overlay for labelled reel images. Mirrors the
+ *  "[ click to play audio ]" hint: mono, uppercase, white with
+ *  mix-blend difference so it reads on any image. */
+const REEL_LABEL_STYLE: React.CSSProperties = {
+  position: "absolute",
+  left: "1rem",
+  bottom: "1rem",
+  fontFamily: "var(--font-mono)",
+  fontSize: "0.6875rem",
+  textTransform: "uppercase",
+  letterSpacing: "0.04em",
+  color: "#ffffff",
+  mixBlendMode: "difference",
+  opacity: 0.85,
+  pointerEvents: "none",
+};
+
 function ReelTileContent({
   item,
   fit = "cover",
@@ -2186,9 +2203,38 @@ function ReelTileContent({
       />
     );
   }
+  const label = item.label ? (
+    <span aria-hidden style={REEL_LABEL_STYLE}>
+      [ {item.label} ]
+    </span>
+  ) : null;
   if (sizingMode === "natural") {
     return (
-      // eslint-disable-next-line @next/next/no-img-element
+      <div style={{ height: "100%", position: "relative", display: "block" }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={item.src}
+          alt={item.alt}
+          onClick={
+            onZoomImage
+              ? () => onZoomImage({ src: item.src, alt: item.alt })
+              : undefined
+          }
+          style={{
+            height: "100%",
+            width: "auto",
+            display: "block",
+            objectFit: fit,
+            cursor: onZoomImage ? "zoom-in" : undefined,
+          }}
+        />
+        {label}
+      </div>
+    );
+  }
+  return (
+    <>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={item.src}
         alt={item.alt}
@@ -2198,35 +2244,17 @@ function ReelTileContent({
             : undefined
         }
         style={{
+          position: "absolute",
+          inset: 0,
+          width: "100%",
           height: "100%",
-          width: "auto",
-          display: "block",
           objectFit: fit,
+          display: "block",
           cursor: onZoomImage ? "zoom-in" : undefined,
         }}
       />
-    );
-  }
-  return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={item.src}
-      alt={item.alt}
-      onClick={
-        onZoomImage
-          ? () => onZoomImage({ src: item.src, alt: item.alt })
-          : undefined
-      }
-      style={{
-        position: "absolute",
-        inset: 0,
-        width: "100%",
-        height: "100%",
-        objectFit: fit,
-        display: "block",
-        cursor: onZoomImage ? "zoom-in" : undefined,
-      }}
-    />
+      {label}
+    </>
   );
 }
 

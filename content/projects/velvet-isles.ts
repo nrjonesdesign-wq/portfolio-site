@@ -1,8 +1,9 @@
 import { type Project } from "./types";
 
-const reel = (file: string, alt: string) => ({
+const reel = (file: string, label: string, alt: string) => ({
   kind: "image" as const,
   src: `/case-study/velvet-isles/${file}`,
+  label,
   alt,
 });
 
@@ -35,19 +36,19 @@ export const velvetIsles: Project = {
           "Brand Identity, Logo Design, Typography, Packaging, Art Direction, Brand Guidelines",
         credits: [],
         reel: [
-          reel("VI_01-cover.jpg", "Velvet Isles — Brand Manifest cover"),
-          reel("VI_03a-territory-modern-minimalism.jpg", "Velvet Isles — design territory 1, Modern Minimalism type specimen"),
-          reel("VI_03b-territory-bespoke-batches.jpg", "Velvet Isles — design territory 2, Bespoke Batches type specimen"),
-          reel("VI_03c-territory-historic-heritage.jpg", "Velvet Isles — design territory 3, Historic Heritage type specimen"),
-          reel("VI_04-suites.jpg", "Velvet Isles — packaging mockups for three design suites"),
-          reel("VI_05-suite3-digital.jpg", "Velvet Isles — Heritage Modern product list"),
-          reel("VI_06-wordmark.jpg", "Velvet Isles — wordmark"),
-          reel("VI_07-fixmark.jpg", "Velvet Isles — fixmark"),
-          reel("VI_08-type.jpg", "Velvet Isles — type families"),
-          reel("VI_09-colors.jpg", "Velvet Isles — product and utility colors"),
-          reel("VI_10-products.jpg", "Velvet Isles — product range by color"),
-          reel("VI_11-texture.jpg", "Velvet Isles — texture, form grid, and stamps"),
-          reel("VI_12-illustration.jpg", "Velvet Isles — herbarium-style illustration"),
+          reel("VI_01-cover.jpg", "Brand Manifest", "Velvet Isles — Brand Manifest cover"),
+          reel("VI_03a-territory-modern-minimalism.jpg", "Territory 1 · Modern Minimalism", "Velvet Isles — design territory 1, Modern Minimalism type specimen"),
+          reel("VI_03b-territory-bespoke-batches.jpg", "Territory 2 · Bespoke Batches", "Velvet Isles — design territory 2, Bespoke Batches type specimen"),
+          reel("VI_03c-territory-historic-heritage.jpg", "Territory 3 · Historic Heritage", "Velvet Isles — design territory 3, Historic Heritage type specimen"),
+          reel("VI_04-suites.jpg", "Suites 1–3 · Stamp-forward, Clean & Contemporary, Heritage Modern", "Velvet Isles — packaging mockups for three design suites"),
+          reel("VI_05-suite3-digital.jpg", "Suite 3 · Heritage Modern · Digital", "Velvet Isles — Heritage Modern product list"),
+          reel("VI_06-wordmark.jpg", "Manifest · Wordmark", "Velvet Isles — wordmark"),
+          reel("VI_07-fixmark.jpg", "Manifest · Fixmark", "Velvet Isles — fixmark"),
+          reel("VI_08-type.jpg", "Manifest · Type Families", "Velvet Isles — type families"),
+          reel("VI_09-colors.jpg", "Manifest · Colors", "Velvet Isles — product and utility colors"),
+          reel("VI_10-products.jpg", "Manifest · Products", "Velvet Isles — product range by color"),
+          reel("VI_11-texture.jpg", "Manifest · Texture, Grids & Stamps", "Velvet Isles — texture, form grid, and stamps"),
+          reel("VI_12-illustration.jpg", "Manifest · Illustration", "Velvet Isles — herbarium-style illustration"),
         ],
       },
     },

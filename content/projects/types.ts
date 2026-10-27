@@ -50,6 +50,9 @@ export type ReelItem =
       kind: "image";
       src: string;
       alt: string;
+      /** Optional caption overlaid bottom-left on the case-study reel
+       *  tile, in the same mono style as the audio hint. */
+      label?: string;
       /** Same per-asset preview dwell override as the video kind. */
       previewDwellMs?: number;
     };
