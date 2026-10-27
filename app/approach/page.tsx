@@ -62,7 +62,7 @@ const PROJECTS: {
     meta: "Self-initiated · Daily newsletter",
     title: "Morning Brief",
     body: "A daily newsletter I designed, built, and run. It pulls from 598 curated sources across 49 sections, sorted by an AI curation layer that follows an editorial perspective I wrote myself. It arrives as an HTML email built to hold up across mail clients. Under the hood: Python, the Claude API, RSS parsing, and GitHub Actions.",
-    soon: true,
+    link: { href: "/#morning-brief", label: "[ View case study ]" },
   },
   {
     meta: "Self-initiated · This site",

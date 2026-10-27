@@ -11,6 +11,7 @@ import { revolutionaryChange } from "./revolutionary-change";
 import { velvetIsles } from "./velvet-isles";
 import { tuesgay } from "./tuesgay";
 import { paintings } from "./paintings";
+import { morningBrief } from "./morning-brief";
 import type { Project } from "./types";
 
 export const HIRED: Project[] = [
@@ -20,7 +21,7 @@ export const HIRED: Project[] = [
   velvetIsles,
 ];
 
-export const INSPIRED: Project[] = [tuesgay, paintings];
+export const INSPIRED: Project[] = [tuesgay, paintings, morningBrief];
 
 export const ALL_PROJECTS: Project[] = [...HIRED, ...INSPIRED];
 
