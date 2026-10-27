@@ -56,7 +56,7 @@ const PROJECTS: {
     meta: "Brand identity",
     title: "Velvet Isles",
     body: "The client came in with a detailed brief, which gave me a lot to work from. As with every project, I got the client to yes through close collaboration, iteration, and refinement.",
-    soon: true,
+    link: { href: "/#velvet-isles", label: "[ View case study ]" },
   },
   {
     meta: "Self-initiated · Daily newsletter",

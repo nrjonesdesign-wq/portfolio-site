@@ -210,7 +210,7 @@ export default function WorkSection({
 
   // Report case-study PROJECT slug changes upward so page.tsx can
   // include it in its workAccent derivation. The internal caseStudySlug
-  // stores an item.number ("01"…"07"), so map it back to the owning
+  // stores an item.number ("01"…"08"), so map it back to the owning
   // project's slug for accent purposes (INSPIRED_SLUGS check in
   // page.tsx is by project slug).
   useEffect(() => {

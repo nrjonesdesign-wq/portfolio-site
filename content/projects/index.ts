@@ -8,6 +8,7 @@
 import { bloombergLp } from "./bloomberg-lp";
 import { liquidAgency } from "./liquid-agency";
 import { revolutionaryChange } from "./revolutionary-change";
+import { velvetIsles } from "./velvet-isles";
 import { tuesgay } from "./tuesgay";
 import { paintings } from "./paintings";
 import type { Project } from "./types";
@@ -16,6 +17,7 @@ export const HIRED: Project[] = [
   bloombergLp,
   liquidAgency,
   revolutionaryChange,
+  velvetIsles,
 ];
 
 export const INSPIRED: Project[] = [tuesgay, paintings];
