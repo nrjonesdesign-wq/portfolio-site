@@ -35,12 +35,21 @@ export const morningBrief: Project = {
         reelAspect: "8 / 5",
         reel: [
           {
-            kind: "image",
-            src: "/case-study/morning-brief/hero-devices.jpg",
-            alt: "Morning Brief on laptop and phone — Food and Science & Nature sections",
+            // Laptop (Food) + phone (Science & Nature); the phone's
+            // river-mussels photo runs its looping water-light animation.
+            kind: "video",
+            src: "/videos/morning-brief/hero-devices.mp4",
+            poster: "/videos/morning-brief/hero-devices-poster.jpg",
+            hasAudio: false,
+            title: "Morning Brief on laptop and phone — Food and Science & Nature sections",
             // The article photos in every mockup are AI stand-ins for the
             // newswire images the live issue pulls from each source.
             label: "Stand-in article images",
+          },
+          {
+            kind: "image",
+            src: "/case-study/morning-brief/news-politics-devices.jpg",
+            alt: "Morning Brief News & Politics on three phones — World Headlines, Palestine coverage, and The Helpers",
           },
           {
             kind: "video",
@@ -53,7 +62,7 @@ export const morningBrief: Project = {
           {
             kind: "image",
             src: "/case-study/morning-brief/breadth-spread.jpg",
-            alt: "Morning Brief — all ten section mastheads and 42 subsections from one issue",
+            alt: "Morning Brief — ten sections and their 41 subsections, each with its tagline",
           },
           {
             kind: "video",
@@ -67,11 +76,6 @@ export const morningBrief: Project = {
             kind: "image",
             src: "/case-study/morning-brief/editorial-voice.jpg",
             alt: "Morning Brief editorial voice — Direct, substantive, unfussy. Active voice. Name things plainly.",
-          },
-          {
-            kind: "image",
-            src: "/case-study/morning-brief/practice-craft-devices.jpg",
-            alt: "Morning Brief Practice & Craft section — designer, illustrator, and studio spotlights",
           },
           {
             kind: "video",

@@ -1324,6 +1324,26 @@ function MobileReelTile({
               [ {muted ? "Click to play audio" : "Click to mute"} ]
             </button>
           )}
+          {item.hasAudio === false && item.label && (
+            <span
+              aria-hidden
+              style={{
+                // Same treatment as the image label below.
+                position: "absolute",
+                left: "1rem",
+                bottom: "1rem",
+                color: "#ffffff",
+                mixBlendMode: "difference",
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--fs-sm)",
+                textTransform: "uppercase",
+                letterSpacing: "0.04em",
+                pointerEvents: "none",
+              }}
+            >
+              [ {item.label} ]
+            </span>
+          )}
         </>
       ) : item.kind === "image" ? (
         <>

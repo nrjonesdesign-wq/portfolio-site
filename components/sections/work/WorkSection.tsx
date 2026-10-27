@@ -2361,6 +2361,11 @@ function VideoReelTile({
             [ {audioActive ? "click to mute" : "click to play audio"} ]
           </span>
         )}
+        {!audioInteractive && item.label && (
+          <span aria-hidden style={REEL_LABEL_STYLE}>
+            [ {item.label} ]
+          </span>
+        )}
       </div>
     );
   }
@@ -2431,6 +2436,11 @@ function VideoReelTile({
           }}
         >
           [ {audioActive ? "click to mute" : "click to play audio"} ]
+        </span>
+      )}
+      {!audioInteractive && item.label && (
+        <span aria-hidden style={REEL_LABEL_STYLE}>
+          [ {item.label} ]
         </span>
       )}
     </div>

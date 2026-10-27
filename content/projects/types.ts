@@ -35,6 +35,10 @@ export type ReelItem =
        *  Defaults to false (no overlay) so muted-only MP4s don't
        *  promise audio they don't have. */
       hasAudio?: boolean;
+      /** Optional caption, bottom-left in the same mono style as image
+       *  labels. Shown only on silent clips (`hasAudio: false`), since
+       *  the audio hint uses the same spot. */
+      label?: string;
       /** Override the accordion-preview cross-fade dwell for this asset
        *  (milliseconds). Useful when an intro animation needs more time
        *  to play before the slide moves on. */
