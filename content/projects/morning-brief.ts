@@ -27,6 +27,12 @@ export const morningBrief: Project = {
         services:
           "Editorial design, information architecture, HTML email design, typography, prompt design, Python development, automation",
         credits: [],
+        // Override the INSPIRED horizontal default: these are wide
+        // device mockups and screen captures, which read best stacked.
+        reelDirection: "vertical",
+        // Every slide and clip is 2400×1500 (16:10) — match it so tiles
+        // show each one full width, uncropped.
+        reelAspect: "8 / 5",
         reel: [
           {
             kind: "image",

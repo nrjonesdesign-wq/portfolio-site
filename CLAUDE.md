@@ -297,6 +297,8 @@ The `View Work` link uses `data-no-advance` so the global click-advance handler 
 
 Project group labels (HIRED / INSPIRED) and inter-row strokes are full opacity (`var(--fg)` directly, no `color-mix` transparency).
 
+**Reel axis + tile ratio overrides**: `CaseStudyContent.reelDirection` overrides the desktop reel's group default (HIRED vertical, INSPIRED horizontal); the mobile reel is always vertical. `reelAspect` sets the tile ratio for `cover` reels on desktop and mobile (default `"16 / 9"`) — set it to the assets' own ratio so slides fill the width uncropped. Morning Brief uses `vertical` + `"8 / 5"` (its slides and clips are all 2400×1500).
+
 **Reel labels**: image `ReelItem`s take an optional `label`, rendered bottom-left on the case-study reel tile (desktop `ReelTileContent`, mobile `MobileCaseStudyPanel`) as `[ LABEL ]` in the audio hint's style: Geist Mono, uppercase, white with `mix-blend-mode: difference`, `pointer-events: none` so the lightbox click still lands. Used by Velvet Isles and Morning Brief (hero tile).
 
 ## Approach page (`/approach`)

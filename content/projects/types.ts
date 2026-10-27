@@ -98,6 +98,14 @@ export type CaseStudyContent = {
    *  custom value when a project wants its letterbox / negative space
    *  to read truly black rather than the slightly warm ink tone. */
   reelBg?: string;
+  /** Desktop reel scroll axis. Defaults to the group rule: HIRED (sky)
+   *  scrolls vertically, INSPIRED (mint) horizontally. Set to override
+   *  for one case study. (The mobile reel is always vertical.) */
+  reelDirection?: "vertical" | "horizontal";
+  /** Tile aspect ratio for "cover" reels, as a CSS aspect-ratio value.
+   *  Defaults to "16 / 9". Set it to the assets' own ratio (e.g. "8 / 5"
+   *  for 2400×1500 mockups) so slides fill the tile width uncropped. */
+  reelAspect?: string;
 };
 
 export type ProjectItem = {

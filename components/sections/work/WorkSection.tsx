@@ -1649,10 +1649,14 @@ function CaseStudyPanel({
         >
           <CaseStudyReel
             slug={`${project.slug}-${item.number}`}
-            direction={project.accent === "mint" ? "horizontal" : "vertical"}
+            direction={
+              cs.reelDirection ??
+              (project.accent === "mint" ? "horizontal" : "vertical")
+            }
             accentVar={accentVar}
             items={cs.reel}
             fit={cs.reelFit ?? "cover"}
+            aspect={cs.reelAspect}
             bg={cs.reelBg}
             onZoomImage={setZoomedImage}
           />
@@ -1928,6 +1932,7 @@ function CaseStudyReel({
   accentVar,
   items,
   fit = "cover",
+  aspect = "16 / 9",
   bg,
   onZoomImage,
 }: {
@@ -1935,9 +1940,11 @@ function CaseStudyReel({
   direction: "vertical" | "horizontal";
   accentVar: string;
   items?: ReelItem[];
-  /** How each tile's media fills the 16:9 frame. "cover" crops to fill;
+  /** How each tile's media fills its frame. "cover" crops to fill;
    *  "contain" letterboxes the asset against the ink frame. */
   fit?: "cover" | "contain";
+  /** Tile aspect ratio (CSS aspect-ratio value). Default 16:9. */
+  aspect?: string;
   /** CSS color override for the tile / container background. */
   bg?: string;
   /** Image tiles call this to open the click-to-zoom lightbox. */
@@ -2075,7 +2082,7 @@ function CaseStudyReel({
                   : isHorizontalContain
                     ? "auto"
                     : "min(70vw, 980px)",
-                aspectRatio: isHorizontalContain ? undefined : "16 / 9",
+                aspectRatio: isHorizontalContain ? undefined : aspect,
                 height: isVertical ? undefined : "100%",
                 position: "relative",
                 overflow: "hidden",
