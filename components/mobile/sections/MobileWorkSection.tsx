@@ -78,11 +78,15 @@ export default function MobileWorkSection({
     if (!row) return;
     // Delay so the AnimatePresence open animation begins before we
     // adjust scroll position.
+    // The document is the scroller (the section grows to fit its
+    // content), so scroll the window: row lands 80px below the nav, but
+    // never above the section's own snap stop (section top under nav).
     const t = window.setTimeout(() => {
-      const sectionTop = section.getBoundingClientRect().top;
-      const rowTop = row.getBoundingClientRect().top;
-      const target = section.scrollTop + (rowTop - sectionTop) - 80;
-      section.scrollTo({ top: Math.max(0, target), behavior: "smooth" });
+      const navH =
+        parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
+      const sectionStop = window.scrollY + section.getBoundingClientRect().top - navH;
+      const target = window.scrollY + row.getBoundingClientRect().top - navH - 80;
+      window.scrollTo({ top: Math.max(sectionStop, target), behavior: "smooth" });
     }, 60);
     return () => window.clearTimeout(t);
   }, [openSlug]);
@@ -97,24 +101,24 @@ export default function MobileWorkSection({
         backgroundColor: "var(--bg)",
         color: "var(--fg)",
         position: "relative",
-        // Free vertical scroll within the section. Accordion content
-        // flows naturally from the top of the visible area; when a
-        // drawer opens and its content exceeds one viewport, the user
-        // scrolls within the section to see all of it.
-        // overscroll-behavior: auto (default) so reaching top/bottom
-        // chains to main's scroll-snap, letting the user step to the
-        // previous / next section.
-        height: "100dvh",
-        overflowY: "auto",
-        WebkitOverflowScrolling: "touch",
+        // NOT its own scroll container. The section grows to fit the
+        // project list (at least one screen tall) and the document
+        // scrolls through it. MobileHome gives a taller-than-screen panel
+        // a snap anchor as tall as the panel, so the page scrolls freely
+        // inside Work and snaps only at its top and on to Approach. (An
+        // inner overflow-y scroller nested in the mandatory-snap document
+        // fought it: once the list outgrew the screen, swipes scrolled
+        // the list a little, then chained and snapped to the next panel.)
+        // Overrides .snap's fixed 100vh + overflow: hidden.
+        height: "auto",
+        minHeight: "100dvh",
+        overflow: "clip",
         boxSizing: "border-box",
         paddingTop: "1.25rem",
-        // When a drawer is open, add a bottom spacer so the user can
-        // scroll the page up past the last project's content — bringing
-        // its VIEW WORK button comfortably into view before the scroll
-        // chains to main's snap (→ Contact). Closed accordion stays
-        // compact so it doesn't scroll needlessly.
-        paddingBottom: openSlug ? "28vh" : "1.5rem",
+        // Closed: clear the fixed footer so the last row isn't hidden
+        // under it at the end of the section. Open: a taller spacer so
+        // the last project's drawer can scroll up under the headline.
+        paddingBottom: openSlug ? "28vh" : "calc(var(--m-foot-h) + 1.5rem)",
       }}
     >
       {/* "Select Work" headline — same styling as Name screen's

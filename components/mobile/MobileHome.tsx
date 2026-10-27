@@ -46,7 +46,12 @@ export default function MobileHome() {
   // Instead, panels don't snap themselves; an invisible anchor per panel,
   // exactly snapport-tall, gives one deterministic stop: panel top just
   // below the nav (where menu jumps / deep links land too).
-  const [anchorTops, setAnchorTops] = useState<number[]>([]);
+  // A panel taller than the screen (Work, once its list outgrows one
+  // screen) gets an anchor as tall as the panel instead: a snap area
+  // larger than the snapport lets the page rest anywhere inside it, so
+  // the user scrolls through the panel natively and snaps only at its
+  // top and on to the next panel. `height: null` = the standard anchor.
+  const [anchors, setAnchors] = useState<{ top: number; height: number | null }[]>([]);
   useEffect(() => {
     const main = document.querySelector("main");
     if (!main) return;
@@ -55,13 +60,25 @@ export default function MobileHome() {
     panels.forEach((el) => { el.style.scrollSnapAlign = "none"; });
     const measure = () => {
       const mainTop = main.getBoundingClientRect().top;
-      setAnchorTops(panels.map((el) => Math.round(el.getBoundingClientRect().top - mainTop)));
+      const vh = window.innerHeight;
+      setAnchors(
+        panels.map((el) => {
+          const h = el.offsetHeight;
+          return {
+            top: Math.round(el.getBoundingClientRect().top - mainTop),
+            height: h > vh + 1 ? h : null,
+          };
+        }),
+      );
     };
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(main);
+    panels.forEach((el) => ro.observe(el));
+    window.addEventListener("resize", measure);
     return () => {
       ro.disconnect();
+      window.removeEventListener("resize", measure);
       panels.forEach((el, i) => { el.style.scrollSnapAlign = prev[i]; });
     };
   }, []);
@@ -138,12 +155,11 @@ export default function MobileHome() {
     }
   }, [activeSection]);
 
-  // No in-Work wheel/touch handlers any more — the WORK section is
-  // its own scroll container (overflow-y: auto), so the user scrolls
-  // freely within it via native gestures. Reaching the top / bottom
-  // chains back to the document's scroll-snap to step into Name / Contact.
-  // Project drawers expand on tap; multi-item drawers scroll within
-  // the section without any custom JS.
+  // No in-Work wheel/touch handlers — WORK is not its own scroller. It
+  // grows to fit its project list and the document scrolls through it;
+  // a panel taller than the screen gets a panel-tall snap anchor (see
+  // the anchors effect above), so native scrolling moves freely inside
+  // Work and snaps only at its top and on to Name / Approach.
 
   // Snap each mobile section to its own viewport stop. The shared
   // .snapping rule in globals.css applies scroll-snap-type: y mandatory
@@ -266,19 +282,26 @@ export default function MobileHome() {
       if (id === "contact") return "contact";
       return "loading";
     };
+    // Ratio = share of the VIEWPORT a section covers, not share of the
+    // section that's visible: Work can be taller than the screen, and a
+    // section-relative ratio would never pass 0.5 for it. Fine thresholds
+    // so a tall section still reports often enough.
+    const thresholds = Array.from({ length: 21 }, (_, i) => i / 20);
     const observer = new IntersectionObserver(
       (entries) => {
         let best: { id: string; ratio: number } | null = null;
         for (const e of entries) {
-          if (!best || e.intersectionRatio > best.ratio) {
-            best = { id: e.target.id, ratio: e.intersectionRatio };
+          const rootH = e.rootBounds?.height || window.innerHeight;
+          const ratio = e.intersectionRect.height / rootH;
+          if (!best || ratio > best.ratio) {
+            best = { id: e.target.id, ratio };
           }
         }
         if (best && best.ratio > 0.5) {
           setActiveSection(sectionForId(best.id));
         }
       },
-      { threshold: [0.25, 0.5, 0.75] },
+      { threshold: thresholds },
     );
     for (const id of ids) {
       const el = document.getElementById(id);
@@ -353,7 +376,7 @@ export default function MobileHome() {
         } as React.CSSProperties
       }
     >
-      {anchorTops.map((top, i) => (
+      {anchors.map(({ top, height }, i) => (
         <div
           key={`snap-${i}`}
           aria-hidden
@@ -362,7 +385,7 @@ export default function MobileHome() {
             top,
             left: 0,
             width: 1,
-            height: "calc(100dvh - var(--m-nav-h))",
+            height: height ?? "calc(100dvh - var(--m-nav-h))",
             scrollSnapAlign: "start",
             scrollSnapStop: "always",
             pointerEvents: "none",
