@@ -223,14 +223,21 @@ export function ChromeBackdrop({ edge }: { edge: "top" | "bottom" }) {
   // bg of WORK):
   //   - blur layer fills the whole band uniformly (no mask, so no hard
   //     edge — backdrop-filter just softens whatever is behind it),
-  //   - tint layer is a vertical gradient from a subtle bg-tinted band
-  //     near the outer edge to fully transparent at the inner edge, so
-  //     the chrome fades into the page rather than reading as a solid
-  //     band.
-  const tint =
+  //   - tint layer fades from a subtle bg-tinted band near the outer
+  //     edge to fully transparent at the inner edge, so the chrome
+  //     fades into the page rather than reading as a solid band.
+  // The tint is a SOLID background-color shaped by its own mask, not a
+  // gradient background: gradients can't be transitioned, so a
+  // gradient tint snapped to a new section's colour instantly while
+  // html / body / .snap faded over 1.4s — mismatched bands at the top
+  // and bottom on every section change. A background-color does fade,
+  // in lockstep with the page. (Mask is on the tint layer only, never
+  // on the blur layer — see the backdrop-filter note below.)
+  // Alpha profile = the old gradient's: 55% → 30% at 55% → 0.
+  const tintMask =
     edge === "top"
-      ? "linear-gradient(to bottom, color-mix(in srgb, var(--bg) 55%, transparent) 0%, color-mix(in srgb, var(--bg) 30%, transparent) 55%, transparent 100%)"
-      : "linear-gradient(to top, color-mix(in srgb, var(--bg) 55%, transparent) 0%, color-mix(in srgb, var(--bg) 30%, transparent) 55%, transparent 100%)";
+      ? "linear-gradient(to bottom, black 0%, rgba(0,0,0,0.545) 55%, transparent 100%)"
+      : "linear-gradient(to top, black 0%, rgba(0,0,0,0.545) 55%, transparent 100%)";
   // Fade the whole backdrop (blur + tint) toward the inner edge so it
   // doesn't end in a hard horizontal cut. The mask lives on a WRAPPER,
   // and the backdrop-filter on a CHILD — putting `backdrop-filter` and
@@ -260,8 +267,16 @@ export function ChromeBackdrop({ edge }: { edge: "top" | "bottom" }) {
           inset: 0,
           backdropFilter: "blur(14px) saturate(1.2)",
           WebkitBackdropFilter: "blur(14px) saturate(1.2)",
-          background: tint,
-          transition: "background 1.4s cubic-bezier(0.22, 1, 0.36, 1)",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          backgroundColor: "color-mix(in srgb, var(--bg) 55%, transparent)",
+          maskImage: tintMask,
+          WebkitMaskImage: tintMask,
+          transition: "background-color 1.4s cubic-bezier(0.22, 1, 0.36, 1)",
         }}
       />
     </div>
