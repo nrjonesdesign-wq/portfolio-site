@@ -36,7 +36,9 @@ export const velvetIsles: Project = {
         credits: [],
         reel: [
           reel("VI_01-cover.jpg", "Velvet Isles — Brand Manifest cover"),
-          reel("VI_03-territories.jpg", "Velvet Isles — type specimens for three design territories"),
+          reel("VI_03a-territory-modern-minimalism.jpg", "Velvet Isles — design territory 1, Modern Minimalism type specimen"),
+          reel("VI_03b-territory-bespoke-batches.jpg", "Velvet Isles — design territory 2, Bespoke Batches type specimen"),
+          reel("VI_03c-territory-historic-heritage.jpg", "Velvet Isles — design territory 3, Historic Heritage type specimen"),
           reel("VI_04-suites.jpg", "Velvet Isles — packaging mockups for three design suites"),
           reel("VI_05-suite3-digital.jpg", "Velvet Isles — Heritage Modern product list"),
           reel("VI_06-wordmark.jpg", "Velvet Isles — wordmark"),
