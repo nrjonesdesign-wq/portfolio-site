@@ -26,30 +26,8 @@ export const morningBrief: Project = {
         // Self-initiated — no client, so the CLIENT meta block is skipped.
         services:
           "Editorial design, information architecture, HTML email design, typography, prompt design, Python development, automation",
-        // Real photos standing in for the Food section's article images.
-        // CC BY photos require attribution; CC0 / Unsplash are credited as a courtesy.
-        credits: [
-          {
-            role: "Photo, kobujime",
-            person: "Naotake Murayama, CC BY 2.0",
-            href: "https://commons.wikimedia.org/wiki/File:Kobu_Jime_(Sashimi_Marinated_on_Kombu_Seaweed)_(5095532256).jpg",
-          },
-          {
-            role: "Photo, boneset",
-            person: "Superior National Forest, CC BY 2.0",
-            href: "https://commons.wikimedia.org/wiki/File:Eupatorium_perfoliatum_1_(5097903790).jpg",
-          },
-          {
-            role: "Photo, fresh pasta",
-            person: "Vincent Dörig / Unsplash",
-            href: "https://unsplash.com/photos/a-person-is-using-a-pasta-machine-to-make-pasta-mciRIMaxiAM",
-          },
-          {
-            role: "Photos, char siu bao & preserves",
-            person: "Wikimedia Commons, CC0",
-            href: "https://commons.wikimedia.org/wiki/File:Canned_jams,_salsa,_ketchup,_chutney,_tomato_sauce,_tomato_paste_pickles,_bruscetta_(20090617359).jpg",
-          },
-        ],
+        // No Credits list; the two CC BY photos are credited in reel labels.
+        credits: [],
         // Override the INSPIRED horizontal default: these are wide
         // device mockups and screen captures, which read best stacked.
         reelDirection: "vertical",
@@ -67,7 +45,9 @@ export const morningBrief: Project = {
             title: "Morning Brief on laptop and phone — Food and Science & Nature sections",
             // The article photos in every mockup are AI stand-ins for the
             // newswire images the live issue pulls from each source.
-            label: "Stand-in article images",
+            // The kobujime photo shows at the foot of the laptop screen;
+            // it's CC BY 2.0, so it's credited here (no Credits list).
+            label: "Stand-in article images · Photo: N. Murayama, CC BY 2.0",
           },
           {
             kind: "image",
@@ -94,6 +74,8 @@ export const morningBrief: Project = {
             // Silent screen capture — no audio track, so no play-audio hint.
             hasAudio: false,
             title: "Morning Brief — scrolling the Food section on a laptop",
+            // CC BY 2.0 photos in this clip need visible credit.
+            label: "Photos: N. Murayama, Superior Natl. Forest · CC BY 2.0",
           },
           {
             kind: "image",
