@@ -28,7 +28,7 @@ export default function MobileContactSection() {
         backgroundColor: "var(--bg)",
         color: "var(--fg)",
         position: "relative",
-        height: "100dvh",
+        height: "100lvh",
         overflow: "hidden",
       }}
     >
@@ -50,7 +50,7 @@ export default function MobileContactSection() {
           top: 0,
           left: 0,
           right: 0,
-          height: "calc(100dvh - var(--m-nav-h) - var(--m-foot-h))",
+          height: "calc(100svh - var(--m-nav-h) - var(--m-foot-h))",
           display: "grid",
           gridTemplateRows: "1fr auto 1fr",
         }}

@@ -39,7 +39,7 @@ export default function MobileLoadingSection({ inverted, onAdvance }: Props) {
       style={{
         backgroundColor: "var(--bg)",
         position: "relative",
-        height: "100dvh",
+        height: "100lvh",
       }}
     >
       {/* Star field — `.star-field` is the hook the warp transition

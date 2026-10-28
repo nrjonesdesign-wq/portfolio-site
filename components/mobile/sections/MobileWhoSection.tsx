@@ -39,7 +39,7 @@ export function MobileHelloPanel() {
       style={{
         backgroundColor: "var(--bg)",
         position: "relative",
-        height: "100dvh",
+        height: "100lvh",
         overflow: "hidden",
       }}
     >
@@ -66,7 +66,7 @@ export function MobileHelloPanel() {
           top: 0,
           left: 0,
           right: 0,
-          height: "calc(100dvh - var(--m-nav-h) - var(--m-foot-h))",
+          height: "calc(100svh - var(--m-nav-h) - var(--m-foot-h))",
           display: "grid",
           gridTemplateRows: "1fr auto 1fr",
         }}
@@ -189,7 +189,7 @@ export function MobileNamePanel() {
       style={{
         backgroundColor: "var(--bg)",
         position: "relative",
-        height: "100dvh",
+        height: "100lvh",
         overflow: "hidden",
       }}
     >
@@ -209,7 +209,7 @@ export function MobileNamePanel() {
           // Generous bottom padding so the second [Intro] paragraph
           // finishes well above the snap boundary — the user can read
           // it fully before the page advances to Engagements.
-          paddingBottom: "calc(var(--m-foot-h) + 25dvh)",
+          paddingBottom: "calc(var(--m-foot-h) + 25svh)",
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
@@ -287,7 +287,7 @@ export function MobileEngagementsPanel() {
       style={{
         backgroundColor: "var(--bg)",
         position: "relative",
-        height: "100dvh",
+        height: "100lvh",
         overflow: "hidden",
       }}
     >

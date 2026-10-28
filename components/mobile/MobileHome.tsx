@@ -39,8 +39,13 @@ export default function MobileHome() {
     "loading",
   );
   const [menuOpen, setMenuOpen] = useState(false);
-  // Snap anchors. Each panel is 100dvh tall, but the snapport is
-  // 100dvh minus the nav (scroll-padding-top), so a panel "covers" the
+  // Static geometry: panels are 100lvh and anchors 100svh − nav — never
+  // dvh. iOS Safari's toolbar collapses/expands as you scroll; with dvh
+  // every panel (and so every stop below) moved mid-swipe, Safari
+  // re-snapped to whatever was nearest, and swipes Work → Approach
+  // bounced back to Work or overshot to Contact.
+  // Snap anchors. Each panel is 100lvh tall, but the snapport is
+  // the viewport minus the nav (scroll-padding-top), so a panel "covers" the
   // snapport and the browser accepts any stop within a 72px band —
   // swipes settled inconsistently (sometimes tucked under the nav).
   // Instead, panels don't snap themselves; an invisible anchor per panel,
@@ -58,18 +63,28 @@ export default function MobileHome() {
     const panels = Array.from(main.querySelectorAll<HTMLElement>(":scope > section, :scope > * > section")).filter((el) => el.classList.contains("snap"));
     const prev = panels.map((el) => el.style.scrollSnapAlign);
     panels.forEach((el) => { el.style.scrollSnapAlign = "none"; });
+    // Tall = taller than a standard panel (100lvh). Measured against a
+    // probe, not innerHeight, which changes as Safari's toolbar resizes.
+    const probe = document.createElement("div");
+    probe.style.cssText = "position:absolute;visibility:hidden;height:100lvh;width:0;top:0";
+    document.body.appendChild(probe);
+    let last = "";
     const measure = () => {
       const mainTop = main.getBoundingClientRect().top;
-      const vh = window.innerHeight;
-      setAnchors(
-        panels.map((el) => {
-          const h = el.offsetHeight;
-          return {
-            top: Math.round(el.getBoundingClientRect().top - mainTop),
-            height: h > vh + 1 ? h : null,
-          };
-        }),
-      );
+      const lvh = probe.offsetHeight;
+      const next = panels.map((el) => {
+        const h = el.offsetHeight;
+        return {
+          top: Math.round(el.getBoundingClientRect().top - mainTop),
+          height: h > lvh + 1 ? h : null,
+        };
+      });
+      // Only re-render when the stops actually moved: re-setting equal
+      // anchors still makes Safari re-evaluate (and re-snap) the page.
+      const key = JSON.stringify(next);
+      if (key === last) return;
+      last = key;
+      setAnchors(next);
     };
     measure();
     const ro = new ResizeObserver(measure);
@@ -78,6 +93,7 @@ export default function MobileHome() {
     window.addEventListener("resize", measure);
     return () => {
       ro.disconnect();
+      probe.remove();
       window.removeEventListener("resize", measure);
       panels.forEach((el, i) => { el.style.scrollSnapAlign = prev[i]; });
     };
@@ -440,7 +456,7 @@ export default function MobileHome() {
           // scrolls only, so an inner scroller left the bars on stale
           // section colours. Snap comes from the mobile @media rule on
           // <html> (scroll-snap-type: y mandatory + scroll-padding-top).
-          minHeight: "100dvh",
+          minHeight: "100lvh",
           position: "relative",
         } as React.CSSProperties
       }
@@ -454,7 +470,9 @@ export default function MobileHome() {
             top,
             left: 0,
             width: 1,
-            height: height ?? "calc(100dvh - var(--m-nav-h))",
+            // svh (toolbar shown = smallest viewport): never taller than
+            // the snapport, whatever the toolbar is doing.
+            height: height ?? "calc(100svh - var(--m-nav-h))",
             scrollSnapAlign: "start",
             scrollSnapStop: "always",
             pointerEvents: "none",

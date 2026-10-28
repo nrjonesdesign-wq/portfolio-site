@@ -114,7 +114,7 @@ export default function MobileWorkSection({
         // the list a little, then chained and snapped to the next panel.)
         // Overrides .snap's fixed 100vh + overflow: hidden.
         height: "auto",
-        minHeight: "100dvh",
+        minHeight: "100lvh",
         overflow: "clip",
         boxSizing: "border-box",
         paddingTop: "1.25rem",
