@@ -367,6 +367,9 @@ export function PlanetMark({
   );
 }
 
+/** How far the glass's blur fades out past the bar's inner edge. */
+const GLASS_RUNOUT = "1.5rem";
+
 function BleedBackdrop({ edge }: { edge: "top" | "bottom" }) {
   const safe = `env(safe-area-inset-${edge}, 0px)`;
   const dir = edge === "top" ? "to bottom" : "to top";
@@ -374,8 +377,10 @@ function BleedBackdrop({ edge }: { edge: "top" | "bottom" }) {
     `color-mix(in srgb, var(--bg) ${pct}%, transparent)`;
   // Solid through the safe area, then a long ease-out fade across the bar.
   const tint = `linear-gradient(${dir}, var(--bg) 0, var(--bg) ${safe}, ${bg(70)} calc(${safe} + 0.2 * var(--m-${edge === "top" ? "nav" : "foot"}-h)), ${bg(38)} calc(${safe} + 0.5 * var(--m-${edge === "top" ? "nav" : "foot"}-h)), ${bg(12)} calc(${safe} + 0.8 * var(--m-${edge === "top" ? "nav" : "foot"}-h)), transparent 100%)`;
-  // Blur fades out over the same span so it has no hard inner edge.
-  const mask = `linear-gradient(${dir}, black 0, black calc(${safe} + 0.35 * var(--m-${edge === "top" ? "nav" : "foot"}-h)), transparent 100%)`;
+  // Blur at full strength behind the whole bar (safe area + nav/footer),
+  // then fades out over a short run-out past its inner edge so there's
+  // no hard line where the glass ends.
+  const mask = `linear-gradient(${dir}, black 0, black calc(${safe} + var(--m-${edge === "top" ? "nav" : "foot"}-h)), transparent 100%)`;
   return (
     <div
       aria-hidden
@@ -384,7 +389,7 @@ function BleedBackdrop({ edge }: { edge: "top" | "bottom" }) {
         left: 0,
         right: 0,
         [edge]: `calc(-1 * ${safe})`,
-        [edge === "top" ? "bottom" : "top"]: 0,
+        [edge === "top" ? "bottom" : "top"]: `-${GLASS_RUNOUT}`,
         maskImage: mask,
         WebkitMaskImage: mask,
         pointerEvents: "none",
