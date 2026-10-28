@@ -198,8 +198,27 @@ export default function MobileHome() {
     let dir = 0;
     let settle = 0;
     let busyUntil = 0;
+    // Only a finger-driven downward swipe counts: layout changes (opening
+    // a case study collapses/moves the list, toolbar resizes) also fire
+    // scroll events, and once jumped the page to Approach behind the
+    // open case study (then on to Contact on close).
+    let touchEndAt = 0;
+    let touchStartY = 0;
+    let swipeDown = false;
+    const onTouchStart = (e: TouchEvent) => {
+      touchStartY = e.touches[0]?.clientY ?? 0;
+    };
+    const onTouchEnd = (e: TouchEvent) => {
+      const y = e.changedTouches[0]?.clientY ?? touchStartY;
+      swipeDown = touchStartY - y > 12; // finger moved up = page scrolls down
+      touchEndAt = Date.now();
+    };
     const check = () => {
       if (dir <= 0 || Date.now() < busyUntil) return;
+      // Within the swipe's momentum (≈2.5s after lift-off), never while a
+      // case study or the menu covers the page.
+      if (!swipeDown || Date.now() - touchEndAt > 2500) return;
+      if (document.querySelector("[data-case-study-tray]")) return;
       const work = document.getElementById("work");
       const end = document.querySelector<HTMLElement>("[data-work-end]");
       const approach = document.getElementById("approach");
@@ -228,8 +247,12 @@ export default function MobileHome() {
       settle = window.setTimeout(check, 160);
     };
     window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("touchstart", onTouchStart, { passive: true });
+    window.addEventListener("touchend", onTouchEnd, { passive: true });
     return () => {
       window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchend", onTouchEnd);
       window.clearTimeout(settle);
     };
   }, []);
@@ -534,6 +557,16 @@ export default function MobileHome() {
           colour sit at both edges under the nav/footer (hidden under the
           tray as it slides out), giving Safari a fresh solid edge in the
           right colour to sample; then they're removed. */}
+      {/* Bar-tint beacons. The user's recordings show iOS Safari 26
+          re-tints its status bar + toolbar only when a solid fixed layer
+          appears at the screen edges (the intro overlay, the strips
+          after a case study closes) — never on scroll or colour changes
+          alone, so the bars sat on one colour for whole sessions. These
+          strips are remounted (key) on every scheme change so Safari sees
+          a fresh solid edge in the new colour, and sit BEHIND the page
+          (z -1, under the opaque panels), so nobody sees them. */}
+      <div key={`beacon-top-${colorScheme}`} aria-hidden style={{ ...edgeStrip("top"), zIndex: -1 }} />
+      <div key={`beacon-bottom-${colorScheme}`} aria-hidden style={{ ...edgeStrip("bottom"), zIndex: -1 }} />
       {edgeHandoff && (
         <>
           <div aria-hidden style={edgeStrip("top")} />
