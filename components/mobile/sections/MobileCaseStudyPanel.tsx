@@ -608,6 +608,7 @@ export default function MobileCaseStudyPanel({
             <MobileReel
               items={cs.reel ?? []}
               fit={cs.reelFit ?? "cover"}
+              aspect={cs.reelAspect ?? "16 / 9"}
               bg={cs.reelBg ?? "var(--ink)"}
               accentVar={accentVar}
               onZoomImage={setZoomedImage}
@@ -970,12 +971,15 @@ function MetaBlock({
 function MobileReel({
   items,
   fit,
+  aspect,
   bg,
   accentVar,
   onZoomImage,
 }: {
   items: ReelItem[];
   fit: "cover" | "contain";
+  /** Tile aspect ratio for "cover" reels (CSS aspect-ratio value). */
+  aspect: string;
   bg: string;
   accentVar: string;
   onZoomImage?: (img: { src: string; alt?: string }) => void;
@@ -1142,6 +1146,7 @@ function MobileReel({
             key={i}
             item={item}
             fit={fit}
+            aspect={aspect}
             bg={bg}
             accentVar={accentVar}
             isFirst={i === 0}
@@ -1161,6 +1166,7 @@ function MobileReel({
 function MobileReelTile({
   item,
   fit,
+  aspect,
   bg,
   accentVar,
   isFirst,
@@ -1169,6 +1175,7 @@ function MobileReelTile({
 }: {
   item: ReelItem;
   fit: "cover" | "contain";
+  aspect: string;
   bg: string;
   accentVar: string;
   isFirst: boolean;
@@ -1249,7 +1256,7 @@ function MobileReelTile({
         // For "cover" projects keep the uniform 16:9 box; for
         // "contain" projects let the asset's natural height drive
         // the tile.
-        aspectRatio: isContain ? undefined : "16 / 9",
+        aspectRatio: isContain ? undefined : aspect,
         backgroundColor: bg,
         position: "relative",
         overflow: "hidden",
@@ -1316,6 +1323,26 @@ function MobileReelTile({
             >
               [ {muted ? "Click to play audio" : "Click to mute"} ]
             </button>
+          )}
+          {item.hasAudio === false && item.label && (
+            <span
+              aria-hidden
+              style={{
+                // Same treatment as the image label below.
+                position: "absolute",
+                left: "1rem",
+                bottom: "1rem",
+                color: "#ffffff",
+                mixBlendMode: "difference",
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--fs-sm)",
+                textTransform: "uppercase",
+                letterSpacing: "0.04em",
+                pointerEvents: "none",
+              }}
+            >
+              [ {item.label} ]
+            </span>
           )}
         </>
       ) : item.kind === "image" ? (
