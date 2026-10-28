@@ -115,7 +115,11 @@ export default function MobileHome() {
   // Brief solid edge strips after the case-study tray closes (see render).
   const [edgeHandoff, setEdgeHandoff] = useState(false);
   const edgeTimer = useRef<number | null>(null);
-  const handOffEdges = (ms = 1200) => {
+  // Bumped to force a remount when strips are already showing, so Safari
+  // always sees a freshly appeared layer.
+  const [edgeNonce, setEdgeNonce] = useState(0);
+  const handOffEdges = (ms = 1200, fresh = false) => {
+    if (fresh) setEdgeNonce((n) => n + 1);
     setEdgeHandoff(true);
     if (edgeTimer.current) window.clearTimeout(edgeTimer.current);
     edgeTimer.current = window.setTimeout(() => setEdgeHandoff(false), ms);
@@ -549,14 +553,17 @@ export default function MobileHome() {
 
       {/* Case-study tray. AnimatePresence handles enter/exit slide;
           the panel itself is responsible for its own scrolling. */}
-      <AnimatePresence>
+      {/* Edge handoff runs when the tray has fully slid away
+          (onExitComplete), not on close: strips mounted while the ink
+          tray still covered the edges were never seen by Safari, so the
+          bars stayed ink after leaving a case study. */}
+      <AnimatePresence onExitComplete={() => handOffEdges(1000, true)}>
         {caseStudyMatch && (
           <MobileCaseStudyPanel
             project={caseStudyMatch.project}
             item={caseStudyMatch.item}
             onClose={() => {
               setCaseStudyItemNumber(null);
-              handOffEdges();
             }}
           />
         )}
@@ -576,8 +583,8 @@ export default function MobileHome() {
         <>
           {/* Keyed on the scheme: a colour change mid-flash remounts
               them, so Safari sees a fresh layer, not a recoloured one. */}
-          <div key={`edge-top-${colorScheme}`} aria-hidden style={edgeStrip("top")} />
-          <div key={`edge-bottom-${colorScheme}`} aria-hidden style={edgeStrip("bottom")} />
+          <div key={`edge-top-${colorScheme}-${edgeNonce}`} aria-hidden style={edgeStrip("top")} />
+          <div key={`edge-bottom-${colorScheme}-${edgeNonce}`} aria-hidden style={edgeStrip("bottom")} />
         </>
       )}
     </main>
