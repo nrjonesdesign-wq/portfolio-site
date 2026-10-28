@@ -115,10 +115,10 @@ export default function MobileHome() {
   // Brief solid edge strips after the case-study tray closes (see render).
   const [edgeHandoff, setEdgeHandoff] = useState(false);
   const edgeTimer = useRef<number | null>(null);
-  const handOffEdges = () => {
+  const handOffEdges = (ms = 1200) => {
     setEdgeHandoff(true);
     if (edgeTimer.current) window.clearTimeout(edgeTimer.current);
-    edgeTimer.current = window.setTimeout(() => setEdgeHandoff(false), 1200);
+    edgeTimer.current = window.setTimeout(() => setEdgeHandoff(false), ms);
   };
   // Deep-link entry: resolve the inbound `/#<slug>` hash to a case-study
   // item number once at first render (null for no / unknown hash).
@@ -369,6 +369,21 @@ export default function MobileHome() {
           : "hired"
         : (activeSection as Section));
   useColorScheme(colorScheme);
+  // Flash the visible edge strips on every colour change. iOS Safari 26
+  // re-tints its bars only when a solid fixed layer appears at the screen
+  // edges; hidden (behind-the-page) strips didn't do it — the user's
+  // test still showed stale bars. The strips are the page colour and sit
+  // under the nav/footer glass, so the flash only briefly hides whatever
+  // content is beneath the chrome. Skipped on first paint.
+  const firstScheme = useRef(true);
+  useEffect(() => {
+    if (firstScheme.current) {
+      firstScheme.current = false;
+      return;
+    }
+    handOffEdges(700);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [colorScheme]);
 
   // Section detection via IntersectionObserver against the viewport
   // (the document is the scroll container).
@@ -557,20 +572,12 @@ export default function MobileHome() {
           colour sit at both edges under the nav/footer (hidden under the
           tray as it slides out), giving Safari a fresh solid edge in the
           right colour to sample; then they're removed. */}
-      {/* Bar-tint beacons. The user's recordings show iOS Safari 26
-          re-tints its status bar + toolbar only when a solid fixed layer
-          appears at the screen edges (the intro overlay, the strips
-          after a case study closes) — never on scroll or colour changes
-          alone, so the bars sat on one colour for whole sessions. These
-          strips are remounted (key) on every scheme change so Safari sees
-          a fresh solid edge in the new colour, and sit BEHIND the page
-          (z -1, under the opaque panels), so nobody sees them. */}
-      <div key={`beacon-top-${colorScheme}`} aria-hidden style={{ ...edgeStrip("top"), zIndex: -1 }} />
-      <div key={`beacon-bottom-${colorScheme}`} aria-hidden style={{ ...edgeStrip("bottom"), zIndex: -1 }} />
       {edgeHandoff && (
         <>
-          <div aria-hidden style={edgeStrip("top")} />
-          <div aria-hidden style={edgeStrip("bottom")} />
+          {/* Keyed on the scheme: a colour change mid-flash remounts
+              them, so Safari sees a fresh layer, not a recoloured one. */}
+          <div key={`edge-top-${colorScheme}`} aria-hidden style={edgeStrip("top")} />
+          <div key={`edge-bottom-${colorScheme}`} aria-hidden style={edgeStrip("bottom")} />
         </>
       )}
     </main>
