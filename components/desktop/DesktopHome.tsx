@@ -963,7 +963,7 @@ export default function DesktopHome() {
             backdropFilter: "blur(16px)",
             WebkitBackdropFilter: "blur(16px)",
             backgroundColor: "color-mix(in srgb, var(--bg) 45%, transparent)",
-            transition: "background-color 0.6s cubic-bezier(0.22, 1, 0.36, 1)",
+            transition: "background-color 1.4s cubic-bezier(0.22, 1, 0.36, 1)",
             maskImage:
               "linear-gradient(to top, black 30%, rgba(0,0,0,0.85) 55%, rgba(0,0,0,0.4) 80%, transparent 100%)",
             WebkitMaskImage:

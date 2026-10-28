@@ -651,6 +651,22 @@ function ImageLightbox({
   // the <img> directly via a CSS transform. One finger pans when zoomed
   // (scale > 1); two fingers pinch to zoom and pan together.
   const [scale, setScale] = useState(1);
+  // Zoom that has been "committed" into the image's layout size. A CSS
+  // scale on the <img> just magnifies the bitmap iOS rasterised at the
+  // fit-to-screen size, so zoomed images looked crunchy. During a pinch
+  // the live transform covers the gap (scale / committed); when the
+  // fingers lift, the zoom is baked into width/height so WebKit
+  // re-rasterises the full-resolution image at the zoomed size.
+  const [committed, setCommitted] = useState(1);
+  // Fit-to-screen size (CSS px), measured once the image has loaded.
+  const [base, setBase] = useState<{ w: number; h: number } | null>(null);
+  const onImgLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const img = e.currentTarget;
+    const maxW = window.innerWidth - 32;
+    const maxH = window.innerHeight - 32;
+    const k = Math.min(maxW / img.naturalWidth, maxH / img.naturalHeight, 1);
+    setBase({ w: img.naturalWidth * k, h: img.naturalHeight * k });
+  };
   const [tx, setTx] = useState(0);
   const [ty, setTy] = useState(0);
   // Snapshot of state at gesture start. Refs so the handlers don't
@@ -742,6 +758,9 @@ function ImageLightbox({
       setScale(1);
       setTx(0);
       setTy(0);
+      if (e.touches.length === 0) setCommitted(1);
+    } else if (e.touches.length === 0) {
+      setCommitted(scale);
     }
     if (e.touches.length === 0) startRef.current.mode = null;
   };
@@ -787,15 +806,30 @@ function ImageLightbox({
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
         onTouchCancel={onTouchEnd}
+        onLoad={onImgLoad}
         style={{
-          width: "auto",
-          height: "auto",
-          maxWidth: "100%",
-          maxHeight: "100%",
+          ...(base
+            ? {
+                width: base.w * committed,
+                height: base.h * committed,
+                maxWidth: "none",
+                maxHeight: "none",
+                flexShrink: 0,
+              }
+            : {
+                width: "auto",
+                height: "auto",
+                maxWidth: "100%",
+                maxHeight: "100%",
+              }),
           display: "block",
-          transform: `translate3d(${tx}px, ${ty}px, 0) scale(${scale})`,
+          // 2D translate (not translate3d) so no fixed-size GPU layer is
+          // forced; scale is only the not-yet-committed part of a pinch.
+          transform: `translate(${tx}px, ${ty}px) scale(${scale / committed})`,
           transformOrigin: "center center",
-          transition: startRef.current.mode ? "none" : "transform 0.2s ease-out",
+          // No transition: committing the zoom swaps scale for size in
+          // one frame, and an eased transform would visibly re-zoom.
+          transition: "none",
           touchAction: "none",
           userSelect: "none",
           WebkitUserSelect: "none",

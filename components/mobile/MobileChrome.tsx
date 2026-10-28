@@ -71,7 +71,7 @@ export default function MobileChrome({
       >
         {/* Glass tint layer — sits behind the chrome content so the
             section underneath softens through the nav. */}
-        <ChromeBackdrop edge="top" />
+        <ChromeBackdrop edge="top" bleed />
 
         {/* Content row — flex centred so the planet and the bracket
             label sit on the same vertical axis. */}
@@ -166,7 +166,7 @@ export default function MobileChrome({
           pointerEvents: "none",
         }}
       >
-        <ChromeBackdrop edge="bottom" />
+        <ChromeBackdrop edge="bottom" bleed />
         <div
           style={{
             position: "absolute",
@@ -217,7 +217,19 @@ export default function MobileChrome({
  * cohesive across the colour-scheme swaps. Same pattern as desktop's
  * two-layer Nav.
  */
-export function ChromeBackdrop({ edge }: { edge: "top" | "bottom" }) {
+export function ChromeBackdrop({
+  edge,
+  bleed = false,
+}: {
+  edge: "top" | "bottom";
+  /** Extend the glass out through the iOS safe area to the screen edge,
+   *  solid there (matching Safari's bar tint, which the home page's edge
+   *  strips set) and fading softly across the bar — so the solid status
+   *  bar / toolbar flows into the glass instead of ending in a hard line
+   *  at the safe-area boundary. */
+  bleed?: boolean;
+}) {
+  if (bleed) return <BleedBackdrop edge={edge} />;
   // Two-layer composition so the chrome reads as a soft gradient even
   // when the page content behind it is a uniform colour (e.g. the sky
   // bg of WORK):
@@ -352,5 +364,44 @@ export function PlanetMark({
         NRJ
       </text>
     </svg>
+  );
+}
+
+function BleedBackdrop({ edge }: { edge: "top" | "bottom" }) {
+  const safe = `env(safe-area-inset-${edge}, 0px)`;
+  const dir = edge === "top" ? "to bottom" : "to top";
+  const bg = (pct: number) =>
+    `color-mix(in srgb, var(--bg) ${pct}%, transparent)`;
+  // Solid through the safe area, then a long ease-out fade across the bar.
+  const tint = `linear-gradient(${dir}, var(--bg) 0, var(--bg) ${safe}, ${bg(70)} calc(${safe} + 0.2 * var(--m-${edge === "top" ? "nav" : "foot"}-h)), ${bg(38)} calc(${safe} + 0.5 * var(--m-${edge === "top" ? "nav" : "foot"}-h)), ${bg(12)} calc(${safe} + 0.8 * var(--m-${edge === "top" ? "nav" : "foot"}-h)), transparent 100%)`;
+  // Blur fades out over the same span so it has no hard inner edge.
+  const mask = `linear-gradient(${dir}, black 0, black calc(${safe} + 0.35 * var(--m-${edge === "top" ? "nav" : "foot"}-h)), transparent 100%)`;
+  return (
+    <div
+      aria-hidden
+      style={{
+        position: "absolute",
+        left: 0,
+        right: 0,
+        [edge]: `calc(-1 * ${safe})`,
+        [edge === "top" ? "bottom" : "top"]: 0,
+        maskImage: mask,
+        WebkitMaskImage: mask,
+        pointerEvents: "none",
+      }}
+    >
+      <div
+        data-chrome-tint
+        style={{
+          position: "absolute",
+          inset: 0,
+          // Gradient background, never a solid background-color (Safari
+          // bar-tint rule — see ChromeBackdrop above).
+          backdropFilter: "blur(14px) saturate(1.2)",
+          WebkitBackdropFilter: "blur(14px) saturate(1.2)",
+          background: tint,
+        }}
+      />
+    </div>
   );
 }
