@@ -376,7 +376,11 @@ function BleedBackdrop({ edge }: { edge: "top" | "bottom" }) {
   const bg = (pct: number) =>
     `color-mix(in srgb, var(--bg) ${pct}%, transparent)`;
   // Solid through the safe area, then a long ease-out fade across the bar.
-  const tint = `linear-gradient(${dir}, var(--bg) 0, var(--bg) ${safe}, ${bg(70)} calc(${safe} + 0.2 * var(--m-${edge === "top" ? "nav" : "foot"}-h)), ${bg(38)} calc(${safe} + 0.5 * var(--m-${edge === "top" ? "nav" : "foot"}-h)), ${bg(12)} calc(${safe} + 0.8 * var(--m-${edge === "top" ? "nav" : "foot"}-h)), transparent 100%)`;
+  const bar = `var(--m-${edge === "top" ? "nav" : "foot"}-h)`;
+  // Denser glass: holds most of the section colour across the whole bar
+  // so the nav / footer type stays legible over busy content, easing off
+  // only in the run-out past the bar's inner edge.
+  const tint = `linear-gradient(${dir}, var(--bg) 0, var(--bg) ${safe}, ${bg(88)} calc(${safe} + 0.3 * ${bar}), ${bg(78)} calc(${safe} + 0.7 * ${bar}), ${bg(62)} calc(${safe} + ${bar}), transparent 100%)`;
   // Blur at full strength behind the whole bar (safe area + nav/footer),
   // then fades out over a short run-out past its inner edge so there's
   // no hard line where the glass ends.
@@ -402,8 +406,8 @@ function BleedBackdrop({ edge }: { edge: "top" | "bottom" }) {
           inset: 0,
           // Gradient background, never a solid background-color (Safari
           // bar-tint rule — see ChromeBackdrop above).
-          backdropFilter: "blur(14px) saturate(1.2)",
-          WebkitBackdropFilter: "blur(14px) saturate(1.2)",
+          backdropFilter: "blur(20px) saturate(1.2)",
+          WebkitBackdropFilter: "blur(20px) saturate(1.2)",
           background: tint,
         }}
       />
