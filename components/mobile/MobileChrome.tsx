@@ -270,6 +270,7 @@ export function ChromeBackdrop({ edge }: { edge: "top" | "bottom" }) {
         }}
       />
       <div
+        data-chrome-tint
         style={{
           position: "absolute",
           inset: 0,

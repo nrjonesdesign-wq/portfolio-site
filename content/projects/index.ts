@@ -21,7 +21,7 @@ export const HIRED: Project[] = [
   velvetIsles,
 ];
 
-export const INSPIRED: Project[] = [tuesgay, paintings, morningBrief];
+export const INSPIRED: Project[] = [morningBrief, tuesgay, paintings];
 
 export const ALL_PROJECTS: Project[] = [...HIRED, ...INSPIRED];
 

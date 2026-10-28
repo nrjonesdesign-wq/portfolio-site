@@ -173,7 +173,19 @@ export default function MobileHome() {
     // horizontal overflow without creating a scroll container.
     const prevOverflowX = document.body.style.overflowX;
     document.body.style.overflowX = "clip";
+    // Phones: section colours CUT instead of fading. iOS Safari 26 tints
+    // its status bar + toolbar from what's at the screen edges at the
+    // moment the colour changes; with the 1.4s fade it caught the OLD
+    // colour (mint bars left over after closing an INSPIRED row on sky
+    // Work) and kept it. html/body already cut; this brings the panels
+    // and the nav/footer glass tint into the same frame. Injected here,
+    // not in globals.css: Tailwind v4's pipeline dropped the rule there.
+    const cut = document.createElement("style");
+    cut.textContent =
+      ".snap, [data-chrome-tint] { transition: none !important; }";
+    document.head.appendChild(cut);
     return () => {
+      cut.remove();
       document.documentElement.classList.remove("snapping");
       document.body.style.overflowX = prevOverflowX;
     };

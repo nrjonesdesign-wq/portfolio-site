@@ -8,7 +8,7 @@ export const paintings: Project = {
   accent: "mint",
   items: [
     {
-      number: "08",
+      number: "09",
       slug: "paintings",
       description:
         "An ongoing study in observation and memory. A sustaining personal fine art practice and outlet for my creative nervous energy.",
