@@ -150,7 +150,12 @@ export default function MobileCaseStudyPanel({
         position: "fixed",
         inset: 0,
         zIndex: 70,
-        backgroundColor: "var(--ink)",
+        // A gradient, never a solid background-color: iOS Safari 26 tints
+        // its bars from a fixed edge-to-edge element with a solid colour,
+        // reads it once and then keeps the bars frozen on whatever was
+        // under them when the tray closed. MobileHome paints html/body
+        // ink while the tray is open instead.
+        backgroundImage: "linear-gradient(var(--ink), var(--ink))",
         color: accentVar,
         // Internal scroll — the panel's content can be tall (info
         // expanded + the full reel stack).
@@ -761,7 +766,9 @@ function ImageLightbox({
         position: "fixed",
         inset: 0,
         zIndex: 100,
-        backgroundColor: "rgba(0, 0, 0, 0.92)",
+        // Gradient for the same Safari bar-tint reason as the tray.
+        backgroundImage:
+          "linear-gradient(rgba(0, 0, 0, 0.92), rgba(0, 0, 0, 0.92))",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",

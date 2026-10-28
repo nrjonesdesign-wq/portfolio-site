@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence } from "framer-motion";
-import { useColorScheme } from "@/lib/scroll";
-import type { Section } from "@/lib/colors";
+import { paintPageBg, useColorScheme } from "@/lib/scroll";
+import { SECTION_COLORS, type Section } from "@/lib/colors";
 import MobileChrome from "./MobileChrome";
 import MobileMenuOverlay, { type ChromeSection } from "./MobileMenuOverlay";
 import MobileLoadingSection from "./sections/MobileLoadingSection";
@@ -362,6 +362,15 @@ export default function MobileHome() {
           : "hired"
         : (activeSection as Section));
   useColorScheme(colorScheme);
+  // Case-study tray: Safari tints its bars from html/body, so paint them
+  // ink while the tray is open and back to the section's bg on close.
+  // The tray itself must NOT be a solid background-color (see the tray's
+  // style note): Safari latches onto a fixed full-screen solid colour and
+  // keeps the bars frozen after the tray closes.
+  const trayOpen = !!caseStudyMatch;
+  useEffect(() => {
+    paintPageBg(trayOpen ? "#151515" : SECTION_COLORS[colorScheme].bg);
+  }, [trayOpen, colorScheme]);
   // Section detection via IntersectionObserver against the viewport
   // (the document is the scroll container).
   useEffect(() => {

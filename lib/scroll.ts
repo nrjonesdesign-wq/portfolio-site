@@ -3,6 +3,25 @@
 import { useEffect, useRef } from "react";
 import { SECTION_COLORS, type Section } from "./colors";
 
+/**
+ * Sets html + body background and a fresh theme-color meta. iOS Safari
+ * tints its status bar + toolbar from these (body covers the safe-area
+ * zones; it often caches theme-color and ignores `meta.content = ...`
+ * updates, so the meta is removed and re-appended to force a re-read).
+ * Also used by the mobile case-study tray to paint ink while it's open.
+ */
+export function paintPageBg(bg: string) {
+  document.documentElement.style.backgroundColor = bg;
+  document.body.style.backgroundColor = bg;
+  document
+    .querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]')
+    .forEach((m) => m.remove());
+  const meta = document.createElement("meta");
+  meta.name = "theme-color";
+  meta.content = bg;
+  document.head.appendChild(meta);
+}
+
 export function useColorScheme(section: Section) {
   useEffect(() => {
     const { bg, fg, accent } = SECTION_COLORS[section];
@@ -10,27 +29,7 @@ export function useColorScheme(section: Section) {
     root.style.setProperty("--bg", bg);
     root.style.setProperty("--fg", fg);
     root.style.setProperty("--accent", accent);
-    // Also set the bg directly on html AND body so iOS Safari safe-area
-    // regions (visible with viewport-fit: cover) pick up the new colour
-    // reliably. body sits above html and covers the safe-area zones, so
-    // if body's CSS-var-driven bg lags the scheme swap, the safe area
-    // shows the stale colour even though html is already updated.
-    root.style.backgroundColor = bg;
-    document.body.style.backgroundColor = bg;
-
-    // Drive iOS Safari's status-bar + bottom-chrome tint to match the
-    // current section bg. iOS Safari often caches the initial
-    // theme-color and ignores `meta.content = ...` updates, so REMOVE
-    // the existing meta and re-append a fresh one — that forces
-    // re-evaluation.
-    const old = document.querySelectorAll<HTMLMetaElement>(
-      'meta[name="theme-color"]',
-    );
-    old.forEach((m) => m.remove());
-    const meta = document.createElement("meta");
-    meta.name = "theme-color";
-    meta.content = bg;
-    document.head.appendChild(meta);
+    paintPageBg(bg);
   }, [section]);
 }
 
