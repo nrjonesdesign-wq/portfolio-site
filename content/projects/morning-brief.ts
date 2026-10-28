@@ -12,13 +12,13 @@ export const morningBrief: Project = {
       number: "09",
       slug: "morning-brief",
       description:
-        "Design and build of a daily newsletter of my own: 598 sources, 49 sections, and an AI curation layer with a written editorial voice.",
+        "Design and build of a daily newsletter of my own: 600+ sources, 50 subsections, and an AI curation layer with a written editorial voice.",
       caseStudy: {
         title: "Morning Brief\nEditorial System\nDesign & Build",
         brief:
-          "I wanted one morning read covering everything I actually care about—design, art, comics, music, film, books, Los Angeles, labor and politics—without the algorithm, the hype cycle, or the press-release churn. Nothing like it existed, so I built it.\n\nMorning Brief pulls from 598 hand-picked sources across 49 sections, runs them through an AI curation layer, and lands in my inbox as a designed HTML email every morning.",
+          "I wanted one morning read covering everything I actually care about—design, art, comics, music, film, books, Los Angeles, labor and politics—without the algorithm, the hype cycle, or the press-release churn. Nothing like it existed, so I built it.\n\nMorning Brief pulls from 600+ hand-picked sources across 50 subsections, runs them through an AI curation layer, and lands in my inbox as a designed HTML email every morning.",
         challenge:
-          "At that scale, curation is an information-architecture problem before it's a design problem. Forty-nine sections have to be scannable over a cup of coffee, and the biggest one, Practice & Craft, carries ten subsections on its own.\n\nThe harder part was taste. Left alone, an AI filter drifts to the middle of the road. To get a feed that sounds like me, the editorial point of view had to be written down: what to include, what to rule out, and how to say it. And then there's email, where every client renders HTML a little differently.",
+          "At that scale, curation is an information-architecture problem before it's a design problem. Fifty subsections across ten sections have to be scannable over a cup of coffee, and the biggest section, Practice & Craft, carries ten of them on its own.\n\nThe harder part was taste. Left alone, an AI filter drifts to the middle of the road. To get a feed that sounds like me, the editorial point of view had to be written down: what to include, what to rule out, and how to say it. And then there's email, where every client renders HTML a little differently.",
         solution: [
           "I wrote the editorial voice like a creative brief: direct, substantive, unfussy, active voice, name things plainly. The exclusions are as specific as the inclusions—no celebrity coverage, no drop culture, no franchise IP. Patterns in what I love became reusable rules, like “rigorous wonder”: cross-disciplinary writing that earns its awe by showing the mechanism.",
           "Under the hood it's Python, the Claude API, RSS parsing, and scheduled GitHub Actions, with state tracking so nothing repeats from day to day—all feeding a templated email I designed and maintain in production.",
@@ -85,7 +85,7 @@ export const morningBrief: Project = {
           {
             kind: "image",
             src: "/case-study/morning-brief/breadth-spread.jpg",
-            alt: "Morning Brief — ten sections and their 41 subsections, each with its tagline",
+            alt: "Morning Brief — ten sections and all 50 subsections, each with its tagline",
           },
           {
             kind: "video",
@@ -111,7 +111,7 @@ export const morningBrief: Project = {
           {
             kind: "image",
             src: "/case-study/morning-brief/system-diagram.jpg",
-            alt: "Morning Brief system — 598 sources in, one email out",
+            alt: "Morning Brief system — 600+ sources in, one email out",
           },
         ],
       },
