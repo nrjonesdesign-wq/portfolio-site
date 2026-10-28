@@ -116,9 +116,15 @@ export default function MobileWorkSection({
         boxSizing: "border-box",
         paddingTop: "1.25rem",
         // Closed: clear the fixed footer so the last row isn't hidden
-        // under it at the end of the section. Open: a taller spacer so
-        // the last project's drawer can scroll up under the headline.
-        paddingBottom: openSlug ? "28vh" : "calc(var(--m-foot-h) + 1.5rem)",
+        // under it. The panel sits below the nav, so the nav height
+        // counts too: with it, the panel outgrows 100dvh (→ MobileHome's
+        // panel-tall anchor, so it scrolls) exactly when the list would
+        // otherwise end under the footer. Without it, a list a few px too
+        // long for a tall phone stayed at min-height and couldn't scroll.
+        // Open: a taller spacer so the last drawer can scroll up.
+        paddingBottom: openSlug
+          ? "28vh"
+          : "calc(var(--m-nav-h) + var(--m-foot-h) + 1.5rem)",
       }}
     >
       {/* "Select Work" headline — same styling as Name screen's
