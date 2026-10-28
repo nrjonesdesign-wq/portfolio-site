@@ -395,7 +395,7 @@ export default function MobileHome() {
         return;
       }
       barsStale.current = false;
-      handOffEdges(700, true);
+      handOffEdges(400, true);
     }, 180);
   };
   useEffect(() => {
@@ -598,42 +598,33 @@ export default function MobileHome() {
         )}
       </AnimatePresence>
 
-      {/* Edge handoff after the case-study tray closes. The tray is a
-          solid ink, fixed, full-screen layer, and iOS Safari 26 tints
-          its status bar + toolbar from a solid fixed element touching
-          the screen edge — so while it's open the bars go ink, and once
-          it slid away nothing solid replaced it, leaving the bars ink
-          (stale) over the sky/mint page and every section scrolled to
-          after. For a moment after closing, solid strips in the page
-          colour sit at both edges under the nav/footer (hidden under the
-          tray as it slides out), giving Safari a fresh solid edge in the
-          right colour to sample; then they're removed. */}
+      {/* Bar-tint trigger. Four phone recordings, frame-sampled: iOS
+          Safari 26 re-tinted its status bar + toolbar only on page load
+          and when the case-study tray went away — never on scrolling,
+          colour changes, theme-color, or solid edge strips (hidden or
+          visible, mid-swipe or at rest). The tray is a full-screen fixed
+          SCROLL CONTAINER; its removal makes Safari re-read the page. So
+          after each colour change (once the page is at rest) we mount an
+          invisible copy of that — a transparent, full-screen, fixed,
+          scrollable layer that ignores touches — and remove it. */}
       {edgeHandoff && (
-        <>
-          {/* Keyed on the scheme: a colour change mid-flash remounts
-              them, so Safari sees a fresh layer, not a recoloured one. */}
-          <div key={`edge-top-${colorScheme}-${edgeNonce}`} aria-hidden style={edgeStrip("top")} />
-          <div key={`edge-bottom-${colorScheme}-${edgeNonce}`} aria-hidden style={edgeStrip("bottom")} />
-        </>
+        <div
+          key={`bar-ghost-${colorScheme}-${edgeNonce}`}
+          aria-hidden
+          style={{
+            position: "fixed",
+            inset: 0,
+            overflowY: "auto",
+            backgroundColor: "transparent",
+            zIndex: 55,
+            pointerEvents: "none",
+          }}
+        >
+          <div style={{ height: "200%" }} />
+        </div>
       )}
     </main>
   );
-}
-
-/** Solid fixed strip at the top or bottom screen edge, in the page
- *  colour, under the chrome (z 60) and the tray (z 70). 88px: iOS Safari
- *  ignored much shorter or taller strips in /tint-test. */
-function edgeStrip(edge: "top" | "bottom"): React.CSSProperties {
-  return {
-    position: "fixed",
-    left: 0,
-    right: 0,
-    [edge]: 0,
-    height: 88,
-    backgroundColor: "var(--bg)",
-    zIndex: 55,
-    pointerEvents: "none",
-  };
 }
 
 /**
