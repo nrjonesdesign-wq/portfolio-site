@@ -2,12 +2,13 @@
 
 import {
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
   type ReactNode,
 } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, animate, motion } from "framer-motion";
 import {
   HIRED,
   INSPIRED,
@@ -68,32 +69,99 @@ export default function MobileWorkSection({
     onAccentChange?.(inspired ? "mint" : "sky");
   }, [openSlug, onAccentChange]);
 
-  // When a row opens, scroll its top to just under the headline so
-  // the user immediately sees the drawer expansion (rather than the
-  // drawer appearing entirely below the fold of a scrolled section).
-  useEffect(() => {
+  // When a row opens, scroll <main> so that row's header sits flush at
+  // the top of the screen, just under the fixed nav.
+  //
+  // Measured in a layout effect — before paint — so the newly opened
+  // drawer is still 0px tall and any previously open drawer is still at
+  // full height. That drawer is about to collapse, so if it sits ABOVE
+  // the tapped row its height is subtracted to get the row's final
+  // resting position (measuring mid-animation used to land the row
+  // short when switching between open projects). The scroll then runs
+  // with the drawer's own duration + ease so both land together.
+  // Per-frame scrollTop writes (not scrollTo smooth) so the browser
+  // re-clamps against the growing drawer each frame instead of once
+  // against the pre-expansion height. Snap is suspended for the scroll
+  // and restored to "y mandatory" after (same pattern as jumpTo in
+  // MobileHome); a touch or wheel mid-scroll hands control back.
+  useLayoutEffect(() => {
     if (!openSlug) return;
     const section = sectionRef.current;
     if (!section) return;
     const row = section.querySelector<HTMLElement>(
       `[data-project-slug="${openSlug}"]`,
     );
-    if (!row) return;
-    // Delay so the AnimatePresence open animation begins before we
-    // adjust scroll position.
-    // The document is the scroller (the section grows to fit its
-    // content), so scroll the window: row lands 80px below the nav, but
-    // never above the section's own snap stop (section top under nav).
-    const t = window.setTimeout(() => {
-      const main = document.querySelector("main");
-      if (!main) return;
-      const navH = parseFloat(getComputedStyle(main).scrollPaddingTop) || 0;
-      const mainTop = main.getBoundingClientRect().top;
-      const sectionStop = main.scrollTop + section.getBoundingClientRect().top - mainTop - navH;
-      const target = main.scrollTop + row.getBoundingClientRect().top - mainTop - navH - 80;
-      main.scrollTo({ top: Math.max(sectionStop, target), behavior: "smooth" });
-    }, 60);
-    return () => window.clearTimeout(t);
+    const main = document.querySelector("main");
+    if (!row || !main) return;
+
+    let collapsingAbove = 0;
+    section
+      .querySelectorAll<HTMLElement>("[data-project-slug]")
+      .forEach((other) => {
+        if (other === row) return;
+        if (!(other.compareDocumentPosition(row) & Node.DOCUMENT_POSITION_FOLLOWING)) return;
+        const drawer = other.querySelector<HTMLElement>("[data-drawer]");
+        if (drawer) collapsingAbove += drawer.offsetHeight;
+      });
+
+    const navH = parseFloat(getComputedStyle(main).scrollPaddingTop) || 0;
+    const mainTop = main.getBoundingClientRect().top;
+    const rowTop = row.getBoundingClientRect().top - collapsingAbove;
+    // Never above Work's own snap stop (section top under the nav).
+    const sectionStop = main.scrollTop + section.getBoundingClientRect().top - mainTop - navH;
+    const target = Math.max(sectionStop, main.scrollTop + rowTop - mainTop - navH);
+
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    let controls: ReturnType<typeof animate> | null = null;
+    let restoreTimer = 0;
+    const restoreSnap = () => {
+      window.clearTimeout(restoreTimer);
+      // Let Safari's toolbar resize settle before snap comes back.
+      restoreTimer = window.setTimeout(() => {
+        main.style.scrollSnapType = "y mandatory";
+      }, 300);
+    };
+
+    const raf = requestAnimationFrame(() => {
+      main.style.scrollSnapType = "none";
+      if (reduceMotion) {
+        main.scrollTop = target;
+        restoreSnap();
+        return;
+      }
+      controls = animate(main.scrollTop, target, {
+        duration: 0.5,
+        ease: EASE,
+        onUpdate: (v) => {
+          main.scrollTop = v;
+        },
+        onComplete: restoreSnap,
+      });
+    });
+
+    const cancel = () => {
+      if (!controls) return;
+      controls.stop();
+      controls = null;
+      restoreSnap();
+    };
+    main.addEventListener("touchstart", cancel, { passive: true });
+    main.addEventListener("wheel", cancel, { passive: true });
+    return () => {
+      cancelAnimationFrame(raf);
+      main.removeEventListener("touchstart", cancel);
+      main.removeEventListener("wheel", cancel);
+      if (controls) {
+        controls.stop();
+        controls = null;
+      }
+      // Always leave snap restored, even if a new tap superseded us.
+      window.clearTimeout(restoreTimer);
+      if (main.style.scrollSnapType === "none") {
+        main.style.scrollSnapType = "y mandatory";
+      }
+    };
   }, [openSlug]);
 
   return (
@@ -313,6 +381,7 @@ function MobileProjectRow({
         {open && (
           <motion.div
             key="expanded"
+            data-drawer
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
