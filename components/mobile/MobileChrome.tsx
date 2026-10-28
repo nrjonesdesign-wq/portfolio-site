@@ -110,7 +110,7 @@ export default function MobileChrome({
               display: "block",
             }}
           >
-            <PlanetMark scrollSource="window" />
+            <PlanetMark />
           </a>
 
           {/* Hairline rule between planet and bracket label. */}

@@ -85,11 +85,13 @@ export default function MobileWorkSection({
     // content), so scroll the window: row lands 80px below the nav, but
     // never above the section's own snap stop (section top under nav).
     const t = window.setTimeout(() => {
-      const navH =
-        parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
-      const sectionStop = window.scrollY + section.getBoundingClientRect().top - navH;
-      const target = window.scrollY + row.getBoundingClientRect().top - navH - 80;
-      window.scrollTo({ top: Math.max(sectionStop, target), behavior: "smooth" });
+      const main = document.querySelector("main");
+      if (!main) return;
+      const navH = parseFloat(getComputedStyle(main).scrollPaddingTop) || 0;
+      const mainTop = main.getBoundingClientRect().top;
+      const sectionStop = main.scrollTop + section.getBoundingClientRect().top - mainTop - navH;
+      const target = main.scrollTop + row.getBoundingClientRect().top - mainTop - navH - 80;
+      main.scrollTo({ top: Math.max(sectionStop, target), behavior: "smooth" });
     }, 60);
     return () => window.clearTimeout(t);
   }, [openSlug]);

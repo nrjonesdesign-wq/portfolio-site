@@ -75,7 +75,7 @@ export default function MobileHome() {
       const next = panels.map((el) => {
         const h = el.offsetHeight;
         return {
-          top: Math.round(el.getBoundingClientRect().top - mainTop),
+          top: Math.round(el.getBoundingClientRect().top - mainTop + main.scrollTop),
           height: h > lvh + 1 ? h : null,
         };
       });
@@ -112,18 +112,6 @@ export default function MobileHome() {
   const [workOpenSlug, setWorkOpenSlug] = useState<string | null>(null);
   // Destination scheme forced during a menu jump (see handleMenuSelect).
   const [jumpScheme, setJumpScheme] = useState<Section | null>(null);
-  // Brief solid edge strips after the case-study tray closes (see render).
-  const [edgeHandoff, setEdgeHandoff] = useState(false);
-  const edgeTimer = useRef<number | null>(null);
-  // Bumped to force a remount when strips are already showing, so Safari
-  // always sees a freshly appeared layer.
-  const [edgeNonce, setEdgeNonce] = useState(0);
-  const handOffEdges = (ms = 1200, fresh = false) => {
-    if (fresh) setEdgeNonce((n) => n + 1);
-    setEdgeHandoff(true);
-    if (edgeTimer.current) window.clearTimeout(edgeTimer.current);
-    edgeTimer.current = window.setTimeout(() => setEdgeHandoff(false), ms);
-  };
   // Deep-link entry: resolve the inbound `/#<slug>` hash to a case-study
   // item number once at first render (null for no / unknown hash).
   const [deepLinkItemNumber] = useState<string | null>(() => {
@@ -198,7 +186,9 @@ export default function MobileHome() {
   // once the page has scrolled past Work's own stop, so arriving at Work
   // or swiping back up from Approach never triggers it.
   useEffect(() => {
-    let lastY = window.scrollY;
+    const main = document.querySelector("main");
+    if (!main) return;
+    let lastY = main.scrollTop;
     let dir = 0;
     let settle = 0;
     let busyUntil = 0;
@@ -227,16 +217,15 @@ export default function MobileHome() {
       const end = document.querySelector<HTMLElement>("[data-work-end]");
       const approach = document.getElementById("approach");
       if (!work || !end || !approach) return;
-      const cs = getComputedStyle(document.documentElement);
-      const navH = parseFloat(cs.scrollPaddingTop) || 72;
-      const rem = parseFloat(cs.fontSize) || 16;
+      const navH = parseFloat(getComputedStyle(main).scrollPaddingTop) || 72;
+      const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
       const footH = 3 * rem;
       const pastWorkStop = work.getBoundingClientRect().top < navH - 8;
       // At least ~12% of the screen into the run-out: the list's last
       // row has cleared the footer with open space showing beneath it.
       const inRunout =
         end.getBoundingClientRect().top <
-        window.innerHeight - footH - window.innerHeight * 0.12;
+        main.clientHeight - footH - main.clientHeight * 0.12;
       const approachTop = approach.getBoundingClientRect().top;
       if (pastWorkStop && inRunout && approachTop > navH + 4) {
         busyUntil = Date.now() + 1800;
@@ -244,17 +233,17 @@ export default function MobileHome() {
       }
     };
     const onScroll = () => {
-      const y = window.scrollY;
+      const y = main.scrollTop;
       if (y !== lastY) dir = y > lastY ? 1 : -1;
       lastY = y;
       window.clearTimeout(settle);
       settle = window.setTimeout(check, 160);
     };
-    window.addEventListener("scroll", onScroll, { passive: true });
+    main.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("touchstart", onTouchStart, { passive: true });
     window.addEventListener("touchend", onTouchEnd, { passive: true });
     return () => {
-      window.removeEventListener("scroll", onScroll);
+      main.removeEventListener("scroll", onScroll);
       window.removeEventListener("touchstart", onTouchStart);
       window.removeEventListener("touchend", onTouchEnd);
       window.clearTimeout(settle);
@@ -373,51 +362,6 @@ export default function MobileHome() {
           : "hired"
         : (activeSection as Section));
   useColorScheme(colorScheme);
-  // Flash the visible edge strips after every colour change — once the
-  // page is AT REST. Third recording (2026-10-28): strips flashed the
-  // moment the colour changed never re-tinted Safari's bars, because the
-  // change happens mid-swipe (section detection) and the 0.7s flash was
-  // over before the scroll/snap settled; the only strips that worked
-  // appeared on a still page (after a case study slid away). So a colour
-  // change marks the bars stale, and the strips appear ~180ms after
-  // scrolling stops — and not while the menu or a case study still covers
-  // the edges (those would hide the strips from Safari).
-  const firstScheme = useRef(true);
-  const barsStale = useRef(false);
-  const settleTimer = useRef<number | null>(null);
-  const flashWhenSettled = useRef<() => void>(() => {});
-  flashWhenSettled.current = () => {
-    if (settleTimer.current) window.clearTimeout(settleTimer.current);
-    settleTimer.current = window.setTimeout(function tryFlash() {
-      if (!barsStale.current) return;
-      if (document.querySelector("[data-case-study-tray], [data-menu-overlay]")) {
-        settleTimer.current = window.setTimeout(tryFlash, 200);
-        return;
-      }
-      barsStale.current = false;
-      handOffEdges(400, true);
-    }, 180);
-  };
-  useEffect(() => {
-    if (firstScheme.current) {
-      firstScheme.current = false;
-      return;
-    }
-    barsStale.current = true;
-    flashWhenSettled.current();
-  }, [colorScheme]);
-  useEffect(() => {
-    // Any scroll pushes the flash back until the page has settled.
-    const onScroll = () => {
-      if (barsStale.current) flashWhenSettled.current();
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      if (settleTimer.current) window.clearTimeout(settleTimer.current);
-    };
-  }, []);
-
   // Section detection via IntersectionObserver against the viewport
   // (the document is the scroll container).
   useEffect(() => {
@@ -522,12 +466,20 @@ export default function MobileHome() {
           // var(--fs-body) consumer in the mobile tree and can't be
           // out-specified or stripped.
           ["--fs-body" as string]: "1rem",
-          // The DOCUMENT is the scroller (not <main>): iOS Safari tints its
-          // status bar / toolbar from the page and re-samples on document
-          // scrolls only, so an inner scroller left the bars on stale
-          // section colours. Snap comes from the mobile @media rule on
-          // <html> (scroll-snap-type: y mandatory + scroll-padding-top).
-          minHeight: "100lvh",
+          // <main> is the scroll container, NOT the document. With the
+          // document still, iOS Safari 26 tints its status bar + toolbar
+          // from the html/body background, which useColorScheme sets
+          // instantly on every section change — so the bars follow the
+          // page. Scrolling the document instead (Oct 19–28) made Safari
+          // sample whatever sat under the bars and stop re-checking:
+          // stale bars that no strip/overlay trick could fix. The user
+          // A/B-tested both builds on a phone; this one follows.
+          height: "100dvh",
+          overflowY: "auto",
+          overflowX: "hidden",
+          scrollSnapType: "y mandatory",
+          scrollPaddingTop: "var(--m-nav-h)",
+          WebkitOverflowScrolling: "touch",
           position: "relative",
         } as React.CSSProperties
       }
@@ -582,11 +534,7 @@ export default function MobileHome() {
 
       {/* Case-study tray. AnimatePresence handles enter/exit slide;
           the panel itself is responsible for its own scrolling. */}
-      {/* Edge handoff runs when the tray has fully slid away
-          (onExitComplete), not on close: strips mounted while the ink
-          tray still covered the edges were never seen by Safari, so the
-          bars stayed ink after leaving a case study. */}
-      <AnimatePresence onExitComplete={() => handOffEdges(1000, true)}>
+      <AnimatePresence>
         {caseStudyMatch && (
           <MobileCaseStudyPanel
             project={caseStudyMatch.project}
@@ -598,31 +546,6 @@ export default function MobileHome() {
         )}
       </AnimatePresence>
 
-      {/* Bar-tint trigger. Four phone recordings, frame-sampled: iOS
-          Safari 26 re-tinted its status bar + toolbar only on page load
-          and when the case-study tray went away — never on scrolling,
-          colour changes, theme-color, or solid edge strips (hidden or
-          visible, mid-swipe or at rest). The tray is a full-screen fixed
-          SCROLL CONTAINER; its removal makes Safari re-read the page. So
-          after each colour change (once the page is at rest) we mount an
-          invisible copy of that — a transparent, full-screen, fixed,
-          scrollable layer that ignores touches — and remove it. */}
-      {edgeHandoff && (
-        <div
-          key={`bar-ghost-${colorScheme}-${edgeNonce}`}
-          aria-hidden
-          style={{
-            position: "fixed",
-            inset: 0,
-            overflowY: "auto",
-            backgroundColor: "transparent",
-            zIndex: 55,
-            pointerEvents: "none",
-          }}
-        >
-          <div style={{ height: "200%" }} />
-        </div>
-      )}
     </main>
   );
 }
@@ -640,7 +563,8 @@ export default function MobileHome() {
 function jumpTo(id: string, smooth = false) {
   const el = document.getElementById(id);
   if (!el) return;
-  const html = document.documentElement;
+  const html = document.querySelector("main");
+  if (!html) return;
   html.style.scrollSnapType = "none";
   el.scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "start" });
   // Restore on a timer rather than scrollend: an instant jump "ends"
