@@ -199,19 +199,22 @@ export default function MobileHome() {
     let touchEndAt = 0;
     let touchStartY = 0;
     let swipeDown = false;
+    let swipeUp = false;
     const onTouchStart = (e: TouchEvent) => {
       touchStartY = e.touches[0]?.clientY ?? 0;
     };
     const onTouchEnd = (e: TouchEvent) => {
       const y = e.changedTouches[0]?.clientY ?? touchStartY;
       swipeDown = touchStartY - y > 12; // finger moved up = page scrolls down
+      swipeUp = y - touchStartY > 12; // finger moved down = page scrolls up
       touchEndAt = Date.now();
     };
     const check = () => {
-      if (dir <= 0 || Date.now() < busyUntil) return;
+      if (dir === 0 || Date.now() < busyUntil) return;
       // Within the swipe's momentum (≈2.5s after lift-off), never while a
       // case study or the menu covers the page.
-      if (!swipeDown || Date.now() - touchEndAt > 2500) return;
+      if (Date.now() - touchEndAt > 2500) return;
+      if (dir > 0 ? !swipeDown : !swipeUp) return;
       if (document.querySelector("[data-case-study-tray]")) return;
       const work = document.getElementById("work");
       const end = document.querySelector<HTMLElement>("[data-work-end]");
@@ -227,9 +230,22 @@ export default function MobileHome() {
         end.getBoundingClientRect().top <
         main.clientHeight - footH - main.clientHeight * 0.12;
       const approachTop = approach.getBoundingClientRect().top;
-      if (pastWorkStop && inRunout && approachTop > navH + 4) {
+      if (!pastWorkStop || !inRunout || approachTop <= navH + 4) return;
+      if (dir > 0) {
+        // Down into the run-out → glide on to Approach.
         busyUntil = Date.now() + 1800;
         jumpTo("approach", true);
+      } else {
+        // Up from Approach, coming to rest in the run-out (empty space
+        // under the list) → settle on the end of the list instead, with
+        // the last row just above the footer. Still inside Work's tall
+        // snap area, so mandatory snap accepts the position.
+        busyUntil = Date.now() + 900;
+        const target =
+          main.scrollTop +
+          end.getBoundingClientRect().top -
+          (main.clientHeight - footH - 16);
+        main.scrollTo({ top: Math.max(0, target), behavior: "smooth" });
       }
     };
     const onScroll = () => {
