@@ -96,6 +96,14 @@ export default function MobileHome() {
   const [workOpenSlug, setWorkOpenSlug] = useState<string | null>(null);
   // Destination scheme forced during a menu jump (see handleMenuSelect).
   const [jumpScheme, setJumpScheme] = useState<Section | null>(null);
+  // Brief solid edge strips after the case-study tray closes (see render).
+  const [edgeHandoff, setEdgeHandoff] = useState(false);
+  const edgeTimer = useRef<number | null>(null);
+  const handOffEdges = () => {
+    setEdgeHandoff(true);
+    if (edgeTimer.current) window.clearTimeout(edgeTimer.current);
+    edgeTimer.current = window.setTimeout(() => setEdgeHandoff(false), 1200);
+  };
   // Deep-link entry: resolve the inbound `/#<slug>` hash to a case-study
   // item number once at first render (null for no / unknown hash).
   const [deepLinkItemNumber] = useState<string | null>(() => {
@@ -155,11 +163,60 @@ export default function MobileHome() {
     }
   }, [activeSection]);
 
-  // No in-Work wheel/touch handlers — WORK is not its own scroller. It
-  // grows to fit its project list and the document scrolls through it;
-  // a panel taller than the screen gets a panel-tall snap anchor (see
-  // the anchors effect above), so native scrolling moves freely inside
-  // Work and snaps only at its top and on to Name / Approach.
+  // WORK is not its own scroller. It grows to fit its project list and
+  // the document scrolls through it; a panel taller than the screen gets
+  // a panel-tall snap anchor (see the anchors effect above), so native
+  // scrolling moves freely inside Work and snaps at its top.
+  //
+  // Leaving Work downward needed help: from the bottom of that tall snap
+  // area, a normal swipe ends nearer Work's own last position than
+  // Approach's stop, so mandatory snap pulled the page back and only a
+  // hard flick got through. Work now ends in a run-out of empty space
+  // (MobileWorkSection's WORK_RUNOUT); when a downward scroll comes to
+  // rest with the end of the list well above the footer — i.e. in that
+  // run-out — the page glides on to Approach. Downward only, and only
+  // once the page has scrolled past Work's own stop, so arriving at Work
+  // or swiping back up from Approach never triggers it.
+  useEffect(() => {
+    let lastY = window.scrollY;
+    let dir = 0;
+    let settle = 0;
+    let busyUntil = 0;
+    const check = () => {
+      if (dir <= 0 || Date.now() < busyUntil) return;
+      const work = document.getElementById("work");
+      const end = document.querySelector<HTMLElement>("[data-work-end]");
+      const approach = document.getElementById("approach");
+      if (!work || !end || !approach) return;
+      const cs = getComputedStyle(document.documentElement);
+      const navH = parseFloat(cs.scrollPaddingTop) || 72;
+      const rem = parseFloat(cs.fontSize) || 16;
+      const footH = 3 * rem;
+      const pastWorkStop = work.getBoundingClientRect().top < navH - 8;
+      // At least ~12% of the screen into the run-out: the list's last
+      // row has cleared the footer with open space showing beneath it.
+      const inRunout =
+        end.getBoundingClientRect().top <
+        window.innerHeight - footH - window.innerHeight * 0.12;
+      const approachTop = approach.getBoundingClientRect().top;
+      if (pastWorkStop && inRunout && approachTop > navH + 4) {
+        busyUntil = Date.now() + 1800;
+        jumpTo("approach", true);
+      }
+    };
+    const onScroll = () => {
+      const y = window.scrollY;
+      if (y !== lastY) dir = y > lastY ? 1 : -1;
+      lastY = y;
+      window.clearTimeout(settle);
+      settle = window.setTimeout(check, 160);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.clearTimeout(settle);
+    };
+  }, []);
 
   // Snap each mobile section to its own viewport stop. The shared
   // .snapping rule in globals.css applies scroll-snap-type: y mandatory
@@ -441,12 +498,48 @@ export default function MobileHome() {
           <MobileCaseStudyPanel
             project={caseStudyMatch.project}
             item={caseStudyMatch.item}
-            onClose={() => setCaseStudyItemNumber(null)}
+            onClose={() => {
+              setCaseStudyItemNumber(null);
+              handOffEdges();
+            }}
           />
         )}
       </AnimatePresence>
+
+      {/* Edge handoff after the case-study tray closes. The tray is a
+          solid ink, fixed, full-screen layer, and iOS Safari 26 tints
+          its status bar + toolbar from a solid fixed element touching
+          the screen edge — so while it's open the bars go ink, and once
+          it slid away nothing solid replaced it, leaving the bars ink
+          (stale) over the sky/mint page and every section scrolled to
+          after. For a moment after closing, solid strips in the page
+          colour sit at both edges under the nav/footer (hidden under the
+          tray as it slides out), giving Safari a fresh solid edge in the
+          right colour to sample; then they're removed. */}
+      {edgeHandoff && (
+        <>
+          <div aria-hidden style={edgeStrip("top")} />
+          <div aria-hidden style={edgeStrip("bottom")} />
+        </>
+      )}
     </main>
   );
+}
+
+/** Solid fixed strip at the top or bottom screen edge, in the page
+ *  colour, under the chrome (z 60) and the tray (z 70). 88px: iOS Safari
+ *  ignored much shorter or taller strips in /tint-test. */
+function edgeStrip(edge: "top" | "bottom"): React.CSSProperties {
+  return {
+    position: "fixed",
+    left: 0,
+    right: 0,
+    [edge]: 0,
+    height: 88,
+    backgroundColor: "var(--bg)",
+    zIndex: 55,
+    pointerEvents: "none",
+  };
 }
 
 /**

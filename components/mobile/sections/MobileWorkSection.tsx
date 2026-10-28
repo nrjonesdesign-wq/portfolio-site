@@ -46,6 +46,9 @@ type Props = {
   onOpenCaseStudy?: (itemNumber: string) => void;
 };
 
+/** Empty space under the project list before the snap on to Approach. */
+const WORK_RUNOUT = "30svh";
+
 export default function MobileWorkSection({
   openSlug,
   onOpenSlugChange,
@@ -121,10 +124,11 @@ export default function MobileWorkSection({
         // panel-tall anchor, so it scrolls) exactly when the list would
         // otherwise end under the footer. Without it, a list a few px too
         // long for a tall phone stayed at min-height and couldn't scroll.
-        // Open: a taller spacer so the last drawer can scroll up.
-        paddingBottom: openSlug
-          ? "28vh"
-          : "calc(var(--m-nav-h) + var(--m-foot-h) + 1.5rem)",
+        // Plus a run-out of empty panel (WORK_RUNOUT) under the last row,
+        // so a swipe past the list ends in open space before the page
+        // snaps on to Approach, instead of snapping the moment the last
+        // row clears. Open: same, so the last drawer can scroll up too.
+        paddingBottom: `calc(var(--m-nav-h) + var(--m-foot-h) + ${WORK_RUNOUT})`,
       }}
     >
       {/* "Select Work" headline — same styling as Name screen's
@@ -162,6 +166,9 @@ export default function MobileWorkSection({
           onOpenCaseStudy={onOpenCaseStudy}
         />
       </div>
+      {/* End of the list — MobileHome watches it to hand off from the
+          run-out space to Approach. */}
+      <div data-work-end aria-hidden />
     </section>
   );
 }
