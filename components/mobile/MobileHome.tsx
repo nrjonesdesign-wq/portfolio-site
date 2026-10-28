@@ -373,21 +373,50 @@ export default function MobileHome() {
           : "hired"
         : (activeSection as Section));
   useColorScheme(colorScheme);
-  // Flash the visible edge strips on every colour change. iOS Safari 26
-  // re-tints its bars only when a solid fixed layer appears at the screen
-  // edges; hidden (behind-the-page) strips didn't do it — the user's
-  // test still showed stale bars. The strips are the page colour and sit
-  // under the nav/footer glass, so the flash only briefly hides whatever
-  // content is beneath the chrome. Skipped on first paint.
+  // Flash the visible edge strips after every colour change — once the
+  // page is AT REST. Third recording (2026-10-28): strips flashed the
+  // moment the colour changed never re-tinted Safari's bars, because the
+  // change happens mid-swipe (section detection) and the 0.7s flash was
+  // over before the scroll/snap settled; the only strips that worked
+  // appeared on a still page (after a case study slid away). So a colour
+  // change marks the bars stale, and the strips appear ~180ms after
+  // scrolling stops — and not while the menu or a case study still covers
+  // the edges (those would hide the strips from Safari).
   const firstScheme = useRef(true);
+  const barsStale = useRef(false);
+  const settleTimer = useRef<number | null>(null);
+  const flashWhenSettled = useRef<() => void>(() => {});
+  flashWhenSettled.current = () => {
+    if (settleTimer.current) window.clearTimeout(settleTimer.current);
+    settleTimer.current = window.setTimeout(function tryFlash() {
+      if (!barsStale.current) return;
+      if (document.querySelector("[data-case-study-tray], [data-menu-overlay]")) {
+        settleTimer.current = window.setTimeout(tryFlash, 200);
+        return;
+      }
+      barsStale.current = false;
+      handOffEdges(700, true);
+    }, 180);
+  };
   useEffect(() => {
     if (firstScheme.current) {
       firstScheme.current = false;
       return;
     }
-    handOffEdges(700);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    barsStale.current = true;
+    flashWhenSettled.current();
   }, [colorScheme]);
+  useEffect(() => {
+    // Any scroll pushes the flash back until the page has settled.
+    const onScroll = () => {
+      if (barsStale.current) flashWhenSettled.current();
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (settleTimer.current) window.clearTimeout(settleTimer.current);
+    };
+  }, []);
 
   // Section detection via IntersectionObserver against the viewport
   // (the document is the scroll container).

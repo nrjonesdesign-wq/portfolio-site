@@ -102,6 +102,7 @@ export default function MobileMenuOverlay({
       {open && (
         <motion.div
           key="menu"
+          data-menu-overlay
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
