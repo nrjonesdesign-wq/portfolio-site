@@ -368,9 +368,10 @@ export default function MobileHome() {
   // style note): Safari latches onto a fixed full-screen solid colour and
   // keeps the bars frozen after the tray closes.
   const trayOpen = !!caseStudyMatch;
+  const edgeBg = trayOpen ? "#151515" : SECTION_COLORS[colorScheme].bg;
   useEffect(() => {
-    paintPageBg(trayOpen ? "#151515" : SECTION_COLORS[colorScheme].bg);
-  }, [trayOpen, colorScheme]);
+    paintPageBg(edgeBg);
+  }, [edgeBg]);
   // Section detection via IntersectionObserver against the viewport
   // (the document is the scroll container).
   useEffect(() => {
@@ -554,6 +555,34 @@ export default function MobileHome() {
           />
         )}
       </AnimatePresence>
+
+      {/* Safari bar-tint strips. iOS Safari 26 tints its status bar and
+          toolbar from a fixed element touching the top / bottom edge
+          (within ~4px, ≥80% wide, ≥3px tall) with a solid
+          background-color, and only re-reads when such elements mount or
+          unmount — html/body are just a fallback it may stop tracking
+          (bars froze ink before any case study, or on the colour under a
+          closing tray). These strips are always the candidate, in the
+          section colour, and `key={edgeBg}` remounts them on every colour
+          change so Safari re-scans. viewport-fit: cover puts top: 0 under
+          the status bar. Above the tray (ink while it's open). */}
+      {(["top", "bottom"] as const).map((edge) => (
+        <div
+          key={`${edge}-${edgeBg}`}
+          aria-hidden
+          data-bar-edge={edge}
+          style={{
+            position: "fixed",
+            left: 0,
+            right: 0,
+            [edge]: 0,
+            height: 6,
+            backgroundColor: edgeBg,
+            zIndex: 75,
+            pointerEvents: "none",
+          }}
+        />
+      ))}
 
     </main>
   );
