@@ -571,7 +571,7 @@ function jumpTo(id: string, smooth = false) {
   // immediately, but Safari's toolbar resize (which triggers the re-snap)
   // animates in over the next ~300ms.
   window.setTimeout(() => {
-    html.style.scrollSnapType = "";
+    html.style.scrollSnapType = "y mandatory";
     // Safety net: if re-enabling snap still pulled the page back to the
     // previous panel, jump once more (snap off) and leave it settled.
     window.setTimeout(() => {
@@ -581,7 +581,7 @@ function jumpTo(id: string, smooth = false) {
         html.style.scrollSnapType = "none";
         el.scrollIntoView({ behavior: "auto", block: "start" });
         window.setTimeout(() => {
-          html.style.scrollSnapType = "";
+          html.style.scrollSnapType = "y mandatory";
         }, 600);
       }
     }, 250);
