@@ -26,7 +26,30 @@ export const morningBrief: Project = {
         // Self-initiated — no client, so the CLIENT meta block is skipped.
         services:
           "Editorial design, information architecture, HTML email design, typography, prompt design, Python development, automation",
-        credits: [],
+        // Real photos standing in for the Food section's article images.
+        // CC BY photos require attribution; CC0 / Unsplash are credited as a courtesy.
+        credits: [
+          {
+            role: "Photo, kobujime",
+            person: "Naotake Murayama, CC BY 2.0",
+            href: "https://commons.wikimedia.org/wiki/File:Kobu_Jime_(Sashimi_Marinated_on_Kombu_Seaweed)_(5095532256).jpg",
+          },
+          {
+            role: "Photo, boneset",
+            person: "Superior National Forest, CC BY 2.0",
+            href: "https://commons.wikimedia.org/wiki/File:Eupatorium_perfoliatum_1_(5097903790).jpg",
+          },
+          {
+            role: "Photo, fresh pasta",
+            person: "Vincent Dörig / Unsplash",
+            href: "https://unsplash.com/photos/a-person-is-using-a-pasta-machine-to-make-pasta-mciRIMaxiAM",
+          },
+          {
+            role: "Photos, char siu bao & preserves",
+            person: "Wikimedia Commons, CC0",
+            href: "https://commons.wikimedia.org/wiki/File:Canned_jams,_salsa,_ketchup,_chutney,_tomato_sauce,_tomato_paste_pickles,_bruscetta_(20090617359).jpg",
+          },
+        ],
         // Override the INSPIRED horizontal default: these are wide
         // device mockups and screen captures, which read best stacked.
         reelDirection: "vertical",
