@@ -12,6 +12,7 @@ Single-page portfolio for Nathaniel Robert Jones (NRJ), senior visual designer ~
 - **Framer Motion** for everything animated. **No GSAP** — not needed.
 - **No WebGL libraries** (OGL/Three). Liquid cursor distortion uses SVG `feDisplacementMap` instead. Swappable later if a true shader becomes necessary.
 - **pnpm** as package manager.
+- **Analytics: PostHog** (`components/analytics/PostHogProvider.tsx`, mounted in the root layout so `/approach` is covered). The public project key is in the code (env vars override); it only initialises on nathanielrobertjones.com / www, so local dev and Vercel previews send nothing. Before Oct 29 2026 it relied on env vars that were never set on Vercel, so no traffic before then was recorded.
 - **Fonts via `next/font/google`**: Manrope ExtraBold (display), Geist 400/500 (body), Geist Mono 400 (labels).
 
 ## File Layout (current)

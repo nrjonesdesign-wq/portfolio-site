@@ -10,17 +10,21 @@ import posthog from "posthog-js";
  * built-in $pageview fires on initial load.
  *
  * Heatmaps + session recordings + autocapture are all enabled by
- * default; only need to provide the project key + host via env vars
- * (NEXT_PUBLIC_POSTHOG_KEY, NEXT_PUBLIC_POSTHOG_HOST).
+ * default. The project key below is PostHog's public ingestion key
+ * (it ships to every visitor's browser by design), so it lives in the
+ * code; NEXT_PUBLIC_POSTHOG_KEY / _HOST env vars override it if set.
  *
- * If the env vars are missing (local dev), this is a no-op — keeps
- * the dashboard clean of dev-machine pageviews.
+ * Only runs on the production domain — local dev and Vercel previews
+ * stay out of the dashboard.
  */
+const POSTHOG_KEY = "phc_we3JYv4XVZgPuexsLqwNrNKMFUQ86kR4WBadGEDoLtbd";
+const PROD_HOSTS = ["nathanielrobertjones.com", "www.nathanielrobertjones.com"];
+
 export default function PostHogProvider() {
   useEffect(() => {
-    const key = process.env.NEXT_PUBLIC_POSTHOG_KEY;
+    const key = process.env.NEXT_PUBLIC_POSTHOG_KEY || POSTHOG_KEY;
     const host = process.env.NEXT_PUBLIC_POSTHOG_HOST;
-    if (!key) return;
+    if (!PROD_HOSTS.includes(window.location.hostname)) return;
     if (posthog.__loaded) return;
     posthog.init(key, {
       api_host: host ?? "https://us.i.posthog.com",
