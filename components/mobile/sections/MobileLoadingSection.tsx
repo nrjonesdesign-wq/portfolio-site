@@ -106,6 +106,7 @@ export default function MobileLoadingSection({ inverted, onAdvance }: Props) {
           wordmarkDelay={0.55}
           equalStrokes
           strokeScale={0.55}
+          nearSide="lower"
         />
       </motion.button>
     </section>

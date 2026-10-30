@@ -209,7 +209,7 @@ Shared component for both the loading screen (large) and the nav (small). Sizes 
 - `RING.rxFrac = 0.42`, `ryFrac = 0.16`, `swFrac = 0.0040`
 - `SUBSTEPS = 5` per frame for smooth chord-polygon
 - `TRAIL_ORBITS = 3.0`, `TRAIL_DECAY_POWER = 1.6`
-- **Front/back assignment**: `isFront = Math.sin(phase) < 0` (phase ∈ (π, 2π) → front canvas). Phase-based, rotation-invariant.
+- **Front/back assignment**: `isFront = Math.sin(phase) < 0` (phase ∈ (π, 2π) → front canvas). Phase-based, rotation-invariant. The `nearSide` prop flips it: `"lower"` puts the lower arc in front (the ring's nearest side seen from slightly above). Mobile loading uses `nearSide="lower"`; desktop, nav and /approach keep the default `"upper"`.
 - Stroke width clamped `Math.max(1.2, swFrac * dim)` so nav-size still has visible trails.
 - **Always draw the boundary chord** (don't skip across front/back); skipping created visible apex/nadir gaps.
 - **Render mode**: clear-and-redraw each frame, draw N trail segments with explicit per-segment alpha (`Math.pow(i/N, TRAIL_DECAY_POWER)`). Avoids canvas alpha accumulation artifacts.
