@@ -292,10 +292,11 @@ export function ChromeBackdrop({
 
 /**
  * SVG planet — orbit ring rotation is wired to the scroll position so
- * the ring spins as the user scrolls through the page. The ring is a
- * touch lighter (RING_STROKE) than the planet outline (1.1).
+ * the ring spins as the user scrolls through the page. The ring is drawn
+ * with a non-scaling 1px stroke so it matches the nav's 1px hairline rule
+ * at any mark size; the planet outline stays at 1.1 viewBox units.
  */
-const RING_STROKE = 0.8;
+const RING_STROKE = 1;
 export function PlanetMark({
   scrollSource = "main",
 }: {
@@ -346,6 +347,7 @@ export function PlanetMark({
           fill="none"
           stroke="currentColor"
           strokeWidth={RING_STROKE}
+          vectorEffect="non-scaling-stroke"
         />
       </g>
       {/* Planet body */}
@@ -364,6 +366,7 @@ export function PlanetMark({
           fill="none"
           stroke="currentColor"
           strokeWidth={RING_STROKE}
+          vectorEffect="non-scaling-stroke"
         />
       </g>
       {/* NRJ wordmark */}
