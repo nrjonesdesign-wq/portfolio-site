@@ -19,11 +19,6 @@ type Props = {
    *  makes them thinner — used on mobile loading so the planet reads
    *  as a lighter line. Defaults to 1. */
   strokeScale?: number;
-  /** Which half of the orbit passes in front of the planet. "upper"
-   *  (default) keeps the original desktop weave. "lower" puts the half
-   *  that sits lower on screen in front — reads as the ring's nearest
-   *  arc seen from slightly above (Saturn-style). Used on mobile loading. */
-  nearSide?: "upper" | "lower";
   /** @deprecated retained for call-site compatibility — no longer used internally. */
   uid?: string;
 };
@@ -177,7 +172,6 @@ export default function NRJPlanet({
   className,
   equalStrokes = false,
   strokeScale = 1,
-  nearSide = "upper",
 }: Props) {
   const backRef = useRef<HTMLCanvasElement>(null);
   const frontRef = useRef<HTMLCanvasElement>(null);
@@ -306,12 +300,10 @@ export default function NRJPlanet({
         const x = cx + localX * cosR - localY * sinR;
         const y = cy + localX * sinR + localY * cosR;
 
-        // "Front" half of the orbit. Default ("upper"): phase in (π, 2π),
-        // where the local-frame y is above centre. "lower": phase in (0, π),
-        // the half below centre — the nearest arc when the ring is seen
-        // from slightly above.
-        const isFront =
-          nearSide === "lower" ? Math.sin(ph) > 0 : Math.sin(ph) < 0;
+        // "Front" half of the orbit = phase in (π, 2π), where the local-frame
+        // y is above centre. With viewer-above perspective this is the half
+        // nearer the viewer, so it draws on top of the planet circle.
+        const isFront = Math.sin(ph) < 0;
 
         trail.push({ x, y, isFront });
         if (trail.length > TRAIL_LEN) trail.shift();
@@ -364,7 +356,7 @@ export default function NRJPlanet({
       cancelAnimationFrame(raf);
       ro.disconnect();
     };
-  }, [equalStrokes, strokeScale, nearSide]);
+  }, [equalStrokes, strokeScale]);
 
   // Sizing: large fills its container; nav uses 100% so callers can size it
   // explicitly via the wrapping element (Nav passes a 60px box).

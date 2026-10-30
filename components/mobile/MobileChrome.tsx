@@ -304,7 +304,7 @@ export function PlanetMark({
    *  /approach). */
   scrollSource?: "main" | "window";
 } = {}) {
-  const ellipseRef = useRef<SVGEllipseElement>(null);
+  const ellipseRef = useRef<SVGGElement>(null);
   // Drive the ring rotation from the scroll position. Updates the
   // transform attribute directly to avoid re-rendering on every frame.
   useEffect(() => {
@@ -319,7 +319,11 @@ export function PlanetMark({
       // scrolled — slow enough that a phone-height nudge reads as a
       // gentle drift rather than a spin.
       const rotation = -18 + (readTop() * 360) / 4000;
-      el.setAttribute("transform", `rotate(${rotation} 18 18)`);
+      const t = `rotate(${rotation} 18 18)`;
+      el.setAttribute("transform", t);
+      el.ownerSVGElement
+        ?.querySelector("[data-ring-front]")
+        ?.setAttribute("transform", t);
     };
     onScroll();
     target.addEventListener("scroll", onScroll, { passive: true });
@@ -329,18 +333,21 @@ export function PlanetMark({
   return (
     <svg viewBox="0 0 36 36" width="100%" height="100%" aria-hidden>
       {/* Tilted orbit ring — rotates with scroll. Same stroke width
-          as the planet body. */}
-      <ellipse
-        ref={ellipseRef}
-        cx="18"
-        cy="18"
-        rx="16"
-        ry="5"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.1"
-        transform="rotate(-18 18 18)"
-      />
+          as the planet body. The full ellipse sits behind the planet;
+          the near (lower) arc is redrawn on top of the planet below so
+          the ring wraps around it. Both share the rotation via the
+          two <g> elements, which the scroll handler updates together. */}
+      <g ref={ellipseRef} transform="rotate(-18 18 18)">
+        <ellipse
+          cx="18"
+          cy="18"
+          rx="16"
+          ry="5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.1"
+        />
+      </g>
       {/* Planet body */}
       <circle
         cx="18"
@@ -350,6 +357,15 @@ export function PlanetMark({
         stroke="currentColor"
         strokeWidth="1.1"
       />
+      {/* Near half of the ring — in front of the planet */}
+      <g data-ring-front transform="rotate(-18 18 18)">
+        <path
+          d="M 34 18 A 16 5 0 0 1 2 18"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.1"
+        />
+      </g>
       {/* NRJ wordmark */}
       <text
         x="18"
